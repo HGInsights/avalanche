@@ -1,0 +1,7 @@
+version: 2
+updates:
+  - package-ecosystem: "mix"
+    directory: "/"
+    target-branch: "main"
+    schedule:
+      interval: "daily"

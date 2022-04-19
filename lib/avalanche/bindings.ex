@@ -10,15 +10,16 @@ defmodule Avalanche.Bindings do
 
   Examples:
 
-      iex> values = [123, 1.23, "uno, dos, tres", ~N[2015-01-14 13:00:07], DateTime.from_unix!(1_464_096_368), ~D[2015-01-15]]
+      iex> values = [123, 1.23, "uno, dos, tres", false, ~N[2015-01-14 13:00:07], DateTime.from_unix!(1_464_096_368), ~D[2015-01-15]]
       iex> Avalanche.Bindings.encode_params(values)
       %{
         "1" => %{type: "FIXED", value: "123"},
         "2" => %{type: "REAL", value: "1.23"},
         "3" => %{type: "TEXT", value: "uno, dos, tres"},
-        "4" => %{type: "TEXT", value: "2015-01-14T13:00:07"},
-        "5" => %{type: "TEXT", value: "2016-05-24T13:26:08Z"},
-        "6" => %{type: "TEXT", value: "2015-01-15"}
+        "4" => %{type: "BOOLEAN", value: false},
+        "5" => %{type: "TEXT", value: "2015-01-14T13:00:07"},
+        "6" => %{type: "TEXT", value: "2016-05-24T13:26:08Z"},
+        "7" => %{type: "TEXT", value: "2015-01-15"}
       }
 
   """
@@ -40,6 +41,10 @@ defmodule Avalanche.Bindings do
 
   defp encode(value) when is_binary(value) do
     %{type: "TEXT", value: value}
+  end
+
+  defp encode(value) when is_boolean(value) do
+    %{type: "BOOLEAN", value: value}
   end
 
   defp encode(%NaiveDateTime{} = value) do

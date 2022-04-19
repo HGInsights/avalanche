@@ -71,18 +71,22 @@ defmodule Avalanche do
   @doc """
   Submits SQL statements to Snowflake for execution.
 
+    * `:statement` - the SQL statement that you want to execute
+
+    * `:params` - list of values for the bind variables in the statement
+
   ## Options
 
   #{NimbleOptions.docs(@options_schema)}
 
   The `options` are merged with default options set with `default_options/1`.
   """
-  @spec run(String.t(), keyword()) :: any() | {:error, Avalanche.Error.t()}
-  def run(statement, options \\ []) do
+  @spec run(String.t(), list(), keyword()) :: any() | {:error, Avalanche.Error.t()}
+  def run(statement, params \\ [], options \\ []) do
     with opts <- Keyword.merge(default_options(), options),
          {:ok, valid_opts} <- validate_options(opts) do
       statement
-      |> Avalanche.Request.build(valid_opts)
+      |> Avalanche.Request.build(params, valid_opts)
       |> Avalanche.Request.run()
     end
   end

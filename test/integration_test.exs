@@ -11,7 +11,7 @@ defmodule AvalancheIntegrationTest do
     end
 
     test "returns a Response struct", c do
-      assert {:ok, %Avalanche.Response{} = response} = Avalanche.run("select 1;", c.options)
+      assert {:ok, %Avalanche.Response{} = response} = Avalanche.run("select 1;", [], c.options)
       assert response.status == 200
     end
   end
@@ -24,7 +24,20 @@ defmodule AvalancheIntegrationTest do
     end
 
     test "returns a Response struct", c do
-      assert {:ok, %Avalanche.Response{} = response} = Avalanche.run("select 1;", c.options)
+      assert {:ok, %Avalanche.Response{} = response} = Avalanche.run("select 1;", [], c.options)
+      assert response.status == 200
+    end
+  end
+
+  @tag integration: true
+  describe "run/2" do
+    setup do
+      options = TestHelper.test_options()
+      [options: options]
+    end
+
+    test "allows bind variables", c do
+      assert {:ok, %Avalanche.Response{} = response} = Avalanche.run("select ?;", [33], c.options)
       assert response.status == 200
     end
   end

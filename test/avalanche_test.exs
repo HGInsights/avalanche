@@ -17,7 +17,7 @@ defmodule DefaultOptionsTest do
         Plug.Conn.send_resp(conn, 200, "ok")
       end)
 
-      assert {:ok, _response} = Avalanche.run("select 1;", c.options)
+      assert {:ok, _response} = Avalanche.run("select 1;", [], c.options)
     end
 
     test "returns a Response struct", c do
@@ -25,8 +25,10 @@ defmodule DefaultOptionsTest do
         Plug.Conn.send_resp(conn, 200, "ok")
       end)
 
-      assert {:ok, %Avalanche.Response{} = response} = Avalanche.run("select 1;", c.options)
+      assert {:ok, %Avalanche.Response{} = response} = Avalanche.run("select 1;", [], c.options)
       assert response.status == 200
+      assert response.body == "ok"
+      assert length(response.headers) != 0
     end
   end
 end

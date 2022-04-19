@@ -35,15 +35,17 @@ defmodule Avalanche.Request do
   @doc """
   Builds a request to run.
   """
-  @spec build(String.t(), keyword()) :: Avalanche.Request.t()
-  def build(statement, options) do
+  @spec build(String.t(), list(), keyword()) :: Avalanche.Request.t()
+  def build(statement, params, options) do
+    bindings = Avalanche.Bindings.encode_params(params)
+
     token_opts = Keyword.fetch!(options, :token)
     {token_type, token} = Avalanche.TokenCache.fetch_token(token_opts)
 
     %__MODULE__{
       url: server_url(options),
       headers: build_headers(options, token_type),
-      body: build_body(statement, options),
+      body: build_body(statement, bindings, options),
       token: token
     }
   end
@@ -99,14 +101,15 @@ defmodule Avalanche.Request do
     ]
   end
 
-  defp build_body(statement, options) do
+  defp build_body(statement, bindings, options) do
     %{
       warehouse: Keyword.fetch!(options, :warehouse),
       database: Keyword.fetch!(options, :database),
       schema: Keyword.fetch!(options, :schema),
       role: Keyword.fetch!(options, :role),
       timeout: Keyword.fetch!(options, :timeout),
-      statement: statement
+      statement: statement,
+      bindings: bindings
     }
   end
 

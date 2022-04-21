@@ -70,9 +70,9 @@ defmodule Avalanche.Steps do
     end
   end
 
-  defp decode(%{"type" => "text" = type}, value), do: value
+  defp decode(%{"type" => "text"}, value), do: value
 
-  defp decode(%{"type" => "boolean" = type}, value), do: value == "true"
+  defp decode(%{"type" => "boolean"}, value), do: value == "true"
 
   # Integer value (in a string) of the number of days since the epoch (e.g. 18262).
   defp decode(%{"type" => "date" = type}, value) do

@@ -3,7 +3,8 @@ defmodule AvalancheIntegrationTest do
 
   alias Avalanche.TestHelper
 
-  @tag integration: true
+  @moduletag integration: true
+
   describe "run/2 with OAuth token" do
     setup do
       options = TestHelper.test_options()
@@ -16,7 +17,6 @@ defmodule AvalancheIntegrationTest do
     end
   end
 
-  @tag integration: true
   describe "run/2 with Key Pair token" do
     setup do
       options = TestHelper.test_key_pair_options()
@@ -29,7 +29,6 @@ defmodule AvalancheIntegrationTest do
     end
   end
 
-  @tag integration: true
   describe "run/2" do
     setup do
       options = TestHelper.test_options()

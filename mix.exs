@@ -40,6 +40,7 @@ defmodule Avalanche.MixProject do
       {:joken, "~> 2.4"},
       {:nimble_options, "~> 0.4.0"},
       {:mentat, "~> 0.7.1"},
+      {:plug, "~> 1.13"},
       {:req, github: "wojtekmach/req", ref: "115b65d"},
       {:telemetry, "~> 1.1", override: true},
       {:uuid, "~> 1.1"},

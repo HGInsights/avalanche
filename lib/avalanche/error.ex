@@ -80,6 +80,14 @@ defmodule Avalanche.Error do
     new(:application_error, message, meta)
   end
 
+  @spec http_status(integer(), meta()) :: t()
+  def http_status(status, meta \\ %{}) when is_integer(status) do
+    reason = Plug.Conn.Status.reason_atom(status)
+    message = Plug.Conn.Status.reason_phrase(status)
+
+    new(reason, message, meta)
+  end
+
   @doc """
   Formats a Error for printing/logging.
 

@@ -13,6 +13,9 @@ defmodule Avalanche.Request do
     * `:token` - the HTTP Bearer authentication token
   """
 
+  alias Avalanche.Error
+  alias Avalanche.Result
+
   @statements_path "/api/v2/statements"
 
   defstruct [
@@ -59,12 +62,7 @@ defmodule Avalanche.Request do
     pipeline = req_build_pipeline(request)
 
     with {:ok, response} <- Req.Request.run(pipeline) do
-      {:ok,
-       %Avalanche.Response{
-         body: response.body,
-         headers: response.headers,
-         status: response.status
-       }}
+      result_from_response(response)
     end
   end
 
@@ -84,11 +82,17 @@ defmodule Avalanche.Request do
     request_id = get_request_id()
     params = [requestId: request_id]
 
-    options = [base_url: request.url, params: params, auth: {:bearer, request.token}]
+    options = [
+      base_url: request.url,
+      params: params,
+      auth: {:bearer, request.token},
+      retry: [delay: 100, max_retries: 3]
+    ]
 
     :post
     |> Req.Request.build(@statements_path, headers: request.headers, body: {:json, request.body})
     |> Req.Steps.put_default_steps(options)
+    |> Req.Request.append_response_steps([{Avalanche.Steps, :decode_body_data, []}])
   end
 
   defp build_headers(options, token_type) do
@@ -108,6 +112,11 @@ defmodule Avalanche.Request do
       schema: Keyword.fetch!(options, :schema),
       role: Keyword.fetch!(options, :role),
       timeout: Keyword.fetch!(options, :timeout),
+      parameters: %{
+        "TIME_OUTPUT_FORMAT" => "HH24:MI:SS",
+        "TIMESTAMP_OUTPUT_FORMAT" => "YYYY-MM-DD HH24:MI:SS.FFTZH:TZM",
+        "TIMESTAMP_NTZ_OUTPUT_FORMAT" => "YYYY-MM-DD HH24:MI:SS.FF3"
+      },
       statement: statement,
       bindings: bindings
     }
@@ -126,4 +135,18 @@ defmodule Avalanche.Request do
   end
 
   defp get_request_id, do: UUID.uuid4()
+
+  defp result_from_response(%Req.Response{status: 200, body: body}) do
+    metadata = Map.fetch!(body, "resultSetMetaData")
+    num_rows = Map.fetch!(metadata, "numRows")
+    data = Map.fetch!(body, "data")
+
+    {:ok, %Result{num_rows: num_rows, rows: data}}
+  end
+
+  defp result_from_response(%Req.Response{} = response) do
+    error = Error.http_status(response.status, body: response.body, headers: response.headers)
+
+    {:error, error}
+  end
 end

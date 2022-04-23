@@ -3,7 +3,7 @@ defmodule DefaultOptionsTest do
 
   alias Avalanche.TestHelper
 
-  describe "run/2" do
+  describe "run/3" do
     setup do
       bypass = Bypass.open()
       server = "http://localhost:#{bypass.port}"
@@ -42,24 +42,6 @@ defmodule DefaultOptionsTest do
                %{"COLUMN1" => 1, "COLUMN2" => "one"},
                %{"COLUMN1" => 2, "COLUMN2" => "two"}
              ] = result.rows
-    end
-
-    test "returns an Error for unsuccessful (not 200) response", c do
-      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
-        Plug.Conn.send_resp(conn, 401, "no")
-      end)
-
-      assert {
-               :error,
-               %Avalanche.Error{
-                 message: "Unauthorized",
-                 meta: %{
-                   error: "no",
-                   headers: _headers
-                 },
-                 reason: :unauthorized
-               }
-             } = Avalanche.run("select 1;", [], c.options)
     end
 
     test "returns a Result struct with data form all partitions", c do
@@ -118,6 +100,115 @@ defmodule DefaultOptionsTest do
                %{"COLUMN1" => 8, "COLUMN2" => "eight"},
                %{"COLUMN1" => 9, "COLUMN2" => "nine"}
              ] = result.rows
+    end
+  end
+
+  describe "run/3 errors" do
+    setup do
+      bypass = Bypass.open()
+      server = "http://localhost:#{bypass.port}"
+      options = TestHelper.test_options(server: server)
+
+      [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
+    end
+
+    test "returns an unauthorized Error for 400 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 400, "no")
+      end)
+
+      assert {
+               :error,
+               %Avalanche.Error{
+                 message: "Bad Request",
+                 meta: %{
+                   error: "no",
+                   headers: _headers
+                 },
+                 reason: :bad_request
+               }
+             } = Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 401 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 401, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :unauthorized}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 403 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 403, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :forbidden}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 404 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 404, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :not_found}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 405 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 405, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :method_not_allowed}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 415 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 415, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :unsupported_media_type}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 429 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 429, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :too_many_requests}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 500 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 500, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :internal_server_error}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 503 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 503, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :service_unavailable}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 504 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 504, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :gateway_timeout}} =
+               Avalanche.run("select 1;", [], c.options)
     end
   end
 

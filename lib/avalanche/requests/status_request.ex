@@ -74,8 +74,7 @@ defmodule Avalanche.StatusRequest do
     options = [
       base_url: request.url,
       params: [partition: partition],
-      auth: {:bearer, request.token},
-      retry: [delay: 100, max_retries: 3]
+      auth: {:bearer, request.token}
     ]
 
     :get

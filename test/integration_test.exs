@@ -77,5 +77,16 @@ defmodule AvalancheIntegrationTest do
 
       assert [%{"T" => %NaiveDateTime{}, "V" => _stuff1}] = result2.rows
     end
+
+    test "auto loads partitions", c do
+      assert {:ok, %Avalanche.Result{} = result} =
+               Avalanche.run(
+                 "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS ORDER BY O_ORDERKEY LIMIT ?",
+                 [1000],
+                 c.options
+               )
+
+      assert result.num_rows == 1000
+    end
   end
 end

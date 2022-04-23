@@ -86,8 +86,8 @@ defmodule Avalanche do
     with opts <- Keyword.merge(default_options(), options),
          {:ok, valid_opts} <- validate_options(opts) do
       statement
-      |> Avalanche.Request.build(params, valid_opts)
-      |> Avalanche.Request.run()
+      |> Avalanche.StatementRequest.build(params, valid_opts)
+      |> Avalanche.StatementRequest.run()
     end
   end
 

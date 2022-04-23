@@ -1,15 +1,11 @@
-defmodule Avalanche.Steps do
+defmodule Avalanche.Steps.DecodeData do
   @moduledoc """
-  A collection of custom steps.
+  A custom `Req` pipeline step to decode the `body.data` returned by Snowflake.
   """
 
   require Logger
 
   @unix_epoch ~D[1970-01-01]
-
-  ## Request steps
-
-  ## Response steps
 
   @doc """
   Decodes response `body.data` based on the `resultSetMetaData`.
@@ -22,12 +18,12 @@ defmodule Avalanche.Steps do
     {request, response}
   end
 
-  # TODO: handle multiple partitions
-  # "numRows" => 2,
-  # "partitionInfo" => [%{"rowCount" => 2, "uncompressedSize" => 82}],
   def decode_body_data({request, %{status: 200, body: body} = response}) do
-    metadata = Map.fetch!(body, "resultSetMetaData")
-    row_types = Map.fetch!(metadata, "rowType")
+    row_types =
+      if metadata = Map.get(body, "resultSetMetaData"),
+        do: Map.fetch!(metadata, "rowType"),
+        else: Req.Request.get_private(request, :avalanche_row_types, [])
+
     data = Map.fetch!(body, "data")
 
     decoded_data = _decode_body_data(row_types, data)

@@ -3,9 +3,12 @@ ExUnit.start(exclude: [skip: true, integration: true])
 
 defmodule Avalanche.TestHelper do
   def test_options(options \\ []) do
+    sf_token = System.get_env("SNOWFLAKE_OAUTH_ACCESS_TOKEN", "noop")
+    token = System.get_env("AVALANCHE_TOKEN", sf_token)
+
     env_options = [
       server: System.fetch_env!("AVALANCHE_SERVER"),
-      token: System.get_env("AVALANCHE_TOKEN") || System.get_env("SNOWFLAKE_OAUTH_ACCESS_TOKEN"),
+      token: token,
       warehouse: System.fetch_env!("AVALANCHE_WAREHOUSE"),
       database: System.fetch_env!("AVALANCHE_DATABASE"),
       schema: System.fetch_env!("AVALANCHE_SCHEMA"),

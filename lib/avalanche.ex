@@ -46,7 +46,7 @@ defmodule Avalanche do
                         {:or,
                          [
                            :string,
-                           keyword_list: [
+                           non_empty_keyword_list: [
                              account: [type: :string],
                              user: [type: :string],
                              priv_key: [type: :string]
@@ -54,6 +54,24 @@ defmodule Avalanche do
                          ]},
                       required: true,
                       doc: "Snowflake authentication via OAuth token or Key Pair."
+                    ],
+                    poll_options: [
+                      type: :non_empty_keyword_list,
+                      keys: [
+                        delay: [type: :pos_integer],
+                        max_polls: [type: :pos_integer]
+                      ],
+                      doc:
+                        "Options to customize polling for the completion of a statement execution."
+                    ],
+                    fetch_partitions_options: [
+                      type: :non_empty_keyword_list,
+                      keys: [
+                        max_concurrency: [type: :pos_integer],
+                        timeout: [type: :pos_integer]
+                      ],
+                      doc:
+                        "Options to customize retrieve all the partitons of data from a statement execution."
                     ],
                     finch: [
                       type: :any,

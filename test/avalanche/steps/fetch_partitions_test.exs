@@ -8,6 +8,12 @@ defmodule Avalanche.Steps.FetchPartitionsTest do
     server = "http://localhost:#{bypass.port}"
     options = test_options(server: server)
 
+    options =
+      Keyword.merge(options,
+        poll_options: [delay: 50, max_polls: 2],
+        fetch_partitions_options: [max_concurrency: 2, timeout: :timer.seconds(60)]
+      )
+
     [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
   end
 

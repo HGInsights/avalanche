@@ -17,6 +17,7 @@ defmodule Avalanche.Request do
       defdelegate fetch_token(options), to: Avalanche.Request
       defdelegate get_request_id, to: Avalanche.Request
       defdelegate server_url(options), to: Avalanche.Request
+      defdelegate request_options(options), to: Avalanche.Request
 
       defp handle_response(%{status: status} = response)
            when status not in [200, 202] do
@@ -53,6 +54,10 @@ defmodule Avalanche.Request do
 
   def server_url(options) do
     options |> Keyword.fetch!(:server) |> url_with_sheme()
+  end
+
+  def request_options(options) do
+    Keyword.take(options, [:finch, :finch_options, :poll_options, :fetch_partitions_options])
   end
 
   defp url_with_sheme(url) do

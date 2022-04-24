@@ -11,6 +11,8 @@ defmodule Avalanche.StatementRequest do
     * `:body` - the HTTP request body
 
     * `:token` - the HTTP Bearer authentication token
+
+    * `:options` - options to customize HTTP pipeline steps
   """
 
   use Avalanche.Request
@@ -20,7 +22,8 @@ defmodule Avalanche.StatementRequest do
     :path,
     :headers,
     :body,
-    :token
+    :token,
+    :options
   ]
 
   @type url :: String.t() | URI.t()
@@ -31,7 +34,8 @@ defmodule Avalanche.StatementRequest do
           path: String.t(),
           headers: keyword(),
           body: body(),
-          token: String.t()
+          token: String.t(),
+          options: keyword()
         }
 
   @doc """
@@ -42,13 +46,15 @@ defmodule Avalanche.StatementRequest do
     bindings = Avalanche.Bindings.encode_params(params)
 
     {token_type, token} = fetch_token(options)
+    request_options = request_options(options)
 
     %__MODULE__{
       url: server_url(options),
       path: @statements_path,
       headers: build_headers(options, token_type),
       body: build_body(statement, bindings, options),
-      token: token
+      token: token,
+      options: request_options
     }
   end
 
@@ -78,22 +84,30 @@ defmodule Avalanche.StatementRequest do
   end
 
   defp build_pipeline(request) do
+    req_options =
+      request.options
+      |> Keyword.take([:finch, :finch_options])
+      |> Keyword.merge(headers: request.headers, body: {:json, request.body})
+
     request_id = get_request_id()
     params = [requestId: request_id]
 
-    options = [
+    req_step_options = [
       base_url: request.url,
       params: params,
       auth: {:bearer, request.token}
     ]
 
+    poll = Keyword.get(request.options, :poll_options, [])
+    fetch_partitions = Keyword.get(request.options, :fetch_partitions_options, [])
+
     :post
-    |> Req.Request.build(@statements_path, headers: request.headers, body: {:json, request.body})
-    |> Req.Steps.put_default_steps(options)
+    |> Req.Request.build(@statements_path, req_options)
+    |> Req.Steps.put_default_steps(req_step_options)
     |> Req.Request.append_response_steps([
-      {Steps.Poll, :poll, [[]]},
+      {Steps.Poll, :poll, [poll]},
       {Steps.DecodeData, :decode_body_data, []},
-      {Steps.FetchPartitions, :fetch_partitions, []}
+      {Steps.FetchPartitions, :fetch_partitions, [fetch_partitions]}
     ])
   end
 

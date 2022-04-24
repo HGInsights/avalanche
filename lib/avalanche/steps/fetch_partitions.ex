@@ -9,16 +9,27 @@ defmodule Avalanche.Steps.FetchPartitions do
   Fetches partitioned data per the `resultSetMetaData`.
 
   https://docs.snowflake.com/en/developer-guide/sql-api/reference.html#label-sql-api-reference-resultset-resultsetmetadata
-  """
-  def fetch_partitions(request_response)
 
-  def fetch_partitions({request, %{body: ""} = response}) do
+  ## Options
+
+    * `:max_concurrency` - sets the maximum number of tasks to run at the same time.
+      Defaults to `System.schedulers_online/0`.
+
+    * `:timeout` - the maximum amount of time to wait (in milliseconds). Defaults to 2 minutes.
+  """
+  def fetch_partitions(request_response, options)
+
+  def fetch_partitions({request, %{body: ""} = response}, _options) do
     {request, response}
   end
 
   def fetch_partitions(
-        {request, %{status: 200, body: %{"resultSetMetaData" => metadata} = body} = response}
+        {request, %{status: 200, body: %{"resultSetMetaData" => metadata} = body} = response},
+        options
       ) do
+    max_concurrency = Keyword.get(options, :max_concurrency, System.schedulers_online())
+    timeout = Keyword.get(options, :timeout, :timer.minutes(2))
+
     path = Map.fetch!(body, "statementStatusUrl")
     data = Map.fetch!(body, "data")
 
@@ -39,8 +50,9 @@ defmodule Avalanche.Steps.FetchPartitions do
             Avalanche.TaskSupervisor,
             requests,
             fn request -> Req.Request.run(request) end,
+            max_concurrency: max_concurrency,
             ordered: true,
-            timeout: :timer.seconds(120),
+            timeout: timeout,
             on_timeout: :kill_task
           )
           |> Stream.map(&handle_partition_response/1)
@@ -53,7 +65,7 @@ defmodule Avalanche.Steps.FetchPartitions do
     {request, reduce_responses(response, data, partition_responses)}
   end
 
-  def fetch_partitions(request_response), do: request_response
+  def fetch_partitions(request_response, _options), do: request_response
 
   # reuse current request and turn it into a `StatusRequest`
   defp build_status_request(%Req.Request{} = request, path, partition, row_types) do

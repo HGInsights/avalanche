@@ -15,6 +15,8 @@ defmodule Avalanche.StatusRequest do
     * `:token` - the HTTP Bearer authentication token.
 
     * `:row_types` - an array of objects that describe the columns in the set of results. used for decoding.
+
+    * `:options` - options to customize HTTP pipeline steps
   """
 
   use Avalanche.Request
@@ -25,7 +27,8 @@ defmodule Avalanche.StatusRequest do
     :headers,
     :token,
     :statement_handle,
-    :row_types
+    :row_types,
+    :options
   ]
 
   @type url :: String.t() | URI.t()
@@ -37,7 +40,8 @@ defmodule Avalanche.StatusRequest do
           headers: keyword(),
           token: String.t(),
           statement_handle: String.t(),
-          row_types: row_types()
+          row_types: row_types(),
+          options: keyword()
         }
 
   @doc """
@@ -46,6 +50,7 @@ defmodule Avalanche.StatusRequest do
   @spec build(String.t(), row_types(), keyword()) :: t()
   def build(statement_handle, row_types \\ nil, options) do
     {token_type, token} = fetch_token(options)
+    request_options = request_options(options)
 
     %__MODULE__{
       url: server_url(options),
@@ -53,7 +58,8 @@ defmodule Avalanche.StatusRequest do
       headers: build_headers(options, token_type),
       token: token,
       statement_handle: statement_handle,
-      row_types: row_types
+      row_types: row_types,
+      options: request_options
     }
   end
 
@@ -71,20 +77,28 @@ defmodule Avalanche.StatusRequest do
   end
 
   defp build_pipeline(request, partition) do
-    options = [
+    req_options =
+      request.options
+      |> Keyword.take([:finch, :finch_options])
+      |> Keyword.merge(headers: request.headers)
+
+    req_step_options = [
       base_url: request.url,
       params: [partition: partition],
       auth: {:bearer, request.token}
     ]
 
+    poll = Keyword.get(request.options, :poll_options, [])
+    fetch_partitions = Keyword.get(request.options, :fetch_partitions_options, [])
+
     :get
-    |> Req.Request.build(request.path, headers: request.headers)
+    |> Req.Request.build(request.path, req_options)
     |> Req.Request.put_private(:avalanche_row_types, request.row_types)
-    |> Req.Steps.put_default_steps(options)
+    |> Req.Steps.put_default_steps(req_step_options)
     |> Req.Request.append_response_steps([
-      {Steps.Poll, :poll, [[]]},
+      {Steps.Poll, :poll, [poll]},
       {Steps.DecodeData, :decode_body_data, []},
-      {Steps.FetchPartitions, :fetch_partitions, []}
+      {Steps.FetchPartitions, :fetch_partitions, [fetch_partitions]}
     ])
   end
 

@@ -18,14 +18,14 @@ defmodule Avalanche.Request do
       defdelegate get_request_id, to: Avalanche.Request
       defdelegate server_url(options), to: Avalanche.Request
 
-      defp handle_response(%Req.Response{status: status} = response)
+      defp handle_response(%{status: status} = response)
            when status not in [200, 202] do
         error = Error.http_status(status, error: response.body, headers: response.headers)
 
         {:error, error}
       end
 
-      defp handle_response({_request, %Req.Response{status: status} = response})
+      defp handle_response({_request, %{status: status} = response})
            when status not in [200, 202] do
         error = Error.http_status(status, error: response.body, headers: response.headers)
 

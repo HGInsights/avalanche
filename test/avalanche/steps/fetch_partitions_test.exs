@@ -69,6 +69,56 @@ defmodule Avalanche.Steps.FetchPartitionsTest do
                %{"COLUMN1" => 9, "COLUMN2" => "nine"}
              ] = result.rows
     end
+
+    test "returns an Error when data form all partitions can't be fetched", c do
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 10,
+            "partitionInfo" => [
+              %{"rowCount" => 3},
+              %{"rowCount" => 3},
+              %{"rowCount" => 4}
+            ],
+            "data" => [["0", "zero"], ["1", "one"], ["2", "two"]]
+          },
+          "statementHandle" => statement_handle
+        })
+
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(result_set))
+      end)
+
+      Bypass.expect(
+        c.bypass,
+        "GET",
+        "/api/v2/statements/#{statement_handle}",
+        fn conn ->
+          {status, body} =
+            case Map.fetch!(conn.query_params, "partition") do
+              "1" ->
+                {200, %{"data" => [["3", "three"], ["4", "four"], ["5", "five"]]}}
+
+              "2" ->
+                {202, %{"statementStatusUrl" => "/api/v2/statements/#{statement_handle}"}}
+            end
+
+          conn
+          |> Plug.Conn.put_resp_header("content-type", "application/json")
+          |> Plug.Conn.send_resp(status, Jason.encode!(body))
+        end
+      )
+
+      assert {:error,
+              %Avalanche.Error{
+                meta: %{error: %{message: "Fetching all partitions failed."}},
+                reason: :request_timeout
+              }} = Avalanche.run("select 1;", [], c.options)
+    end
   end
 
   describe "status/2" do

@@ -25,7 +25,7 @@ defmodule Avalanche.Steps.FetchPartitions do
     row_types = Map.fetch!(metadata, "rowType")
     partitions = Map.fetch!(metadata, "partitionInfo")
 
-    partition_data =
+    partition_responses =
       case partitions do
         [_head | rest] ->
           requests =
@@ -38,28 +38,19 @@ defmodule Avalanche.Steps.FetchPartitions do
           Task.Supervisor.async_stream_nolink(
             Avalanche.TaskSupervisor,
             requests,
-            fn request -> Req.Request.run!(request) end,
+            fn request -> Req.Request.run(request) end,
             ordered: true,
             timeout: :timer.seconds(120),
             on_timeout: :kill_task
           )
-          |> Stream.filter(fn
-            {:ok, _result} -> true
-            {:exit, _reason} -> false
-          end)
-          |> Stream.map(fn {:ok, %Req.Response{} = response} ->
-            get_in(response.body, ["data"])
-          end)
+          |> Stream.map(&handle_partition_response/1)
           |> Enum.to_list()
-          |> List.flatten()
 
         _ ->
           []
       end
 
-    rows = List.flatten(data, partition_data)
-
-    {request, %Req.Response{response | body: Map.put(body, "data", rows)}}
+    {request, reduce_responses(response, data, partition_responses)}
   end
 
   def fetch_partitions(request_response), do: request_response
@@ -73,4 +64,40 @@ defmodule Avalanche.Steps.FetchPartitions do
     |> Req.Request.put_private(:avalanche_row_types, row_types)
     |> Req.Request.append_request_steps([{Req.Steps, :put_params, [[partition: partition]]}])
   end
+
+  defp handle_partition_response(response) do
+    case response do
+      {:ok, {:ok, response}} -> response
+      {:ok, {:error, error}} -> error_response(error)
+      {:exit, reason} -> error_response(reason)
+    end
+  end
+
+  defp error_response(error) do
+    error_msg =
+      case error do
+        %{__exception__: true} = exception -> Exception.message(exception)
+        _ -> error
+      end
+
+    Logger.error(["Avalanche.fetch_partitions failed.", error_msg])
+
+    %{status: 500, body: nil}
+  end
+
+  defp reduce_responses(response, data, partition_responses) do
+    if Enum.all?(partition_responses, &success?/1) do
+      partition_data =
+        Enum.map(partition_responses, fn %{body: body} -> Map.fetch!(body, "data") end)
+
+      rows = List.flatten([data | partition_data])
+
+      %Req.Response{response | body: Map.put(response.body, "data", rows)}
+    else
+      %Req.Response{response | status: 408, body: %{message: "Fetching all partitions failed."}}
+    end
+  end
+
+  defp success?(%{status: 200}), do: true
+  defp success?(%{status: _other}), do: false
 end

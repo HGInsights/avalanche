@@ -81,12 +81,16 @@ defmodule Avalanche.StatusRequest do
     |> Req.Request.build(request.path, headers: request.headers)
     |> Req.Request.put_private(:avalanche_row_types, request.row_types)
     |> Req.Steps.put_default_steps(options)
-    |> Req.Request.append_response_steps([{Steps.DecodeData, :decode_body_data, []}])
+    |> Req.Request.append_response_steps([
+      {Steps.Poll, :poll, [[]]},
+      {Steps.DecodeData, :decode_body_data, []},
+      {Steps.FetchPartitions, :fetch_partitions, []}
+    ])
   end
 
   defp handle_response({request, %Req.Response{status: 200, body: body}}) do
     data = Map.fetch!(body, "data")
 
-    {:ok, %Result{statement_handle: request.statement_handle, rows: data}}
+    {:ok, %Result{statement_handle: request.statement_handle, num_rows: length(data), rows: data}}
   end
 end

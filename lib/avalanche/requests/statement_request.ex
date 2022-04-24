@@ -91,6 +91,7 @@ defmodule Avalanche.StatementRequest do
     |> Req.Request.build(@statements_path, headers: request.headers, body: {:json, request.body})
     |> Req.Steps.put_default_steps(options)
     |> Req.Request.append_response_steps([
+      {Steps.Poll, :poll, [[]]},
       {Steps.DecodeData, :decode_body_data, []},
       {Steps.FetchPartitions, :fetch_partitions, []}
     ])
@@ -121,13 +122,5 @@ defmodule Avalanche.StatementRequest do
     num_rows = Map.fetch!(metadata, "numRows")
 
     {:ok, %Result{statement_handle: statement_handle, num_rows: num_rows, rows: data}}
-  end
-
-  # Polling flow
-  # https://docs.snowflake.com/en/developer-guide/sql-api/handling-responses.html#checking-the-status-of-the-statement-execution-and-retrieving-the-data
-  defp handle_response(%Req.Response{status: 202, body: body}) do
-    statement_handle = Map.fetch!(body, "statementHandle")
-
-    {:ok, %Result{statement_handle: statement_handle}}
   end
 end

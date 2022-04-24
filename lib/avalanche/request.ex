@@ -24,6 +24,13 @@ defmodule Avalanche.Request do
 
         {:error, error}
       end
+
+      defp handle_response({_request, %Req.Response{status: status} = response})
+           when status not in [200, 202] do
+        error = Error.http_status(status, error: response.body, headers: response.headers)
+
+        {:error, error}
+      end
     end
   end
 

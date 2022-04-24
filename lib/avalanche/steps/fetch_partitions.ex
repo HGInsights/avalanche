@@ -59,7 +59,7 @@ defmodule Avalanche.Steps.FetchPartitions do
 
     rows = List.flatten(data, partition_data)
 
-    {Req.Request.halt(request), %Req.Response{response | body: Map.put(body, "data", rows)}}
+    {request, %Req.Response{response | body: Map.put(body, "data", rows)}}
   end
 
   def fetch_partitions(request_response), do: request_response

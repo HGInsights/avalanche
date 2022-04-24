@@ -3,15 +3,15 @@ defmodule DefaultOptionsTest do
 
   alias Avalanche.TestHelper
 
+  setup do
+    bypass = Bypass.open()
+    server = "http://localhost:#{bypass.port}"
+    options = TestHelper.test_options(server: server)
+
+    [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
+  end
+
   describe "run/3" do
-    setup do
-      bypass = Bypass.open()
-      server = "http://localhost:#{bypass.port}"
-      options = TestHelper.test_options(server: server)
-
-      [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
-    end
-
     test "sends POST request to /api/v2/statements", c do
       result_set = result_set_fixture()
 
@@ -104,14 +104,6 @@ defmodule DefaultOptionsTest do
   end
 
   describe "run/3 errors" do
-    setup do
-      bypass = Bypass.open()
-      server = "http://localhost:#{bypass.port}"
-      options = TestHelper.test_options(server: server)
-
-      [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
-    end
-
     test "returns an unauthorized Error for 400 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 400, "no")
@@ -166,6 +158,44 @@ defmodule DefaultOptionsTest do
                Avalanche.run("select 1;", [], c.options)
     end
 
+    test "returns an unauthorized Error for 408 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 408, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :request_timeout}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns an unauthorized Error for 422 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(422, ~s<{
+          "code" : "002140",
+          "sqlState" : "42601",
+          "message" : "SQL compilation error",
+          "statementHandle" : "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae",
+          "statementStatusUrl" : "/api/v2/statements/e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+        }>)
+      end)
+
+      assert {:error,
+              %Avalanche.Error{
+                reason: :unprocessable_entity,
+                meta: %{
+                  error: %{
+                    "code" => "002140",
+                    "message" => "SQL compilation error",
+                    "sqlState" => "42601",
+                    "statementHandle" => "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae",
+                    "statementStatusUrl" =>
+                      "/api/v2/statements/e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+                  }
+                }
+              }} = Avalanche.run("select 1;", [], c.options)
+    end
+
     test "returns an unauthorized Error for 415 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 415, "no")
@@ -212,22 +242,151 @@ defmodule DefaultOptionsTest do
     end
   end
 
-  # 202, 408, 422
-  # test "handles 202 result code for async or longer than 45 second queries", c do
-  #   statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+  describe "status/2" do
+    test "sends GET request to /api/v2/statements", c do
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+      result_set = result_set_fixture(%{"statementHandle" => statement_handle})
 
-  #   Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
-  #     query_status_result = %{
-  #       "code" => "0",
-  #       "sqlState" => "",
-  #       "message" => "successfully executed",
-  #       "statementHandle" => statement_handle,
-  #       "statementStatusUrl" => "/api/v2/statements/#{statement_handle}"
-  #     }
+      Bypass.expect(c.bypass, "GET", "/api/v2/statements/#{statement_handle}", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(result_set))
+      end)
 
-  #     Plug.Conn.send_resp(conn, 202, query_status_result)
-  #   end)
-  # end
+      assert {:ok, _result} = Avalanche.status(statement_handle, c.options)
+    end
+
+    test "returns a Result struct for successful responses", c do
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+      result_set = result_set_fixture(%{"statementHandle" => statement_handle})
+
+      Bypass.expect(c.bypass, "GET", "/api/v2/statements/#{statement_handle}", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(result_set))
+      end)
+
+      assert {:ok, result} = Avalanche.status(statement_handle, c.options)
+
+      assert result.num_rows == 3
+
+      assert [
+               %{"COLUMN1" => 0, "COLUMN2" => "zero"},
+               %{"COLUMN1" => 1, "COLUMN2" => "one"},
+               %{"COLUMN1" => 2, "COLUMN2" => "two"}
+             ] = result.rows
+    end
+
+    test "returns a Result struct with data form all partitions", c do
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 10,
+            "partitionInfo" => [
+              %{"rowCount" => 3},
+              %{"rowCount" => 3},
+              %{"rowCount" => 4}
+            ],
+            "data" => [["0", "zero"], ["1", "one"], ["2", "two"]]
+          },
+          "statementHandle" => statement_handle
+        })
+
+      Bypass.expect(c.bypass, "GET", "/api/v2/statements/#{statement_handle}", fn conn ->
+        body =
+          case Map.fetch!(conn.query_params, "partition") do
+            "1" -> %{"data" => [["3", "three"], ["4", "four"], ["5", "five"]]}
+            "2" -> %{"data" => [["6", "six"], ["7", "seven"], ["8", "eight"], ["9", "nine"]]}
+            _ -> result_set
+          end
+
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(body))
+      end)
+
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.status(statement_handle, c.options)
+
+      assert result.num_rows == 10
+
+      assert [
+               %{"COLUMN1" => 0, "COLUMN2" => "zero"},
+               %{"COLUMN1" => 1, "COLUMN2" => "one"},
+               %{"COLUMN1" => 2, "COLUMN2" => "two"},
+               %{"COLUMN1" => 3, "COLUMN2" => "three"},
+               %{"COLUMN1" => 4, "COLUMN2" => "four"},
+               %{"COLUMN1" => 5, "COLUMN2" => "five"},
+               %{"COLUMN1" => 6, "COLUMN2" => "six"},
+               %{"COLUMN1" => 7, "COLUMN2" => "seven"},
+               %{"COLUMN1" => 8, "COLUMN2" => "eight"},
+               %{"COLUMN1" => 9, "COLUMN2" => "nine"}
+             ] = result.rows
+    end
+  end
+
+  describe "status/2 errors" do
+    test "returns an unauthorized Error for 422 response code", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        Plug.Conn.send_resp(conn, 422, "no")
+      end)
+
+      assert {:error, %Avalanche.Error{reason: :unprocessable_entity}} =
+               Avalanche.run("select 1;", [], c.options)
+    end
+  end
+
+  describe "async and timeouts" do
+    test "handles 202 result code for async or longer than 45 second queries", c do
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        query_status_result = ~s<{
+          "code" : "333334",
+          "message" :
+              "Asynchronous execution in progress. Use provided query id to perform query monitoring and management.",
+          "statementHandle" : "#{statement_handle}",
+          "statementStatusUrl" : "/api/v2/statements/#{statement_handle}"
+        }>
+
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(202, query_status_result)
+      end)
+
+      Bypass.expect(c.bypass, "GET", "/api/v2/statements/#{statement_handle}", fn conn ->
+        result_set =
+          result_set_fixture(%{
+            "resultSetMetaData" => %{
+              "numRows" => 10,
+              "partitionInfo" => [
+                %{"rowCount" => 3},
+                %{"rowCount" => 3},
+                %{"rowCount" => 4}
+              ],
+              "data" => [["0", "zero"], ["1", "one"], ["2", "two"]]
+            },
+            "statementHandle" => statement_handle
+          })
+
+        body =
+          case Map.get(conn.query_params, "partition") do
+            "1" -> %{"data" => [["3", "three"], ["4", "four"], ["5", "five"]]}
+            "2" -> %{"data" => [["6", "six"], ["7", "seven"], ["8", "eight"], ["9", "nine"]]}
+            _ -> result_set
+          end
+
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(body))
+      end)
+
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], c.options)
+
+      assert result.num_rows == 10
+    end
+  end
 
   def result_set_fixture(attrs \\ %{}) do
     defaults = %{

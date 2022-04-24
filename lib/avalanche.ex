@@ -92,6 +92,27 @@ defmodule Avalanche do
   end
 
   @doc """
+  Checks the status of a statement execution.
+
+    * `:statement_handle` - the unique identifier for an executed statement
+
+  ## Options
+
+  #{NimbleOptions.docs(@options_schema)}
+
+  The `options` are merged with default options set with `default_options/1`.
+  """
+  @spec status(String.t(), keyword()) :: any() | {:error, Avalanche.Error.t()}
+  def status(statement_handle, options \\ []) do
+    with opts <- Keyword.merge(default_options(), options),
+         {:ok, valid_opts} <- validate_options(opts) do
+      statement_handle
+      |> Avalanche.StatusRequest.build(valid_opts)
+      |> Avalanche.StatusRequest.run()
+    end
+  end
+
+  @doc """
   Returns default options.
 
   See `default_options/1` for more information.

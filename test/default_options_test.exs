@@ -1,4 +1,4 @@
-defmodule AvalancheTest do
+defmodule DefaultOptionsTest do
   use ExUnit.Case, async: false
 
   setup do

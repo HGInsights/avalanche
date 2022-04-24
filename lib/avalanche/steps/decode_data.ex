@@ -78,7 +78,6 @@ defmodule Avalanche.Steps.DecodeData do
     end
   end
 
-  # Float value (with 9 decimal places) of the number of seconds since the epoch (e.g. 82919.000000000).
   defp decode(%{"type" => "time" = type}, value) do
     case Time.from_iso8601(value) do
       {:ok, time} -> time
@@ -135,7 +134,13 @@ defmodule Avalanche.Steps.DecodeData do
   end
 
   defp return_raw(type, value, error) do
-    Logger.error("Failed decode of '#{type}' value: #{error}")
+    error_msg =
+      case error do
+        %{__exception__: true} = exception -> Exception.message(exception)
+        _ -> error
+      end
+
+    Logger.error("Failed decode of '#{type}' type: #{error_msg}")
     value
   end
 end

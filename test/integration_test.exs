@@ -1,13 +1,13 @@
 defmodule AvalancheIntegrationTest do
   use ExUnit.Case, async: true
 
-  alias Avalanche.TestHelper
+  import Avalanche.TestFixtures
 
   @moduletag integration: true
 
   describe "run/2 with OAuth token" do
     setup do
-      options = TestHelper.test_options()
+      options = test_options()
       [options: options]
     end
 
@@ -19,7 +19,7 @@ defmodule AvalancheIntegrationTest do
 
   describe "run/2 with Key Pair token" do
     setup do
-      options = TestHelper.test_key_pair_options()
+      options = test_key_pair_options()
       [options: options]
     end
 
@@ -31,7 +31,7 @@ defmodule AvalancheIntegrationTest do
 
   describe "run/2" do
     setup do
-      options = TestHelper.test_options()
+      options = test_options()
       [options: options]
     end
 

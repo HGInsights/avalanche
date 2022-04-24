@@ -89,7 +89,7 @@ defmodule Avalanche.StatusRequest do
     ]
 
     poll = Keyword.get(request.options, :poll_options, [])
-    fetch_partitions = Keyword.get(request.options, :fetch_partitions_options, [])
+    get_partitions = Keyword.get(request.options, :get_partitions_options, [])
 
     :get
     |> Req.Request.build(request.path, req_options)
@@ -98,7 +98,7 @@ defmodule Avalanche.StatusRequest do
     |> Req.Request.append_response_steps([
       {Steps.Poll, :poll, [poll]},
       {Steps.DecodeData, :decode_body_data, []},
-      {Steps.FetchPartitions, :fetch_partitions, [fetch_partitions]}
+      {Steps.GetPartitions, :get_partitions, [get_partitions]}
     ])
   end
 

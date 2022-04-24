@@ -64,7 +64,7 @@ defmodule Avalanche do
                       doc:
                         "Options to customize polling for the completion of a statement execution."
                     ],
-                    fetch_partitions_options: [
+                    get_partitions_options: [
                       type: :non_empty_keyword_list,
                       keys: [
                         max_concurrency: [type: :pos_integer],

@@ -1,4 +1,4 @@
-defmodule Avalanche.Steps.FetchPartitionsTest do
+defmodule Avalanche.Steps.GetPartitionsTest do
   use ExUnit.Case, async: true
 
   import Avalanche.TestFixtures
@@ -11,7 +11,7 @@ defmodule Avalanche.Steps.FetchPartitionsTest do
     options =
       Keyword.merge(options,
         poll_options: [delay: 50, max_polls: 2],
-        fetch_partitions_options: [max_concurrency: 2, timeout: :timer.seconds(60)]
+        get_partitions_options: [max_concurrency: 2, timeout: :timer.seconds(60)]
       )
 
     [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]

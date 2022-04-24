@@ -34,7 +34,7 @@ defmodule DefaultOptionsTest do
     assert {:error,
             %Avalanche.Error{
               message:
-                "unknown options [:bad], valid options are: [:server, :warehouse, :database, :schema, :role, :timeout, :token, :poll_options, :fetch_partitions_options, :finch, :finch_options]",
+                "unknown options [:bad], valid options are: [:server, :warehouse, :database, :schema, :role, :timeout, :token, :poll_options, :get_partitions_options, :finch, :finch_options]",
               meta: %{},
               original_error: nil,
               reason: :invalid_options,

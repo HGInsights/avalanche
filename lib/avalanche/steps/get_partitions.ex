@@ -1,4 +1,4 @@
-defmodule Avalanche.Steps.FetchPartitions do
+defmodule Avalanche.Steps.GetPartitions do
   @moduledoc """
   A custom `Req` pipeline step to retrieve all the partitons of data from a statement execution.
   """
@@ -6,7 +6,7 @@ defmodule Avalanche.Steps.FetchPartitions do
   require Logger
 
   @doc """
-  Fetches partitioned data per the `resultSetMetaData`.
+  Get partitioned data per the `resultSetMetaData`.
 
   https://docs.snowflake.com/en/developer-guide/sql-api/reference.html#label-sql-api-reference-resultset-resultsetmetadata
 
@@ -17,13 +17,13 @@ defmodule Avalanche.Steps.FetchPartitions do
 
     * `:timeout` - the maximum amount of time to wait (in milliseconds). Defaults to 2 minutes.
   """
-  def fetch_partitions(request_response, options)
+  def get_partitions(request_response, options)
 
-  def fetch_partitions({request, %{body: ""} = response}, _options) do
+  def get_partitions({request, %{body: ""} = response}, _options) do
     {request, response}
   end
 
-  def fetch_partitions(
+  def get_partitions(
         {request, %{status: 200, body: %{"resultSetMetaData" => metadata} = body} = response},
         options
       ) do
@@ -65,7 +65,7 @@ defmodule Avalanche.Steps.FetchPartitions do
     {request, reduce_responses(response, data, partition_responses)}
   end
 
-  def fetch_partitions(request_response, _options), do: request_response
+  def get_partitions(request_response, _options), do: request_response
 
   # reuse current request and turn it into a `StatusRequest`
   defp build_status_request(%Req.Request{} = request, path, partition, row_types) do
@@ -92,7 +92,7 @@ defmodule Avalanche.Steps.FetchPartitions do
         _ -> error
       end
 
-    Logger.error(["Avalanche.fetch_partitions failed.", error_msg])
+    Logger.error(["Avalanche.get_partitions failed.", error_msg])
 
     %{status: 500, body: nil}
   end

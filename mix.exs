@@ -72,7 +72,14 @@ defmodule Avalanche.MixProject do
   end
 
   defp preferred_cli_env,
-    do: [qc: :test, credo: :test, dialyzer: :test, docs: :docs, "hex.publish": :docs]
+    do: [
+      "test.all": :test,
+      qc: :test,
+      credo: :test,
+      dialyzer: :test,
+      docs: :docs,
+      "hex.publish": :docs
+    ]
 
   defp dialyzer do
     [
@@ -83,6 +90,7 @@ defmodule Avalanche.MixProject do
   defp aliases do
     [
       credo: ["compile", "credo"],
+      "test.all": ["test --include integration"],
       qc: ["format", "compile --warnings-as-errors", "credo --strict", "test"]
     ]
   end

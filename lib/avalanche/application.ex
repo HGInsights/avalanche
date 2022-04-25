@@ -6,7 +6,8 @@ defmodule Avalanche.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      Avalanche.TokenCache
+      Avalanche.TokenCache,
+      {Task.Supervisor, name: Avalanche.TaskSupervisor}
     ]
 
     opts = [strategy: :one_for_one, name: Avalanche.Supervisor]

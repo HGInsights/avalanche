@@ -54,6 +54,9 @@ defmodule Avalanche.TokenCache do
     :crypto.hash(:md5, priv_key)
   end
 
+  @spec token_from_options(binary()) :: {:ok, {binary(), binary()}} | {:error, any()}
+  defp token_from_options(token)
+
   defp token_from_options(token) when is_binary(token), do: {:ok, {"OAUTH", token}}
 
   defp token_from_options(token) do

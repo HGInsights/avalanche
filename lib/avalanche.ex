@@ -46,7 +46,7 @@ defmodule Avalanche do
                         {:or,
                          [
                            :string,
-                           keyword_list: [
+                           non_empty_keyword_list: [
                              account: [type: :string],
                              user: [type: :string],
                              priv_key: [type: :string]
@@ -54,6 +54,24 @@ defmodule Avalanche do
                          ]},
                       required: true,
                       doc: "Snowflake authentication via OAuth token or Key Pair."
+                    ],
+                    poll_options: [
+                      type: :non_empty_keyword_list,
+                      keys: [
+                        delay: [type: :pos_integer],
+                        max_polls: [type: :pos_integer]
+                      ],
+                      doc:
+                        "Options to customize polling for the completion of a statement execution."
+                    ],
+                    get_partitions_options: [
+                      type: :non_empty_keyword_list,
+                      keys: [
+                        max_concurrency: [type: :pos_integer],
+                        timeout: [type: :pos_integer]
+                      ],
+                      doc:
+                        "Options to customize retrieve all the partitons of data from a statement execution."
                     ],
                     finch: [
                       type: :any,
@@ -86,8 +104,29 @@ defmodule Avalanche do
     with opts <- Keyword.merge(default_options(), options),
          {:ok, valid_opts} <- validate_options(opts) do
       statement
-      |> Avalanche.Request.build(params, valid_opts)
-      |> Avalanche.Request.run()
+      |> Avalanche.StatementRequest.build(params, valid_opts)
+      |> Avalanche.StatementRequest.run()
+    end
+  end
+
+  @doc """
+  Checks the status of a statement execution.
+
+    * `:statement_handle` - the unique identifier for an executed statement
+
+  ## Options
+
+  #{NimbleOptions.docs(@options_schema)}
+
+  The `options` are merged with default options set with `default_options/1`.
+  """
+  @spec status(String.t(), keyword()) :: any() | {:error, Avalanche.Error.t()}
+  def status(statement_handle, options \\ []) do
+    with opts <- Keyword.merge(default_options(), options),
+         {:ok, valid_opts} <- validate_options(opts) do
+      statement_handle
+      |> Avalanche.StatusRequest.build(valid_opts)
+      |> Avalanche.StatusRequest.run()
     end
   end
 

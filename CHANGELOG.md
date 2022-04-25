@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/HGInsights/avalanche/compare/v0.3.0...v0.4.0) (2022-04-25)
+
+
+### Features
+
+* get data from all partitions and poll when data is not ready (#6) ([aa367be](https://github.com/HGInsights/avalanche/commit/aa367be9157463306e16ec6025a2ca605840937f)), closes [#6](https://github.com/HGInsights/avalanche/issues/6)
+
 # [0.3.0](https://github.com/HGInsights/avalanche/compare/v0.2.0...v0.3.0) (2022-04-21)
 
 

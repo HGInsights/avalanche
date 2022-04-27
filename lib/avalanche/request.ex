@@ -5,6 +5,8 @@ defmodule Avalanche.Request do
   `use Avalanche.Request`
   """
 
+  @user_agent "avalanche/#{Mix.Project.config()[:version]}"
+
   defmacro __using__(_) do
     quote do
       alias Avalanche.Error
@@ -36,7 +38,7 @@ defmodule Avalanche.Request do
   end
 
   def build_headers(options, token_type) do
-    user_agent = Keyword.get(options, :user_agent, "avalanche/#{Mix.Project.config()[:version]}")
+    user_agent = Keyword.get(options, :user_agent, @user_agent)
 
     [
       accept: "application/json",

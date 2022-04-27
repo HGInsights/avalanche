@@ -46,6 +46,7 @@ defmodule Avalanche.MixProject do
       {:uuid, "~> 1.1"},
       {:bypass, "~> 2.1", only: [:dev, :test]},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false, override: true},
+      {:eflambe, "~> 0.2.1", only: [:dev, :test]},
       {:vapor, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.27", only: :docs, runtime: false}
     ]

@@ -46,6 +46,8 @@ defmodule Avalanche.Steps.GetPartitions do
               build_status_request(request, path, partition, row_types)
             end)
 
+          Logger.debug(["Avalanche.get_partitions: #{length(requests)}"])
+
           Task.Supervisor.async_stream_nolink(
             Avalanche.TaskSupervisor,
             requests,

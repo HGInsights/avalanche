@@ -33,3 +33,6 @@ avalanche-*.tar
 # Key Files
 *.pem
 *.p8
+
+# Flamegraph Files
+*.bggg

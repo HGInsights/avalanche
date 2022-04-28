@@ -1,3 +1,10 @@
+## [0.4.1](https://github.com/HGInsights/avalanche/compare/v0.4.0...v0.4.1) (2022-04-28)
+
+
+### Bug Fixes
+
+* user agent with version and add logging (#7) ([2fe5b57](https://github.com/HGInsights/avalanche/commit/2fe5b571d1ae6eaab012e60b500ba64fdba7e295)), closes [#7](https://github.com/HGInsights/avalanche/issues/7)
+
 # [0.4.0](https://github.com/HGInsights/avalanche/compare/v0.3.0...v0.4.0) (2022-04-25)
 
 

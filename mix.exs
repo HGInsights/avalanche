@@ -35,7 +35,7 @@ defmodule Avalanche.MixProject do
 
   defp deps do
     [
-      {:finch, "~> 0.11.0"},
+      {:finch, "~> 0.12.0"},
       {:jason, "~> 1.3"},
       {:joken, "~> 2.4"},
       {:nimble_options, "~> 0.4.0"},

@@ -2,10 +2,38 @@ defmodule Avalanche.Steps.DecodeDataTest do
   use ExUnit.Case, async: true
 
   import Avalanche.TestFixtures
+  import ExUnit.CaptureLog
 
   alias Avalanche.Steps.DecodeData
 
   describe "decode_body_data/1" do
+    test "does nothing when body is empty" do
+      in_response = %Req.Response{status: 200, body: ""}
+
+      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+
+      assert response.body == ""
+    end
+
+    test "decodes nil value to nil" do
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 1,
+            "rowType" => [
+              %{"name" => "COLUMN", "type" => "fixed"}
+            ]
+          },
+          "data" => [[nil]]
+        })
+
+      in_response = %Req.Response{status: 200, body: result_set}
+
+      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+
+      assert [%{"COLUMN" => nil}] = response.body["data"]
+    end
+
     test "decodes fixed type to Integer" do
       result_set =
         result_set_fixture(%{
@@ -271,6 +299,69 @@ defmodule Avalanche.Steps.DecodeDataTest do
       {_request, response} = DecodeData.decode_body_data({nil, in_response})
 
       assert [%{"COLUMN" => [1, "two", 3, %{"key" => "value"}]}] = response.body["data"]
+    end
+
+    [
+      {"fixed", "a3a3", "integer_parse_error"},
+      {"float", "a3a3", "float_parse_error"},
+      {"real", "a3a3", "real_parse_error"},
+      {"date", "a3a3", "date_parse_error"},
+      {"time", "a3a3", "invalid_format"},
+      {"timestamp_ltz", "a3a3", "invalid_format"},
+      {"timestamp_ntz", "a3a3", "invalid_format"},
+      {"timestamp_tz", "a3a3", "invalid_format"},
+      {"object", "a3a3", "unexpected byte at position 0"},
+      {"variant", "a3a3", "unexpected byte at position 0"},
+      {"array", "a3a3", "unexpected byte at position 0"}
+    ]
+    |> Enum.each(fn {type, value, error} ->
+      test "decodes #{type} type to raw value with parse error" do
+        result_set =
+          result_set_fixture(%{
+            "resultSetMetaData" => %{
+              "numRows" => 1,
+              "rowType" => [
+                %{"name" => "COLUMN", "type" => unquote(type)}
+              ]
+            },
+            "data" => [[unquote(value)]]
+          })
+
+        in_response = %Req.Response{status: 200, body: result_set}
+
+        {{_request, response}, log} =
+          with_log(fn ->
+            DecodeData.decode_body_data({nil, in_response})
+          end)
+
+        assert log =~ "Failed decode of '#{unquote(type)}' type: #{unquote(error)}"
+
+        assert [%{"COLUMN" => unquote(value)}] = response.body["data"]
+      end
+    end)
+
+    test "decodes unknown type to raw value with parse error" do
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 1,
+            "rowType" => [
+              %{"name" => "COLUMN", "type" => "unknown"}
+            ]
+          },
+          "data" => [["a3a3"]]
+        })
+
+      in_response = %Req.Response{status: 200, body: result_set}
+
+      {{_request, response}, log} =
+        with_log(fn ->
+          DecodeData.decode_body_data({nil, in_response})
+        end)
+
+      assert log =~ "Failed decode of unsupported type: unknown"
+
+      assert [%{"COLUMN" => "a3a3"}] = response.body["data"]
     end
   end
 

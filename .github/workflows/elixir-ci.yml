@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+    - main
+    tags:
+    - '*'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    strategy:
+      matrix:
+        include:
+          - pair:
+              elixir: "1.13.3"
+              otp: "24.0.5"
+            lint: lint
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Elixir Project
+        uses: ./.github/actions/elixir-setup
+        with:
+          elixir-version: ${{ matrix.pair.elixir }}
+          otp-version: ${{ matrix.pair.otp }}
+          build-flags: --all-warnings --warnings-as-errors
+
+      - name: Run Tests
+        run: mix coveralls --raise --exclude integration:true
+        if: always()
+
+  semantic-release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+      last_release_version: ${{ steps.semantic.outputs.last_release_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Semantic Release
+        id: semantic
+        uses: hgdata/semantic-release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_REPO_TOKEN }}
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          extends: |
+            @hgdata/semantic-release-config
+
+  # publish-hex-package:
+  #   name: Publish Hex Package ⬆️☁️
+  #   runs-on: ubuntu-latest
+  #   needs: semantic-release
+  #   if: github.ref == 'refs/heads/main' && needs.semantic-release.outputs.new_release_published == 'true'
+  #   env:
+  #     MIX_ENV: docs
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Elixir project
+  #       uses: ./.github/actions/elixir-setup
+  #       with:
+  #         elixir-version: "1.13.3"
+  #         otp-version: "24.0.5"
+  #         build-app: false
+
+  #     - name: Write version to .version
+  #       run: echo ${{ needs.semantic-release.outputs.new_release_version }} > .version
+
+  #     - name: Publish library
+  #       run: mix hex.publish --yes
+  #       env:
+  #         HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

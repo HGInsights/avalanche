@@ -32,9 +32,12 @@ defmodule Avalanche.Error do
       # Error structs are returned unchanged
       iex> Error.new(%Error{reason: :some_reason})
       %Error{reason: :some_reason}
+      # Atoms will be used as reason
+      iex> Error.new(:some_reason)
+      %Error{reason: :some_reason}
       # Anything else will be used as the `original_error`
       iex> Error.new(%RuntimeError{message: "oops!"})
-      %Error{original_error: %RuntimeError{message: "oops!"}}
+      %Error{message: "oops!", original_error: %RuntimeError{message: "oops!"}}
   """
   @spec new(any) :: t
   def new(%__MODULE__{} = error) do
@@ -47,6 +50,10 @@ defmodule Avalanche.Error do
 
   def new(reason) when is_atom(reason) do
     %__MODULE__{reason: reason}
+  end
+
+  def new(error) when is_exception(error) do
+    %__MODULE__{original_error: error, message: Exception.message(error)}
   end
 
   def new(error) do
@@ -80,6 +87,14 @@ defmodule Avalanche.Error do
     new(:application_error, message, meta)
   end
 
+  @doc """
+  Builds an Error struct with reason and message deived from the given http status.
+
+  Examples:
+      iex> alias Avalanche.Error
+      iex> Error.http_status(404, %{data: "things"})
+      %Error{__exception__: true, message: "Not Found", meta: %{data: "things"}, reason: :not_found}
+  """
   @spec http_status(integer(), meta()) :: t()
   def http_status(status, meta \\ %{}) when is_integer(status) do
     reason = Plug.Conn.Status.reason_atom(status)
@@ -92,15 +107,33 @@ defmodule Avalanche.Error do
   Formats a Error for printing/logging.
 
   This returns a verbose, multi-line string.
+
+  Examples:
+
+      iex> alias Avalanche.Error
+      iex> RuntimeError.exception("Failed!") |> Error.new() |> Error.format()
+      ~s<application_error: Failed!
+      meta: []
+      original_error: ** (RuntimeError) Failed!>
+      iex> "Failed!" |> Error.new() |> Error.format()
+      ~s<application_error: Failed!
+      meta: []
+      original_error: nil>
+      iex> 123 |> Error.new() |> Error.format() =~ ~r/original_error: 123/
+      true
+      iex> :bad |> Error.new() |> Error.format() =~ ~r/bad/
+      true
   """
   @spec format(t()) :: binary
   def format(%__MODULE__{} = error) do
-    """
-    #{error.reason}: #{error.message}
-    meta: #{inspect(error.meta)}
-    original_error: #{format_error(error.original_error)}
-    #{error.stacktrace && Exception.format_stacktrace(error.stacktrace)}
-    """
+    [
+      "#{error.reason}: #{error.message}",
+      "meta: #{inspect(error.meta)}",
+      "original_error: #{format_error(error.original_error)}",
+      "#{error.stacktrace && Exception.format_stacktrace(error.stacktrace)}"
+    ]
+    |> Enum.reject(&(String.length(&1) == 0))
+    |> Enum.join("\n")
   end
 
   @doc """
@@ -121,15 +154,10 @@ defmodule Avalanche.Error do
 
   @spec format_error(term) :: binary
   defp format_error(error) do
-    cond do
-      Exception.exception?(error) ->
-        "** (" <> inspect(error.__struct__) <> ") " <> Exception.message(error)
-
-      is_binary(error) ->
-        error
-
-      true ->
-        inspect(error)
+    if Exception.exception?(error) do
+      "** (" <> inspect(error.__struct__) <> ") " <> Exception.message(error)
+    else
+      inspect(error)
     end
   end
 end

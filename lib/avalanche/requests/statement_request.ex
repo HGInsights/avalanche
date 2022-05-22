@@ -71,18 +71,6 @@ defmodule Avalanche.StatementRequest do
     end
   end
 
-  @doc """
-  Runs a request and returns a response or raises an error.
-
-  See `run/1` for more information.
-  """
-  def run!(%__MODULE__{} = request) do
-    case run(request) do
-      {:ok, response} -> response
-      {:error, exception} -> raise exception
-    end
-  end
-
   defp build_pipeline(request) do
     req_options =
       request.options
@@ -127,6 +115,9 @@ defmodule Avalanche.StatementRequest do
       bindings: bindings
     }
   end
+
+  defp handle_response(%Req.Response{status: 200, body: ""}),
+    do: {:ok, %Result{num_rows: 0, rows: []}}
 
   defp handle_response(%Req.Response{status: 200, body: body}) do
     statement_handle = Map.fetch!(body, "statementHandle")

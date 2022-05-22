@@ -61,8 +61,7 @@ defmodule Avalanche do
                         delay: [type: :pos_integer],
                         max_polls: [type: :pos_integer]
                       ],
-                      doc:
-                        "Options to customize polling for the completion of a statement execution."
+                      doc: "Options to customize polling for the completion of a statement execution."
                     ],
                     get_partitions_options: [
                       type: :non_empty_keyword_list,
@@ -70,13 +69,11 @@ defmodule Avalanche do
                         max_concurrency: [type: :pos_integer],
                         timeout: [type: :pos_integer]
                       ],
-                      doc:
-                        "Options to customize retrieve all the partitons of data from a statement execution."
+                      doc: "Options to customize retrieve all the partitons of data from a statement execution."
                     ],
                     finch: [
                       type: :any,
-                      doc:
-                        "Finch pool to use. See `Finch` module documentation for more information on starting pools."
+                      doc: "Finch pool to use. See `Finch` module documentation for more information on starting pools."
                     ],
                     finch_options: [
                       type: :keyword_list,

@@ -99,8 +99,7 @@ defmodule Avalanche.TokenCache do
 
     pub_key = {:RSAPublicKey, modulus, pub_exponent}
 
-    {:SubjectPublicKeyInfo, spki_data, _} =
-      :public_key.pem_entry_encode(:SubjectPublicKeyInfo, pub_key)
+    {:SubjectPublicKeyInfo, spki_data, _} = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, pub_key)
 
     spki_data
   end

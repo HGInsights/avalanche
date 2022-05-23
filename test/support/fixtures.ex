@@ -1,6 +1,5 @@
 defmodule Avalanche.TestFixtures do
   @moduledoc false
-  # coveralls-ignore-start
 
   def test_options(options \\ []) do
     sf_token = System.get_env("SNOWFLAKE_OAUTH_ACCESS_TOKEN", "noop")
@@ -89,6 +88,4 @@ defmodule Avalanche.TestFixtures do
   # NOT a map. We fall back to standard merge behavior, preferring
   # the value on the right.
   defp deep_resolve(_key, _left, right), do: right
-
-  # coveralls-ignore-stop
 end

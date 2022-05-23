@@ -128,4 +128,11 @@ defmodule Avalanche.StatementRequest do
 
     {:ok, %Result{statement_handle: statement_handle, num_rows: num_rows, rows: data}}
   end
+
+  defp handle_response(%Req.Response{status: status} = response)
+       when status not in [200, 202] do
+    error = Error.http_status(status, error: response.body, headers: response.headers)
+
+    {:error, error}
+  end
 end

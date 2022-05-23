@@ -90,7 +90,7 @@ defmodule Avalanche.MixProject do
       format: ["--check-formatted"],
       credo: ["--strict"],
       "deps.unlock": ["--check-unused"],
-      coveralls: ["--exclude", "skip_ci"]
+      coveralls: ["--raise", "--exclude", "skip_ci"]
     ]
   end
 

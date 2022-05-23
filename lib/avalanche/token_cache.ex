@@ -33,6 +33,7 @@ defmodule Avalanche.TokenCache do
   Returns `{"KEYPAIR_JWT", token}` or `{"OAUTH", token}`.
   """
   @spec fetch_token(options :: keyword()) :: {binary(), binary()}
+  @dialyzer {:nowarn_function, fetch_token: 1}
   def fetch_token(options) do
     key = key_from_options(options)
 

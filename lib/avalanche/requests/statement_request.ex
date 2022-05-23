@@ -15,7 +15,10 @@ defmodule Avalanche.StatementRequest do
     * `:options` - options to customize HTTP pipeline steps
   """
 
-  use Avalanche.Request
+  alias Avalanche.Error
+  alias Avalanche.Request
+  alias Avalanche.Result
+  alias Avalanche.Steps
 
   defstruct [
     :url,
@@ -45,13 +48,13 @@ defmodule Avalanche.StatementRequest do
   def build(statement, params, options) do
     bindings = Avalanche.Bindings.encode_params(params)
 
-    {token_type, token} = fetch_token(options)
-    request_options = request_options(options)
+    {token_type, token} = Request.fetch_token(options)
+    request_options = Request.request_options(options)
 
     %__MODULE__{
-      url: server_url(options),
-      path: @statements_path,
-      headers: build_headers(options, token_type),
+      url: Request.server_url(options),
+      path: Request.statements_path(),
+      headers: Request.build_headers(options, token_type),
       body: build_body(statement, bindings, options),
       token: token,
       options: request_options
@@ -77,7 +80,7 @@ defmodule Avalanche.StatementRequest do
       |> Keyword.take([:finch, :finch_options])
       |> Keyword.merge(headers: request.headers, body: {:json, request.body})
 
-    request_id = get_request_id()
+    request_id = Request.get_request_id()
     params = [requestId: request_id]
 
     req_step_options = [
@@ -90,7 +93,7 @@ defmodule Avalanche.StatementRequest do
     get_partitions = Keyword.get(request.options, :get_partitions_options, [])
 
     :post
-    |> Req.Request.build(@statements_path, req_options)
+    |> Req.Request.build(Request.statements_path(), req_options)
     |> Req.Steps.put_default_steps(req_step_options)
     |> Req.Request.append_response_steps([
       {Steps.Poll, :poll, [poll]},

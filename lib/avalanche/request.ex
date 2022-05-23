@@ -1,27 +1,12 @@
 defmodule Avalanche.Request do
   @moduledoc """
   Request helpers.
-
-  `use Avalanche.Request`
   """
 
   @user_agent "avalanche/#{Mix.Project.config()[:version]}"
+  @statements_path "/api/v2/statements"
 
-  defmacro __using__(_) do
-    quote do
-      alias Avalanche.Error
-      alias Avalanche.Result
-      alias Avalanche.Steps
-
-      @statements_path "/api/v2/statements"
-
-      defdelegate build_headers(options, token_type), to: Avalanche.Request
-      defdelegate fetch_token(options), to: Avalanche.Request
-      defdelegate get_request_id, to: Avalanche.Request
-      defdelegate server_url(options), to: Avalanche.Request
-      defdelegate request_options(options), to: Avalanche.Request
-    end
-  end
+  def statements_path, do: @statements_path
 
   def build_headers(options, token_type) do
     user_agent = Keyword.get(options, :user_agent, @user_agent)

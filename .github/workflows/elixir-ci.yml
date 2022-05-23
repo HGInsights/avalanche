@@ -37,7 +37,7 @@ jobs:
           build-flags: --all-warnings --warnings-as-errors
 
       - name: Run Tests
-        run: mix coveralls --raise --exclude integration:true
+        run: mix coveralls --raise --exclude integration:true >> $GITHUB_STEP_SUMMARY
         if: always()
 
   semantic-release:

@@ -19,7 +19,10 @@ defmodule Avalanche.StatusRequest do
     * `:options` - options to customize HTTP pipeline steps
   """
 
-  use Avalanche.Request
+  alias Avalanche.Error
+  alias Avalanche.Request
+  alias Avalanche.Result
+  alias Avalanche.Steps
 
   defstruct [
     :url,
@@ -49,13 +52,13 @@ defmodule Avalanche.StatusRequest do
   """
   @spec build(String.t(), row_types(), keyword()) :: t()
   def build(statement_handle, row_types \\ nil, options) do
-    {token_type, token} = fetch_token(options)
-    request_options = request_options(options)
+    {token_type, token} = Request.fetch_token(options)
+    request_options = Request.request_options(options)
 
     %__MODULE__{
-      url: server_url(options),
-      path: @statements_path <> "/#{statement_handle}",
-      headers: build_headers(options, token_type),
+      url: Request.server_url(options),
+      path: Request.statements_path() <> "/#{statement_handle}",
+      headers: Request.build_headers(options, token_type),
       token: token,
       statement_handle: statement_handle,
       row_types: row_types,
@@ -106,5 +109,12 @@ defmodule Avalanche.StatusRequest do
     data = Map.fetch!(body, "data")
 
     {:ok, %Result{statement_handle: request.statement_handle, num_rows: length(data), rows: data}}
+  end
+
+  defp handle_response({_request, %Req.Response{status: status} = response})
+       when status not in [200, 202] do
+    error = Error.http_status(status, error: response.body, headers: response.headers)
+
+    {:error, error}
   end
 end

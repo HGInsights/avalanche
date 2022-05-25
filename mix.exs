@@ -3,7 +3,13 @@ defmodule Avalanche.MixProject do
 
   @name "Avalanche"
   @source_url "https://github.com/HGInsights/avalanche"
-  @version "0.2.0"
+
+  @version_file Path.join(__DIR__, ".version")
+  @external_resource @version_file
+  @version (case Regex.run(~r/^([\d\.\w-]+)/, File.read!(@version_file), capture: :all_but_first) do
+              [version] -> version
+              nil -> "0.0.0"
+            end)
 
   def project do
     [
@@ -14,12 +20,14 @@ defmodule Avalanche.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       name: @name,
       source_url: @source_url,
-      package: package(),
-      docs: docs(),
+      test_coverage: [tool: ExCoveralls],
+      bless_suite: bless_suite(),
+      aliases: aliases(),
       deps: deps(),
-      preferred_cli_env: preferred_cli_env(),
       dialyzer: dialyzer(),
-      aliases: aliases()
+      docs: docs(),
+      package: package(),
+      preferred_cli_env: preferred_cli_env()
     ]
   end
 
@@ -44,11 +52,16 @@ defmodule Avalanche.MixProject do
       {:req, github: "wojtekmach/req", ref: "115b65d"},
       {:telemetry, "~> 1.1", override: true},
       {:uuid, "~> 1.1"},
+      {:bless, "~> 1.2", only: [:dev, :test]},
       {:bypass, "~> 2.1", only: [:dev, :test]},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false, override: true},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev, :test, :docs], runtime: false},
       {:eflambe, "~> 0.2.1", only: [:dev, :test]},
-      {:vapor, "~> 0.10.0", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.27", only: :docs, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: [:docs], runtime: false},
+      {:excoveralls, "~> 0.14.4", only: [:dev, :test]},
+      {:mimic, "~> 1.7", only: [:dev, :test]},
+      {:mix_test_watch, "~> 1.0.2", only: [:test, :dev]},
+      {:vapor, "~> 0.10.0", only: [:dev, :test, :docs], runtime: false}
     ]
   end
 
@@ -56,7 +69,7 @@ defmodule Avalanche.MixProject do
     [
       description: "Elixir Snowflake Connector built on top of the Snowflake SQL API v2.",
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => @source_url}
+      links: %{"GitHub" => @source_url, "CHANGELOG" => "https://github.com/HGInsights/avalanche/blob/main/CHANGELOG.md"}
     ]
   end
 
@@ -64,27 +77,28 @@ defmodule Avalanche.MixProject do
     [
       source_ref: "v#{@version}",
       source_url: @source_url,
-      main: @name,
-      extras: ["CHANGELOG.md"],
-      groups_for_extras: [
-        CHANGELOG: "CHANGELOG.md"
-      ]
+      main: @name
     ]
   end
 
   defp preferred_cli_env,
-    do: [
-      "test.all": :test,
-      qc: :test,
-      credo: :test,
-      dialyzer: :test,
-      docs: :docs,
-      "hex.publish": :docs
+    do: [bless: :test, coveralls: :test, "coveralls.html": :test, credo: :test, docs: :docs, dialyzer: :test, qc: :test]
+
+  defp bless_suite do
+    [
+      compile: ["--warnings-as-errors", "--force"],
+      format: [],
+      credo: ["--strict"],
+      "deps.unlock": ["--check-unused"],
+      "coveralls.html": ["--raise", "--exclude", "skip_ci"]
     ]
+  end
 
   defp dialyzer do
     [
-      plt_add_apps: [:ex_unit, :mix]
+      plt_add_apps: [:ex_unit, :mix],
+      ignore_warnings: "dialyzer.ignore-warnings",
+      list_unused_filters: true
     ]
   end
 

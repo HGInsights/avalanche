@@ -18,6 +18,19 @@ defmodule Avalanche.Steps.GetPartitionsTest do
   end
 
   describe "run/3" do
+    test "does nothing when body is empty", c do
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, "")
+      end)
+
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], c.options)
+
+      assert result.num_rows == 0
+      assert result.rows == []
+    end
+
     test "returns a Result struct with data form all partitions", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
@@ -124,6 +137,36 @@ defmodule Avalanche.Steps.GetPartitionsTest do
                 meta: %{error: %{message: "Fetching all partitions failed."}},
                 reason: :request_timeout
               }} = Avalanche.run("select 1;", [], c.options)
+    end
+
+    test "returns a Result struct with initial data when partitions is empty", c do
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 3,
+            "partitionInfo" => [],
+            "data" => [["0", "zero"], ["1", "one"], ["2", "two"]]
+          },
+          "statementHandle" => statement_handle
+        })
+
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(result_set))
+      end)
+
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], c.options)
+
+      assert result.num_rows == 3
+
+      assert [
+               %{"COLUMN1" => 0, "COLUMN2" => "zero"},
+               %{"COLUMN1" => 1, "COLUMN2" => "one"},
+               %{"COLUMN1" => 2, "COLUMN2" => "two"}
+             ] = result.rows
     end
   end
 

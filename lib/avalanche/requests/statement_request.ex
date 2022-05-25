@@ -15,7 +15,10 @@ defmodule Avalanche.StatementRequest do
     * `:options` - options to customize HTTP pipeline steps
   """
 
-  use Avalanche.Request
+  alias Avalanche.Error
+  alias Avalanche.Request
+  alias Avalanche.Result
+  alias Avalanche.Steps
 
   defstruct [
     :url,
@@ -45,13 +48,13 @@ defmodule Avalanche.StatementRequest do
   def build(statement, params, options) do
     bindings = Avalanche.Bindings.encode_params(params)
 
-    {token_type, token} = fetch_token(options)
-    request_options = request_options(options)
+    {token_type, token} = Request.fetch_token(options)
+    request_options = Request.request_options(options)
 
     %__MODULE__{
-      url: server_url(options),
-      path: @statements_path,
-      headers: build_headers(options, token_type),
+      url: Request.server_url(options),
+      path: Request.statements_path(),
+      headers: Request.build_headers(options, token_type),
       body: build_body(statement, bindings, options),
       token: token,
       options: request_options
@@ -71,25 +74,13 @@ defmodule Avalanche.StatementRequest do
     end
   end
 
-  @doc """
-  Runs a request and returns a response or raises an error.
-
-  See `run/1` for more information.
-  """
-  def run!(%__MODULE__{} = request) do
-    case run(request) do
-      {:ok, response} -> response
-      {:error, exception} -> raise exception
-    end
-  end
-
   defp build_pipeline(request) do
     req_options =
       request.options
       |> Keyword.take([:finch, :finch_options])
       |> Keyword.merge(headers: request.headers, body: {:json, request.body})
 
-    request_id = get_request_id()
+    request_id = Request.get_request_id()
     params = [requestId: request_id]
 
     req_step_options = [
@@ -102,7 +93,7 @@ defmodule Avalanche.StatementRequest do
     get_partitions = Keyword.get(request.options, :get_partitions_options, [])
 
     :post
-    |> Req.Request.build(@statements_path, req_options)
+    |> Req.Request.build(Request.statements_path(), req_options)
     |> Req.Steps.put_default_steps(req_step_options)
     |> Req.Request.append_response_steps([
       {Steps.Poll, :poll, [poll]},
@@ -128,6 +119,9 @@ defmodule Avalanche.StatementRequest do
     }
   end
 
+  defp handle_response(%Req.Response{status: 200, body: ""}),
+    do: {:ok, %Result{num_rows: 0, rows: []}}
+
   defp handle_response(%Req.Response{status: 200, body: body}) do
     statement_handle = Map.fetch!(body, "statementHandle")
     data = Map.fetch!(body, "data")
@@ -136,5 +130,12 @@ defmodule Avalanche.StatementRequest do
     num_rows = Map.fetch!(metadata, "numRows")
 
     {:ok, %Result{statement_handle: statement_handle, num_rows: num_rows, rows: data}}
+  end
+
+  defp handle_response(%Req.Response{status: status} = response)
+       when status not in [200, 202] do
+    error = Error.http_status(status, error: response.body, headers: response.headers)
+
+    {:error, error}
   end
 end

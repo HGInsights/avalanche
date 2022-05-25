@@ -62,7 +62,7 @@ defmodule Avalanche.Steps.DecodeData do
   defp decode(%{"type" => "real" = type}, value) do
     case Float.parse(value) do
       {float, _rest} -> float
-      :error -> return_raw(type, value, :float_parse_error)
+      :error -> return_raw(type, value, :real_parse_error)
     end
   end
 
@@ -74,7 +74,7 @@ defmodule Avalanche.Steps.DecodeData do
   defp decode(%{"type" => "date" = type}, value) do
     case Integer.parse(value) do
       {days, _rest} -> Date.add(@unix_epoch, days)
-      :error -> return_raw(type, value, :integer_parse_error)
+      :error -> return_raw(type, value, :date_parse_error)
     end
   end
 

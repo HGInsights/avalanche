@@ -87,10 +87,10 @@ defmodule Avalanche.MixProject do
   defp bless_suite do
     [
       compile: ["--warnings-as-errors", "--force"],
-      format: ["--check-formatted"],
+      format: [],
       credo: ["--strict"],
       "deps.unlock": ["--check-unused"],
-      coveralls: ["--raise", "--exclude", "skip_ci"]
+      "coveralls.html": ["--raise", "--exclude", "skip_ci"]
     ]
   end
 

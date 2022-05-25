@@ -211,11 +211,15 @@ defmodule AvalancheTest do
 
   describe "status/2 errors" do
     test "returns an unauthorized Error for 422 response code", c do
-      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
-        Plug.Conn.send_resp(conn, 422, "no")
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+
+      Bypass.expect(c.bypass, "GET", "/api/v2/statements/#{statement_handle}", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(500, "")
       end)
 
-      assert {:error, %Avalanche.Error{reason: :unprocessable_entity}} = Avalanche.run("select 1;", [], c.options)
+      assert {:error, %Avalanche.Error{reason: :internal_server_error}} = Avalanche.status(statement_handle, c.options)
     end
   end
 end

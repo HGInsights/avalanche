@@ -7,6 +7,8 @@ defmodule Avalanche.TokenCache do
   See: https://docs.snowflake.com/en/developer-guide/sql-api/authenticating.html
   """
 
+  require Logger
+
   @cache :token_cache
   @ttl :timer.minutes(30)
 
@@ -32,7 +34,7 @@ defmodule Avalanche.TokenCache do
 
   Returns `{"KEYPAIR_JWT", token}` or `{"OAUTH", token}`.
   """
-  @spec fetch_token(options :: keyword()) :: {binary(), binary()}
+  @spec fetch_token(options :: keyword()) :: {binary(), binary()} | :error
   @dialyzer {:nowarn_function, fetch_token: 1}
   def fetch_token(options) do
     key = key_from_options(options)
@@ -43,7 +45,8 @@ defmodule Avalanche.TokenCache do
           {:commit, token}
 
         {:error, error} ->
-          {:ignore, error}
+          Logger.error("TokenCache.fetch_token/1 failed: #{inspect(error)}")
+          {:ignore, :error}
       end
     end)
   end

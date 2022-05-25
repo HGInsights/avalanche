@@ -1,3 +1,15 @@
+# [0.5.0](https://github.com/HGInsights/avalanche/compare/v0.4.1...v0.5.0) (2022-05-25)
+
+
+### Chores
+
+* **deps:** bump plug from 1.13.5 to 1.13.6 (#5) ([d3471fc](https://github.com/HGInsights/avalanche/commit/d3471fce069953a399a5aa9352a775bec0881e4e)), closes [#5](https://github.com/HGInsights/avalanche/issues/5)
+
+
+### Features
+
+* add test coverage and prepare for hex.pm publish (#10) ([590bb83](https://github.com/HGInsights/avalanche/commit/590bb83520de1bdbc300082dbf9065482bc43768)), closes [#10](https://github.com/HGInsights/avalanche/issues/10)
+
 ## [0.4.1](https://github.com/HGInsights/avalanche/compare/v0.4.0...v0.4.1) (2022-04-28)
 
 

@@ -14,6 +14,7 @@ defmodule Avalanche.Steps.PollTest do
   end
 
   describe "async and timeouts" do
+    @tag :capture_log
     test "handles 202 result code for async or longer than 45 second queries", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 

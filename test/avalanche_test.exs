@@ -12,6 +12,7 @@ defmodule AvalancheTest do
   end
 
   describe "run/3" do
+    @tag :capture_log
     test "sends POST request to /api/v2/statements", c do
       result_set = result_set_fixture()
 
@@ -24,6 +25,7 @@ defmodule AvalancheTest do
       assert {:ok, _result} = Avalanche.run("select 1;", [], c.options)
     end
 
+    @tag :capture_log
     test "returns a Result struct for successful responses", c do
       result_set = result_set_fixture()
 
@@ -174,6 +176,7 @@ defmodule AvalancheTest do
   end
 
   describe "status/2" do
+    @tag :capture_log
     test "sends GET request to /api/v2/statements", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
       result_set = result_set_fixture(%{"statementHandle" => statement_handle})
@@ -187,6 +190,7 @@ defmodule AvalancheTest do
       assert {:ok, _result} = Avalanche.status(statement_handle, c.options)
     end
 
+    @tag :capture_log
     test "returns a Result struct for successful responses", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
       result_set = result_set_fixture(%{"statementHandle" => statement_handle})

@@ -263,6 +263,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
       assert [%{"COLUMN" => %{"test" => [1, "two", 3]}}] = response.body["data"]
     end
 
+    @tag :capture_log
     test "decodes variant type to Binary if data is not JSON" do
       result_set =
         result_set_fixture(%{
@@ -315,6 +316,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
       {"array", "a3a3", "unexpected byte at position 0"}
     ]
     |> Enum.each(fn {type, value, error} ->
+      @tag :capture_log
       test "decodes #{type} type to raw value with parse error" do
         result_set =
           result_set_fixture(%{

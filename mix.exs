@@ -21,8 +21,8 @@ defmodule Avalanche.MixProject do
       name: @name,
       source_url: @source_url,
       test_coverage: [tool: ExCoveralls],
-      bless_suite: bless_suite(),
       aliases: aliases(),
+      bless_suite: bless_suite(),
       deps: deps(),
       dialyzer: dialyzer(),
       docs: docs(),
@@ -82,7 +82,7 @@ defmodule Avalanche.MixProject do
   end
 
   defp preferred_cli_env,
-    do: [bless: :test, coveralls: :test, "coveralls.html": :test, credo: :test, docs: :docs, dialyzer: :test, qc: :test]
+    do: [bless: :test, coveralls: :test, "coveralls.html": :test, credo: :test, docs: :docs, dialyzer: :test]
 
   defp bless_suite do
     [
@@ -105,8 +105,7 @@ defmodule Avalanche.MixProject do
   defp aliases do
     [
       credo: ["compile", "credo"],
-      "test.all": ["test --include integration"],
-      qc: ["format", "compile --warnings-as-errors", "credo --strict", "test"]
+      "test.all": ["test --include integration"]
     ]
   end
 end

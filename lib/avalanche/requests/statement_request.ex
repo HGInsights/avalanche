@@ -75,31 +75,29 @@ defmodule Avalanche.StatementRequest do
   end
 
   defp build_pipeline(request) do
+    request_id = Request.get_request_id()
+
     req_options =
       request.options
       |> Keyword.take([:finch, :finch_options])
-      |> Keyword.merge(headers: request.headers, body: {:json, request.body})
+      |> Keyword.merge(
+        method: :post,
+        base_url: request.url,
+        url: Request.statements_path(),
+        auth: {:bearer, request.token},
+        headers: request.headers,
+        params: [requestId: request_id],
+        json: request.body
+      )
 
-    request_id = Request.get_request_id()
-    params = [requestId: request_id]
+    poll_options = Keyword.get(request.options, :poll_options, [])
+    get_partitions_options = Keyword.get(request.options, :get_partitions_options, [])
 
-    req_step_options = [
-      base_url: request.url,
-      params: params,
-      auth: {:bearer, request.token}
-    ]
-
-    poll = Keyword.get(request.options, :poll_options, [])
-    get_partitions = Keyword.get(request.options, :get_partitions_options, [])
-
-    :post
-    |> Req.Request.build(Request.statements_path(), req_options)
-    |> Req.Steps.put_default_steps(req_step_options)
-    |> Req.Request.append_response_steps([
-      {Steps.Poll, :poll, [poll]},
-      {Steps.DecodeData, :decode_body_data, []},
-      {Steps.GetPartitions, :get_partitions, [get_partitions]}
-    ])
+    req_options
+    |> Req.new()
+    |> Steps.Poll.attach(poll_options)
+    |> Steps.DecodeData.attach()
+    |> Steps.GetPartitions.attach(get_partitions_options)
   end
 
   defp build_body(statement, bindings, options) do

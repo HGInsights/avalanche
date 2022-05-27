@@ -21,8 +21,8 @@ defmodule Avalanche.MixProject do
       name: @name,
       source_url: @source_url,
       test_coverage: [tool: ExCoveralls],
-      bless_suite: bless_suite(),
       aliases: aliases(),
+      bless_suite: bless_suite(),
       deps: deps(),
       dialyzer: dialyzer(),
       docs: docs(),
@@ -43,13 +43,12 @@ defmodule Avalanche.MixProject do
 
   defp deps do
     [
-      {:finch, "~> 0.11.0"},
       {:jason, "~> 1.3"},
       {:joken, "~> 2.4"},
       {:nimble_options, "~> 0.4.0"},
       {:mentat, "~> 0.7.1"},
       {:plug, "~> 1.13"},
-      {:req, github: "wojtekmach/req", ref: "115b65d"},
+      {:req, github: "wojtekmach/req", ref: "e919679"},
       {:telemetry, "~> 1.1", override: true},
       {:uuid, "~> 1.1"},
       {:bless, "~> 1.2", only: [:dev, :test]},
@@ -60,7 +59,7 @@ defmodule Avalanche.MixProject do
       {:ex_doc, ">= 0.0.0", only: [:docs], runtime: false},
       {:excoveralls, "~> 0.14.4", only: [:dev, :test]},
       {:mimic, "~> 1.7", only: [:dev, :test]},
-      {:mix_test_watch, "~> 1.0.2", only: [:test, :dev]},
+      {:mix_test_watch, "~> 1.1.0", only: [:test, :dev]},
       {:vapor, "~> 0.10.0", only: [:dev, :test, :docs], runtime: false}
     ]
   end
@@ -82,7 +81,7 @@ defmodule Avalanche.MixProject do
   end
 
   defp preferred_cli_env,
-    do: [bless: :test, coveralls: :test, "coveralls.html": :test, credo: :test, docs: :docs, dialyzer: :test, qc: :test]
+    do: [bless: :test, coveralls: :test, "coveralls.html": :test, credo: :test, docs: :docs, dialyzer: :test]
 
   defp bless_suite do
     [
@@ -105,8 +104,7 @@ defmodule Avalanche.MixProject do
   defp aliases do
     [
       credo: ["compile", "credo"],
-      "test.all": ["test --include integration"],
-      qc: ["format", "compile --warnings-as-errors", "credo --strict", "test"]
+      "test.all": ["test --include integration"]
     ]
   end
 end

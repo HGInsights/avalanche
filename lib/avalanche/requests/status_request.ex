@@ -83,26 +83,24 @@ defmodule Avalanche.StatusRequest do
     req_options =
       request.options
       |> Keyword.take([:finch, :finch_options])
-      |> Keyword.merge(headers: request.headers)
+      |> Keyword.merge(
+        method: :get,
+        base_url: request.url,
+        url: request.path,
+        auth: {:bearer, request.token},
+        headers: request.headers,
+        params: [partition: partition]
+      )
 
-    req_step_options = [
-      base_url: request.url,
-      params: [partition: partition],
-      auth: {:bearer, request.token}
-    ]
+    poll_options = Keyword.get(request.options, :poll_options, [])
+    get_partitions_options = Keyword.get(request.options, :get_partitions_options, [])
 
-    poll = Keyword.get(request.options, :poll_options, [])
-    get_partitions = Keyword.get(request.options, :get_partitions_options, [])
-
-    :get
-    |> Req.Request.build(request.path, req_options)
+    req_options
+    |> Req.new()
     |> Req.Request.put_private(:avalanche_row_types, request.row_types)
-    |> Req.Steps.put_default_steps(req_step_options)
-    |> Req.Request.append_response_steps([
-      {Steps.Poll, :poll, [poll]},
-      {Steps.DecodeData, :decode_body_data, []},
-      {Steps.GetPartitions, :get_partitions, [get_partitions]}
-    ])
+    |> Steps.Poll.attach(poll_options)
+    |> Steps.DecodeData.attach()
+    |> Steps.GetPartitions.attach(get_partitions_options)
   end
 
   defp handle_response({request, %Req.Response{status: 200, body: body}}) do

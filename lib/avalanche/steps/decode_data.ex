@@ -12,6 +12,12 @@ defmodule Avalanche.Steps.DecodeData do
 
   https://docs.snowflake.com/en/developer-guide/sql-api/reference.html#label-sql-api-reference-resultset-resultsetmetadata
   """
+  def attach(%Req.Request{} = request, options \\ []) do
+    request
+    |> Req.Request.merge_options(options)
+    |> Req.Request.append_response_steps(decode_body_data: &decode_body_data/1)
+  end
+
   def decode_body_data(request_response)
 
   def decode_body_data({request, %{body: ""} = response}) do

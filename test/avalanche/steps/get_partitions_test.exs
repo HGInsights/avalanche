@@ -31,6 +31,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
       assert result.rows == []
     end
 
+    @tag :capture_log
     test "returns a Result struct with data form all partitions", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
@@ -89,6 +90,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
              ] = result.rows
     end
 
+    @tag :capture_log
     test "returns an Error when data form all partitions can't be fetched", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
@@ -171,6 +173,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
   end
 
   describe "status/2" do
+    @tag :capture_log
     test "returns a Result struct with data form all partitions", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 

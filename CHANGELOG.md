@@ -1,3 +1,10 @@
+## [0.5.1](https://github.com/HGInsights/avalanche/compare/v0.5.0...v0.5.1) (2022-05-27)
+
+
+### Bug Fixes
+
+* update Req to latest version (#11) ([f729627](https://github.com/HGInsights/avalanche/commit/f729627f2d0b98913bad08b0bc10f1f4911b64de)), closes [#11](https://github.com/HGInsights/avalanche/issues/11)
+
 # [0.5.0](https://github.com/HGInsights/avalanche/compare/v0.4.1...v0.5.0) (2022-05-25)
 
 

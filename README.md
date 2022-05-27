@@ -1,8 +1,9 @@
 # Avalanche
 
-[![CI](https://github.com/hginsights/avalanche/actions/workflows/ci.yml/badge.svg)](https://github.com/hginsights/avalanche/actions/workflows/ci.yml)
-
-[Docs](https://hexdocs.pm/avalanche)
+[![CI](https://github.com/HGInsights/avalanche/actions/workflows/elixir-ci.yml/badge.svg)](https://github.com/HGInsights/avalanche/actions/workflows/elixir-ci.yml)
+[![hex.pm version](https://img.shields.io/hexpm/v/avalanche.svg)](https://hex.pm/packages/avalanche)
+[![hex.pm license](https://img.shields.io/hexpm/l/avalanche.svg)](https://github.com/HGInsights/avalanche/blob/main/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/HGInsights/avalanche.svg)](https://github.com/HGInsights/avalanche/commits/main)
 
 <!-- MDOC !-->
 
@@ -34,16 +35,15 @@ end
 
 Avalanche is built on top of [Req](https://github.com/hginsights/req) & [Finch](http://github.com/keathley/finch) - thank you!
 
-## License
+## Documentation
 
-Copyright (c) 2022 HG Insights
+Documentation is automatically published to [hexdocs.pm](https://hexdocs.pm/avalanche) on release.
+You may build the documentation locally with
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+```
+MIX_ENV=docs mix docs
+```
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+## Contributing
+
+Issues and PRs are welcome! See our organization [CONTRIBUTING.md](https://github.com/HGInsights/.github/blob/main/CONTRIBUTING.md) for more information about best-practices and passing CI.

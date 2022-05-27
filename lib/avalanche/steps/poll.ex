@@ -15,15 +15,18 @@ defmodule Avalanche.Steps.Poll do
     * `:max_polls` - maximum number of poll attempts, defaults to `5` (for a total of `5`
       requests to the server, including the initial one.)
   """
-  def poll(request_response, options)
+  def attach(%Req.Request{} = request, options \\ []) do
+    request
+    |> Req.Request.register_options([:delay, :max_polls])
+    |> Req.Request.merge_options(options)
+    |> Req.Request.append_response_steps(poll: &poll/1)
+  end
 
-  def poll(
-        {request, %{status: 202, body: %{"statementStatusUrl" => path}} = response},
-        options
-      )
-      when is_list(options) do
-    delay = Keyword.get(options, :delay, 1000)
-    max_polls = Keyword.get(options, :max_polls, 4)
+  def poll(request_response)
+
+  def poll({request, %{status: 202, body: %{"statementStatusUrl" => path}} = response}) do
+    delay = Map.get(request.options, :delay, 1000)
+    max_polls = Map.get(request.options, :max_polls, 4)
     poll_count = Req.Request.get_private(request, :avalanche_poll_count, 0)
 
     if poll_count < max_polls do
@@ -43,7 +46,7 @@ defmodule Avalanche.Steps.Poll do
     end
   end
 
-  def poll(request_response, _options), do: request_response
+  def poll(request_response), do: request_response
 
   # reuse current request and turn it into a `StatusRequest`
   defp build_status_request(%Req.Request{} = request, path) do

@@ -49,7 +49,7 @@ defmodule Avalanche.MixProject do
       {:nimble_options, "~> 0.4.0"},
       {:mentat, "~> 0.7.1"},
       {:plug, "~> 1.13"},
-      {:req, github: "wojtekmach/req", ref: "115b65d"},
+      {:req, github: "wojtekmach/req", ref: "e919679"},
       {:telemetry, "~> 1.1", override: true},
       {:uuid, "~> 1.1"},
       {:bless, "~> 1.2", only: [:dev, :test]},
@@ -60,7 +60,7 @@ defmodule Avalanche.MixProject do
       {:ex_doc, ">= 0.0.0", only: [:docs], runtime: false},
       {:excoveralls, "~> 0.14.4", only: [:dev, :test]},
       {:mimic, "~> 1.7", only: [:dev, :test]},
-      {:mix_test_watch, "~> 1.0.2", only: [:test, :dev]},
+      {:mix_test_watch, "~> 1.1.0", only: [:test, :dev]},
       {:vapor, "~> 0.10.0", only: [:dev, :test, :docs], runtime: false}
     ]
   end

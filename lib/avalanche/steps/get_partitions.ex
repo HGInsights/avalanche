@@ -17,18 +17,22 @@ defmodule Avalanche.Steps.GetPartitions do
 
     * `:timeout` - the maximum amount of time to wait (in milliseconds). Defaults to 2 minutes.
   """
-  def get_partitions(request_response, options)
+  def attach(%Req.Request{} = request, options \\ []) do
+    request
+    |> Req.Request.register_options([:max_concurrency, :timeout])
+    |> Req.Request.merge_options(options)
+    |> Req.Request.append_response_steps(get_partitions: &get_partitions/1)
+  end
 
-  def get_partitions({request, %{body: ""} = response}, _options) do
+  def get_partitions(request_response)
+
+  def get_partitions({request, %{body: ""} = response}) do
     {request, response}
   end
 
-  def get_partitions(
-        {request, %{status: 200, body: %{"resultSetMetaData" => metadata} = body} = response},
-        options
-      ) do
-    max_concurrency = Keyword.get(options, :max_concurrency, System.schedulers_online())
-    timeout = Keyword.get(options, :timeout, :timer.minutes(2))
+  def get_partitions({request, %{status: 200, body: %{"resultSetMetaData" => metadata} = body} = response}) do
+    max_concurrency = Map.get(request.options, :max_concurrency, System.schedulers_online())
+    timeout = Map.get(request.options, :timeout, :timer.minutes(2))
 
     path = Map.fetch!(body, "statementStatusUrl")
     data = Map.fetch!(body, "data")
@@ -67,7 +71,7 @@ defmodule Avalanche.Steps.GetPartitions do
     {request, reduce_responses(response, data, partition_responses)}
   end
 
-  def get_partitions(request_response, _options), do: request_response
+  def get_partitions(request_response), do: request_response
 
   # reuse current request and turn it into a `StatusRequest`
   defp build_status_request(%Req.Request{} = request, path, partition, row_types) do
@@ -76,7 +80,7 @@ defmodule Avalanche.Steps.GetPartitions do
     |> Map.put(:body, "")
     |> Map.put(:url, URI.parse(path))
     |> Req.Request.put_private(:avalanche_row_types, row_types)
-    |> Req.Request.append_request_steps([{Req.Steps, :put_params, [[partition: partition]]}])
+    |> Req.Request.merge_options(params: [partition: partition])
   end
 
   defp handle_partition_response(response) do

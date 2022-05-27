@@ -214,6 +214,7 @@ defmodule AvalancheTest do
   end
 
   describe "status/2 errors" do
+    @tag :capture_log
     test "returns an unauthorized Error for 422 response code", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 

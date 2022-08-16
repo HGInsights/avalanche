@@ -59,7 +59,7 @@ defmodule Avalanche.Steps.PollTest do
         |> Plug.Conn.send_resp(200, Jason.encode!(body))
       end)
 
-      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], c.options)
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], [], c.options)
 
       assert result.num_rows == 10
     end

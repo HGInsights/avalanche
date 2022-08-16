@@ -82,7 +82,7 @@ defmodule Avalanche.StatusRequest do
   defp build_pipeline(request, partition) do
     req_options =
       request.options
-      |> Keyword.take([:finch, :finch_options])
+      |> Keyword.take([:finch, :pool_timeout, :receive_timeout])
       |> Keyword.merge(
         method: :get,
         base_url: request.url,
@@ -98,7 +98,7 @@ defmodule Avalanche.StatusRequest do
     req_options
     |> Req.new()
     |> Req.Request.put_private(:avalanche_row_types, request.row_types)
-    |> Steps.Poll.attach(poll_options)
+    |> Steps.Poll.attach(false, poll_options)
     |> Steps.DecodeData.attach()
     |> Steps.GetPartitions.attach(get_partitions_options)
   end

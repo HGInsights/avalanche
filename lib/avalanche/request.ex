@@ -30,7 +30,13 @@ defmodule Avalanche.Request do
   end
 
   def request_options(options) do
-    Keyword.take(options, [:finch, :finch_options, :poll_options, :get_partitions_options])
+    Keyword.take(options, [
+      :finch,
+      :pool_timeout,
+      :receive_timeout,
+      :poll_options,
+      :get_partitions_options
+    ])
   end
 
   defp url_with_sheme(url) do

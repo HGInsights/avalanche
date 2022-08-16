@@ -25,7 +25,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
         |> Plug.Conn.send_resp(200, "")
       end)
 
-      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], c.options)
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], [], c.options)
 
       assert result.num_rows == 0
       assert result.rows == []
@@ -72,7 +72,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
         end
       )
 
-      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], c.options)
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], [], c.options)
 
       assert result.num_rows == 10
 
@@ -138,7 +138,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
               %Avalanche.Error{
                 meta: %{error: %{message: "Fetching all partitions failed."}},
                 reason: :request_timeout
-              }} = Avalanche.run("select 1;", [], c.options)
+              }} = Avalanche.run("select 1;", [], [], c.options)
     end
 
     test "returns a Result struct with initial data when partitions is empty", c do
@@ -160,7 +160,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
         |> Plug.Conn.send_resp(200, Jason.encode!(result_set))
       end)
 
-      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], c.options)
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], [], c.options)
 
       assert result.num_rows == 3
 
@@ -204,7 +204,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
         |> Plug.Conn.send_resp(200, Jason.encode!(body))
       end)
 
-      assert {:ok, %Avalanche.Result{} = result} = Avalanche.status(statement_handle, c.options)
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.status(statement_handle, [], c.options)
 
       assert result.num_rows == 10
 

@@ -8,80 +8,105 @@ defmodule Avalanche do
 
   @default_snowflake_timeout 172_800
 
-  @options_schema NimbleOptions.new!(
-                    server: [
-                      type: :string,
-                      required: true,
-                      doc: "Snowflake server to sned requests to."
-                    ],
-                    warehouse: [
-                      type: :string,
-                      required: true,
-                      doc: "Snowflake warehouse for the statement execution."
-                    ],
-                    database: [
-                      type: :string,
-                      required: true,
-                      doc: "Snowflake database to sned requests to."
-                    ],
-                    schema: [
-                      type: :string,
-                      required: true,
-                      doc: "Snowflake schema for the statement execution."
-                    ],
-                    role: [
-                      type: :string,
-                      required: true,
-                      doc: "Snowflake role for the statement execution."
-                    ],
-                    timeout: [
-                      type: :non_neg_integer,
-                      required: false,
-                      default: 172_800,
-                      doc:
-                        "Snowflake timeout for the statement execution. 0 to 604800 (i.e. 7 days) — a value of 0 specifies that the maximum timeout value is enforced."
-                    ],
-                    token: [
-                      type:
-                        {:or,
-                         [
-                           :string,
-                           non_empty_keyword_list: [
-                             account: [type: :string],
-                             user: [type: :string],
-                             priv_key: [type: :string]
+  @request_options_schema NimbleOptions.new!(
+                            server: [
+                              type: :string,
+                              required: true,
+                              doc: "Snowflake server to send requests to."
+                            ],
+                            warehouse: [
+                              type: :string,
+                              required: true,
+                              doc: "Snowflake warehouse for the statement execution."
+                            ],
+                            database: [
+                              type: :string,
+                              required: true,
+                              doc: "Snowflake database for the statement execution."
+                            ],
+                            schema: [
+                              type: :string,
+                              required: true,
+                              doc: "Snowflake schema for the statement execution."
+                            ],
+                            role: [
+                              type: :string,
+                              required: true,
+                              doc: "Snowflake role for the statement execution."
+                            ],
+                            timeout: [
+                              type: :non_neg_integer,
+                              required: false,
+                              default: 172_800,
+                              doc:
+                                "Snowflake timeout for the statement execution. 0 to 604800 (i.e. 7 days) — a value of 0 specifies that the maximum timeout value is enforced."
+                            ],
+                            token: [
+                              type:
+                                {:or,
+                                 [
+                                   :string,
+                                   non_empty_keyword_list: [
+                                     account: [type: :string],
+                                     user: [type: :string],
+                                     priv_key: [type: :string]
+                                   ]
+                                 ]},
+                              required: true,
+                              doc: "Snowflake authentication via OAuth token or Key Pair."
+                            ],
+                            poll_options: [
+                              type: :non_empty_keyword_list,
+                              keys: [
+                                delay: [type: :pos_integer],
+                                max_polls: [type: :pos_integer]
+                              ],
+                              doc: "Options to customize polling for the completion of a statement execution."
+                            ],
+                            get_partitions_options: [
+                              type: :non_empty_keyword_list,
+                              keys: [
+                                max_concurrency: [type: :pos_integer],
+                                timeout: [type: :pos_integer]
+                              ],
+                              doc:
+                                "Options to customize retrieving all the partitions of data from a statement execution."
+                            ],
+                            finch: [
+                              type: :any,
+                              doc:
+                                "Finch pool to use. See `Finch` module documentation for more information on starting pools."
+                            ],
+                            pool_timeout: [
+                              type: :pos_integer,
+                              default: 5000,
+                              doc: "Finch pool checkout timeout in milliseconds"
+                            ],
+                            receive_timeout: [
+                              type: :pos_integer,
+                              default: 15_000,
+                              doc: "Finch socket receive timeout in milliseconds"
+                            ]
+                          )
+
+  @run_options_schema NimbleOptions.new!(
+                        async: [
+                          type: :boolean,
+                          required: false,
+                          default: false,
+                          doc: "Set to true to execute the statement asynchronously and return the statement handle."
+                        ]
+                      )
+
+  @status_options_schema NimbleOptions.new!(
+                           partition: [
+                             type: :non_neg_integer,
+                             required: false,
+                             default: 0,
+                             doc:
+                               "Number of the partition of results to return. The number can range from 0 to the total number of partitions minus 1."
                            ]
-                         ]},
-                      required: true,
-                      doc: "Snowflake authentication via OAuth token or Key Pair."
-                    ],
-                    poll_options: [
-                      type: :non_empty_keyword_list,
-                      keys: [
-                        delay: [type: :pos_integer],
-                        max_polls: [type: :pos_integer]
-                      ],
-                      doc: "Options to customize polling for the completion of a statement execution."
-                    ],
-                    get_partitions_options: [
-                      type: :non_empty_keyword_list,
-                      keys: [
-                        max_concurrency: [type: :pos_integer],
-                        timeout: [type: :pos_integer]
-                      ],
-                      doc: "Options to customize retrieve all the partitons of data from a statement execution."
-                    ],
-                    finch: [
-                      type: :any,
-                      doc: "Finch pool to use. See `Finch` module documentation for more information on starting pools."
-                    ],
-                    finch_options: [
-                      type: :keyword_list,
-                      default: [],
-                      doc:
-                        "Options passed down to Finch when making the request. See `Finch.request/3` for more information."
-                    ]
-                  )
+                         )
 
   @doc """
   Submits SQL statements to Snowflake for execution.
@@ -90,19 +115,25 @@ defmodule Avalanche do
 
     * `:params` - list of values for the bind variables in the statement
 
-  ## Options
+  #### Run Options
 
-  #{NimbleOptions.docs(@options_schema)}
+  #{NimbleOptions.docs(@run_options_schema)}
 
-  The `options` are merged with default options set with `default_options/1`.
+  #### Request Options
+
+  #{NimbleOptions.docs(@request_options_schema)}
+
+  The `request_options` are merged with default options set with `default_options/1`.
   """
-  @spec run(String.t(), list(), keyword()) :: any() | {:error, Avalanche.Error.t()}
-  def run(statement, params \\ [], options \\ []) do
-    with opts <- Keyword.merge(default_options(), options),
-         {:ok, valid_opts} <- validate_options(opts) do
+  @spec run(String.t(), list(), keyword(), keyword()) :: any() | {:error, Avalanche.Error.t()}
+  def run(statement, params \\ [], run_options \\ [], request_options \\ []) do
+    with request_opts <- Keyword.merge(default_options(), request_options),
+         {:ok, valid_request_opts} <- validate_options(request_opts, @request_options_schema),
+         {:ok, valid_run_opts} <- validate_options(run_options, @run_options_schema),
+         async <- Keyword.fetch!(valid_run_opts, :async) do
       statement
-      |> Avalanche.StatementRequest.build(params, valid_opts)
-      |> Avalanche.StatementRequest.run()
+      |> Avalanche.StatementRequest.build(params, valid_request_opts)
+      |> Avalanche.StatementRequest.run(async)
     end
   end
 
@@ -111,19 +142,25 @@ defmodule Avalanche do
 
     * `:statement_handle` - the unique identifier for an executed statement
 
-  ## Options
+  #### Status Options
 
-  #{NimbleOptions.docs(@options_schema)}
+  #{NimbleOptions.docs(@status_options_schema)}
 
-  The `options` are merged with default options set with `default_options/1`.
+  #### Request Options
+
+  #{NimbleOptions.docs(@request_options_schema)}
+
+  The `request_options` are merged with default options set with `default_options/1`.
   """
-  @spec status(String.t(), keyword()) :: any() | {:error, Avalanche.Error.t()}
-  def status(statement_handle, options \\ []) do
-    with opts <- Keyword.merge(default_options(), options),
-         {:ok, valid_opts} <- validate_options(opts) do
+  @spec status(String.t(), keyword(), keyword()) :: any() | {:error, Avalanche.Error.t()}
+  def status(statement_handle, status_options \\ [], request_options \\ []) do
+    with request_opts <- Keyword.merge(default_options(), request_options),
+         {:ok, valid_request_opts} <- validate_options(request_opts, @request_options_schema),
+         {:ok, valid_status_opts} <- validate_options(status_options, @status_options_schema),
+         partition <- Keyword.fetch!(valid_status_opts, :partition) do
       statement_handle
-      |> Avalanche.StatusRequest.build(valid_opts)
-      |> Avalanche.StatusRequest.run()
+      |> Avalanche.StatusRequest.build(valid_request_opts)
+      |> Avalanche.StatusRequest.run(partition)
     end
   end
 
@@ -147,13 +184,13 @@ defmodule Avalanche do
   """
   @spec default_options(keyword()) :: :ok | {:error, Avalanche.Error.t()}
   def default_options(options) do
-    with {:ok, opts} <- validate_options(options) do
+    with {:ok, opts} <- validate_options(options, @request_options_schema) do
       Application.put_env(:avalanche, :default_options, opts)
     end
   end
 
-  defp validate_options(options) do
-    case NimbleOptions.validate(options, @options_schema) do
+  defp validate_options(options, schema) do
+    case NimbleOptions.validate(options, schema) do
       {:ok, opts} -> {:ok, opts}
       {:error, error} -> {:error, Avalanche.Error.new(:invalid_options, Exception.message(error))}
     end

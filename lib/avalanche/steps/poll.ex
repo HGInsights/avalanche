@@ -6,7 +6,7 @@ defmodule Avalanche.Steps.Poll do
   require Logger
 
   @doc """
-  Polls for the completion of a statement execution.
+  Polls for the completion of a statement execution if async is false.
 
   ## Options
 
@@ -15,12 +15,14 @@ defmodule Avalanche.Steps.Poll do
     * `:max_polls` - maximum number of poll attempts, defaults to `5` (for a total of `5`
       requests to the server, including the initial one.)
   """
-  def attach(%Req.Request{} = request, options \\ []) do
+  def attach(%Req.Request{} = request, false, options \\ []) do
     request
     |> Req.Request.register_options([:delay, :max_polls])
     |> Req.Request.merge_options(options)
     |> Req.Request.append_response_steps(poll: &poll/1)
   end
+
+  def attach(%Req.Request{} = request, true, _options), do: request
 
   def poll(request_response)
 

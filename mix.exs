@@ -48,7 +48,7 @@ defmodule Avalanche.MixProject do
       {:nimble_options, "~> 0.4.0"},
       {:mentat, "~> 0.7.1"},
       {:plug, "~> 1.13"},
-      {:req, github: "wojtekmach/req", ref: "e919679"},
+      {:req, "~> 0.3.0"},
       {:telemetry, "~> 1.1", override: true},
       {:uuid, "~> 1.1"},
       {:bless, "~> 1.2", only: [:dev, :test]},
@@ -81,7 +81,15 @@ defmodule Avalanche.MixProject do
   end
 
   defp preferred_cli_env,
-    do: [bless: :test, coveralls: :test, "coveralls.html": :test, credo: :test, docs: :docs, dialyzer: :test]
+    do: [
+      bless: :test,
+      coveralls: :test,
+      "coveralls.html": :test,
+      credo: :test,
+      docs: :docs,
+      dialyzer: :test,
+      "test.all": :test
+    ]
 
   defp bless_suite do
     [

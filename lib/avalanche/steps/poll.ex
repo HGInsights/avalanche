@@ -15,7 +15,7 @@ defmodule Avalanche.Steps.Poll do
     * `:max_polls` - maximum number of poll attempts, defaults to `5` (for a total of `5`
       requests to the server, including the initial one.)
   """
-  def attach(%Req.Request{} = request, false, options \\ []) do
+  def attach(%Req.Request{} = request, false, options) do
     request
     |> Req.Request.register_options([:delay, :max_polls])
     |> Req.Request.merge_options(options)

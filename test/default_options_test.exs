@@ -19,7 +19,7 @@ defmodule DefaultOptionsTest do
     )
 
     assert Avalanche.default_options() == [
-             {:receive_timeout, 15000},
+             {:receive_timeout, 15_000},
              {:pool_timeout, 5000},
              {:server, "test.com"},
              {:token, "test"},

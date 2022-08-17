@@ -1,3 +1,16 @@
+# [0.6.0](https://github.com/HGInsights/avalanche/compare/v0.5.1...v0.6.0) (2022-08-17)
+
+
+### Chores
+
+* added CODEOWNERS file ([91adf87](https://github.com/HGInsights/avalanche/commit/91adf87168ff2a77d05a41cd926618f4dde9dd0e))
+* update readme and add license ([96f5695](https://github.com/HGInsights/avalanche/commit/96f569562932ba06ebaa6aaad17bfd2e4e726cba))
+
+
+### Features
+
+* support async option for statement execution and status (#12) ([8f610bf](https://github.com/HGInsights/avalanche/commit/8f610bff4717c0d04fe9637f017a13c0ed71ede4)), closes [#12](https://github.com/HGInsights/avalanche/issues/12)
+
 ## [0.5.1](https://github.com/HGInsights/avalanche/compare/v0.5.0...v0.5.1) (2022-05-27)
 
 

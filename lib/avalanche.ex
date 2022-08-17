@@ -99,6 +99,12 @@ defmodule Avalanche do
                       )
 
   @status_options_schema NimbleOptions.new!(
+                           async: [
+                             type: :boolean,
+                             required: false,
+                             default: false,
+                             doc: "Set to true to disable polling and waiting for a statement to finish executing."
+                           ],
                            partition: [
                              type: :non_neg_integer,
                              required: false,
@@ -157,10 +163,11 @@ defmodule Avalanche do
     with request_opts <- Keyword.merge(default_options(), request_options),
          {:ok, valid_request_opts} <- validate_options(request_opts, @request_options_schema),
          {:ok, valid_status_opts} <- validate_options(status_options, @status_options_schema),
+         async <- Keyword.fetch!(valid_status_opts, :async),
          partition <- Keyword.fetch!(valid_status_opts, :partition) do
       statement_handle
       |> Avalanche.StatusRequest.build(valid_request_opts)
-      |> Avalanche.StatusRequest.run(partition)
+      |> Avalanche.StatusRequest.run(async, partition)
     end
   end
 

@@ -63,14 +63,20 @@ defmodule AvalancheTest do
 
     @tag :capture_log
     test "async param can be set to true", c do
-      result_set = result_set_fixture()
+      response = %{
+        "code" => "333334",
+        "message" =>
+          "Asynchronous execution in progress. Use provided query id to perform query monitoring and management.",
+        "statementHandle" => "01a6547a-0401-b636-0023-350369cb45aa",
+        "statementStatusUrl" => "/api/v2/statements/01a6547a-0401-b636-0023-350369cb45aa"
+      }
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         assert Map.get(conn.params, "async") == "true"
 
         conn
         |> Plug.Conn.put_resp_header("content-type", "application/json")
-        |> Plug.Conn.send_resp(202, Jason.encode!(result_set))
+        |> Plug.Conn.send_resp(202, Jason.encode!(response))
       end)
 
       assert {:ok, %Avalanche.Result{num_rows: nil, rows: nil, statement_handle: _}} =
@@ -273,6 +279,32 @@ defmodule AvalancheTest do
       end)
 
       assert {:ok, _result} = Avalanche.status(statement_handle, [partition: 3], c.options)
+    end
+
+    @tag :capture_log
+    test "can make async status request and get empty result if execution in progress", c do
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+
+      response = %{
+        "code" => "333334",
+        "message" =>
+          "Asynchronous execution in progress. Use provided query id to perform query monitoring and management.",
+        "statementHandle" => statement_handle,
+        "statementStatusUrl" => "/api/v2/statements/#{statement_handle}"
+      }
+
+      Bypass.expect(c.bypass, "GET", "/api/v2/statements/#{statement_handle}", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(202, Jason.encode!(response))
+      end)
+
+      assert {:ok,
+              %Avalanche.Result{
+                num_rows: nil,
+                rows: nil,
+                statement_handle: "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+              }} = Avalanche.status(statement_handle, [async: true], c.options)
     end
   end
 

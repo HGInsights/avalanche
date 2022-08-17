@@ -8,6 +8,10 @@ defmodule Avalanche.Steps.Poll do
   @doc """
   Polls for the completion of a statement execution if async is false.
 
+    * `:request` - the request
+
+    * `:disable` - set to true to disable polling for this request
+
   ## Options
 
     * `:delay` - sleep this number of milliseconds between attempts, defaults to `1000`

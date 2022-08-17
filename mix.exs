@@ -22,7 +22,6 @@ defmodule Avalanche.MixProject do
       source_url: @source_url,
       test_coverage: [tool: ExCoveralls],
       aliases: aliases(),
-      bless_suite: bless_suite(),
       deps: deps(),
       dialyzer: dialyzer(),
       docs: docs(),
@@ -48,10 +47,9 @@ defmodule Avalanche.MixProject do
       {:nimble_options, "~> 0.4.0"},
       {:mentat, "~> 0.7.1"},
       {:plug, "~> 1.13"},
-      {:req, github: "wojtekmach/req", ref: "e919679"},
+      {:req, "~> 0.3.0"},
       {:telemetry, "~> 1.1", override: true},
       {:uuid, "~> 1.1"},
-      {:bless, "~> 1.2", only: [:dev, :test]},
       {:bypass, "~> 2.1", only: [:dev, :test]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test, :docs], runtime: false},
@@ -81,17 +79,16 @@ defmodule Avalanche.MixProject do
   end
 
   defp preferred_cli_env,
-    do: [bless: :test, coveralls: :test, "coveralls.html": :test, credo: :test, docs: :docs, dialyzer: :test]
-
-  defp bless_suite do
-    [
-      compile: ["--warnings-as-errors", "--force"],
-      format: [],
-      credo: ["--strict"],
-      "deps.unlock": ["--check-unused"],
-      "coveralls.html": ["--raise", "--exclude", "skip_ci"]
+    do: [
+      bless: :test,
+      qc: :test,
+      coveralls: :test,
+      "coveralls.html": :test,
+      credo: :test,
+      docs: :docs,
+      dialyzer: :test,
+      "test.all": :test
     ]
-  end
 
   defp dialyzer do
     [
@@ -103,8 +100,15 @@ defmodule Avalanche.MixProject do
 
   defp aliases do
     [
-      credo: ["compile", "credo"],
-      "test.all": ["test --include integration"]
+      "test.all": ["test --include integration"],
+      bless: "qc",
+      qc: [
+        "format",
+        "compile --warnings-as-errors",
+        "credo --strict",
+        "deps.unlock --check-unused",
+        "coveralls.html --exclude skip_ci"
+      ]
     ]
   end
 end

@@ -71,18 +71,18 @@ defmodule Avalanche.StatusRequest do
 
   Returns `{:ok, response}` or `{:error, exception}`.
   """
-  def run(%__MODULE__{} = request, partition \\ 0) do
-    pipeline = build_pipeline(request, partition)
+  def run(%__MODULE__{} = request, async \\ false, partition \\ 0) do
+    pipeline = build_pipeline(request, async, partition)
 
     with {:ok, response} <- Req.Request.run(pipeline) do
       handle_response({request, response})
     end
   end
 
-  defp build_pipeline(request, partition) do
+  defp build_pipeline(request, async, partition) do
     req_options =
       request.options
-      |> Keyword.take([:finch, :finch_options])
+      |> Keyword.take([:finch, :pool_timeout, :receive_timeout])
       |> Keyword.merge(
         method: :get,
         base_url: request.url,
@@ -98,7 +98,7 @@ defmodule Avalanche.StatusRequest do
     req_options
     |> Req.new()
     |> Req.Request.put_private(:avalanche_row_types, request.row_types)
-    |> Steps.Poll.attach(poll_options)
+    |> Steps.Poll.attach(async, poll_options)
     |> Steps.DecodeData.attach()
     |> Steps.GetPartitions.attach(get_partitions_options)
   end
@@ -107,6 +107,12 @@ defmodule Avalanche.StatusRequest do
     data = Map.fetch!(body, "data")
 
     {:ok, %Result{statement_handle: request.statement_handle, num_rows: length(data), rows: data}}
+  end
+
+  defp handle_response({_request, %Req.Response{status: 202, body: body}}) do
+    statement_handle = Map.fetch!(body, "statementHandle")
+
+    {:ok, %Result{statement_handle: statement_handle}}
   end
 
   defp handle_response({_request, %Req.Response{status: status} = response})

@@ -1,6 +1,6 @@
 defmodule Avalanche.Steps.GetPartitions do
   @moduledoc """
-  A custom `Req` pipeline step to retrieve all the partitons of data from a statement execution.
+  A custom `Req` pipeline step to retrieve all the partitions of data from a statement execution.
   """
 
   require Logger

@@ -12,7 +12,7 @@ defmodule AvalancheIntegrationTest do
     end
 
     test "returns a Result struct", c do
-      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], c.options)
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], [], c.options)
       assert result.num_rows == 1
     end
   end
@@ -24,7 +24,7 @@ defmodule AvalancheIntegrationTest do
     end
 
     test "returns a Result struct", c do
-      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], c.options)
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], [], c.options)
       assert result.num_rows == 1
     end
   end
@@ -36,7 +36,7 @@ defmodule AvalancheIntegrationTest do
     end
 
     test "allows bind variables", c do
-      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select ?;", [33], c.options)
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select ?;", [33], [], c.options)
       assert result.num_rows == 1
     end
 
@@ -45,6 +45,7 @@ defmodule AvalancheIntegrationTest do
                Avalanche.run(
                  "SELECT *, 9 as number FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS ORDER BY O_ORDERKEY LIMIT ?",
                  [2],
+                 [],
                  c.options
                )
 
@@ -70,6 +71,7 @@ defmodule AvalancheIntegrationTest do
                Avalanche.run(
                  "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.WEATHER.DAILY_14_TOTAL LIMIT 1",
                  [],
+                 [],
                  c.options
                )
 
@@ -83,10 +85,23 @@ defmodule AvalancheIntegrationTest do
                Avalanche.run(
                  "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS ORDER BY O_ORDERKEY LIMIT ?",
                  [20_000],
+                 [],
                  c.options
                )
 
       assert result.num_rows == 20_000
+    end
+
+    test "async query and status to get results", c do
+      assert {:ok, %Avalanche.Result{num_rows: nil, rows: nil, statement_handle: statement_handle}} =
+               Avalanche.run(
+                 "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS ORDER BY O_ORDERKEY LIMIT ?",
+                 [3],
+                 [async: true],
+                 c.options
+               )
+
+      assert {:ok, %Avalanche.Result{num_rows: 3}} = Avalanche.status(statement_handle, [], c.options)
     end
 
     # test "generate flamegraph", c do

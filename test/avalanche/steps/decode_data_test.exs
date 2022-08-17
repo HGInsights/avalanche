@@ -380,6 +380,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
                Avalanche.run(
                  "SELECT *, 9 as number FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS ORDER BY O_ORDERKEY LIMIT ?",
                  [2],
+                 [],
                  c.options
                )
 
@@ -404,6 +405,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
       assert {:ok, %Avalanche.Result{} = result2} =
                Avalanche.run(
                  "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.WEATHER.DAILY_14_TOTAL LIMIT 1",
+                 [],
                  [],
                  c.options
                )

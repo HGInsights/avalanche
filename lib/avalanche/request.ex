@@ -32,8 +32,8 @@ defmodule Avalanche.Request do
       :finch,
       :pool_timeout,
       :receive_timeout,
-      :poll_options,
-      :get_partitions_options
+      :poll,
+      :get_partitions
     ])
   end
 

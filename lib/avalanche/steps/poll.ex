@@ -16,12 +16,12 @@ defmodule Avalanche.Steps.Poll do
 
     * `:delay` - sleep this number of milliseconds between attempts, defaults to `1000`
 
-    * `:max_polls` - maximum number of poll attempts, defaults to `5` (for a total of `5`
+    * `:max_attempts` - maximum number of poll attempts, defaults to `5` (for a total of `5`
       requests to the server, including the initial one.)
   """
   def attach(%Req.Request{} = request, false, options) do
     request
-    |> Req.Request.register_options([:delay, :max_polls])
+    |> Req.Request.register_options([:delay, :max_attempts])
     |> Req.Request.merge_options(options)
     |> Req.Request.append_response_steps(poll: &poll/1)
   end
@@ -32,11 +32,11 @@ defmodule Avalanche.Steps.Poll do
 
   def poll({request, %{status: 202, body: %{"statementStatusUrl" => path}} = response}) do
     delay = Map.get(request.options, :delay, 1000)
-    max_polls = Map.get(request.options, :max_polls, 4)
+    max_attempts = Map.get(request.options, :max_attempts, 4)
     poll_count = Req.Request.get_private(request, :avalanche_poll_count, 0)
 
-    if poll_count < max_polls do
-      log_poll(response, poll_count, max_polls, delay)
+    if poll_count < max_attempts do
+      log_poll(response, poll_count, max_attempts, delay)
       Process.sleep(delay)
 
       request =
@@ -62,9 +62,9 @@ defmodule Avalanche.Steps.Poll do
     |> Map.put(:url, URI.parse(path))
   end
 
-  defp log_poll(response, poll_count, max_polls, delay) do
+  defp log_poll(response, poll_count, max_attempts, delay) do
     retries_left =
-      case max_polls - poll_count do
+      case max_attempts - poll_count do
         1 -> "1 attempt"
         n -> "#{n} attempts"
       end

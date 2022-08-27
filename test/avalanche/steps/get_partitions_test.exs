@@ -10,8 +10,8 @@ defmodule Avalanche.Steps.GetPartitionsTest do
 
     options =
       Keyword.merge(options,
-        poll_options: [delay: 50, max_polls: 2],
-        get_partitions_options: [max_concurrency: 2, timeout: :timer.seconds(60)]
+        poll: [delay: 50, max_attempts: 2],
+        get_partitions: [max_concurrency: 2, timeout: :timer.seconds(60)]
       )
 
     [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]

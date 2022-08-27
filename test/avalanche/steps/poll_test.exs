@@ -8,7 +8,7 @@ defmodule Avalanche.Steps.PollTest do
     server = "http://localhost:#{bypass.port}"
     options = test_options(server: server)
 
-    options = Keyword.merge(options, poll_options: [delay: 50, max_polls: 2])
+    options = Keyword.merge(options, poll: [delay: 50, max_attempts: 2])
 
     [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
   end

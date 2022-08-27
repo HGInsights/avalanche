@@ -55,7 +55,7 @@ defmodule Avalanche do
                               required: true,
                               doc: "Snowflake authentication via OAuth token or Key Pair."
                             ],
-                            poll_options: [
+                            poll: [
                               type: :non_empty_keyword_list,
                               keys: [
                                 delay: [
@@ -63,15 +63,16 @@ defmodule Avalanche do
                                   default: 1000,
                                   doc: "Sleep this number of milliseconds between attempts."
                                 ],
-                                max_polls: [
+                                max_attempts: [
                                   type: :pos_integer,
                                   default: 5,
                                   doc: "Maximum number of poll attempts."
                                 ]
                               ],
-                              doc: "Options to customize polling for the completion of a statement execution."
+                              doc:
+                                "Options to customize polling for the completion of a statement's execution. Synchronous statement execution will wait a maximum of 45 secondes plus the `poll` configuration (default 5 seconds)."
                             ],
-                            get_partitions_options: [
+                            get_partitions: [
                               type: :non_empty_keyword_list,
                               keys: [
                                 max_concurrency: [
@@ -86,7 +87,7 @@ defmodule Avalanche do
                                 ]
                               ],
                               doc:
-                                "Options to customize retrieving all the partitions of data from a statement execution."
+                                "Options to customize retrieving all the partitions of data from a statement's execution."
                             ],
                             finch: [
                               type: :any,
@@ -120,7 +121,7 @@ defmodule Avalanche do
                         retry: [
                           type: :boolean,
                           required: false,
-                          doc: "Set to true only when retrying the statement with a previous request_id."
+                          doc: "Set to true only when retrying the statement with a previous `request_id`."
                         ]
                       )
 

@@ -23,8 +23,6 @@ defmodule Avalanche.Request do
     Avalanche.TokenCache.fetch_token(token_opts)
   end
 
-  def get_request_id, do: UUID.uuid4()
-
   def server_url(options) do
     options |> Keyword.fetch!(:server) |> url_with_sheme()
   end

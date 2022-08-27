@@ -58,16 +58,32 @@ defmodule Avalanche do
                             poll_options: [
                               type: :non_empty_keyword_list,
                               keys: [
-                                delay: [type: :pos_integer],
-                                max_polls: [type: :pos_integer]
+                                delay: [
+                                  type: :pos_integer,
+                                  default: 1000,
+                                  doc: "Sleep this number of milliseconds between attempts."
+                                ],
+                                max_polls: [
+                                  type: :pos_integer,
+                                  default: 5,
+                                  doc: "Maximum number of poll attempts."
+                                ]
                               ],
                               doc: "Options to customize polling for the completion of a statement execution."
                             ],
                             get_partitions_options: [
                               type: :non_empty_keyword_list,
                               keys: [
-                                max_concurrency: [type: :pos_integer],
-                                timeout: [type: :pos_integer]
+                                max_concurrency: [
+                                  type: :pos_integer,
+                                  doc:
+                                    "Sets the maximum number of tasks to run at the same time. The default value is `System.schedulers_online/0`."
+                                ],
+                                timeout: [
+                                  type: :pos_integer,
+                                  default: 120_000,
+                                  doc: "Maximum amount of time to wait (in milliseconds)."
+                                ]
                               ],
                               doc:
                                 "Options to customize retrieving all the partitions of data from a statement execution."
@@ -80,12 +96,12 @@ defmodule Avalanche do
                             pool_timeout: [
                               type: :pos_integer,
                               default: 5000,
-                              doc: "Finch pool checkout timeout in milliseconds"
+                              doc: "Finch pool checkout timeout in milliseconds."
                             ],
                             receive_timeout: [
                               type: :pos_integer,
                               default: 15_000,
-                              doc: "Finch socket receive timeout in milliseconds"
+                              doc: "Finch socket receive timeout in milliseconds."
                             ]
                           )
 
@@ -95,6 +111,16 @@ defmodule Avalanche do
                           required: false,
                           default: false,
                           doc: "Set to true to execute the statement asynchronously and return the statement handle."
+                        ],
+                        request_id: [
+                          type: :string,
+                          required: false,
+                          doc: "Unique ID (a UUID) of the API request."
+                        ],
+                        retry: [
+                          type: :boolean,
+                          required: false,
+                          doc: "Set to true only when retrying the statement with a previous request_id."
                         ]
                       )
 
@@ -135,11 +161,10 @@ defmodule Avalanche do
   def run(statement, params \\ [], run_options \\ [], request_options \\ []) do
     with request_opts <- Keyword.merge(default_options(), request_options),
          {:ok, valid_request_opts} <- validate_options(request_opts, @request_options_schema),
-         {:ok, valid_run_opts} <- validate_options(run_options, @run_options_schema),
-         async <- Keyword.fetch!(valid_run_opts, :async) do
+         {:ok, valid_run_opts} <- validate_options(run_options, @run_options_schema) do
       statement
       |> Avalanche.StatementRequest.build(params, valid_request_opts)
-      |> Avalanche.StatementRequest.run(async)
+      |> Avalanche.StatementRequest.run(valid_run_opts)
     end
   end
 

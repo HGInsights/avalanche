@@ -37,9 +37,9 @@ defmodule Avalanche do
                             timeout: [
                               type: :non_neg_integer,
                               required: false,
-                              default: 172_800,
+                              default: 3600,
                               doc:
-                                "Snowflake timeout for the statement execution. 0 to 604800 (i.e. 7 days) — a value of 0 specifies that the maximum timeout value is enforced."
+                                "Snowflake timeout in seconds for the statement execution. 0 to 604800 (i.e. 7 days) — a value of 0 specifies that the maximum timeout value is enforced."
                             ],
                             token: [
                               type:
@@ -60,17 +60,17 @@ defmodule Avalanche do
                               keys: [
                                 delay: [
                                   type: :pos_integer,
-                                  default: 1000,
+                                  default: 2500,
                                   doc: "Sleep this number of milliseconds between attempts."
                                 ],
                                 max_attempts: [
                                   type: :pos_integer,
-                                  default: 5,
+                                  default: 30,
                                   doc: "Maximum number of poll attempts."
                                 ]
                               ],
                               doc:
-                                "Options to customize polling for the completion of a statement's execution. Synchronous statement execution will wait a maximum of 45 secondes plus the `poll` configuration (default 5 seconds)."
+                                "Options to customize polling for the completion of a statement's execution. Synchronous statement execution will wait a maximum of 45 secondes plus the `poll` configuration (75 seconds) for a total of 2 minutes."
                             ],
                             get_partitions: [
                               type: :non_empty_keyword_list,
@@ -101,8 +101,13 @@ defmodule Avalanche do
                             ],
                             receive_timeout: [
                               type: :pos_integer,
-                              default: 15_000,
-                              doc: "Finch socket receive timeout in milliseconds."
+                              default: 50_000,
+                              doc: """
+                              Finch socket receive timeout in milliseconds.
+                              The default accounts for Snowflake's 45 second synchronous statement execution timeout.
+                              Use the `poll` options if you want to wait longer for a result. Otherwise a statement handle
+                              will be returned that you can use with `Avalanche.status/3` to get the result.
+                              """
                             ]
                           )
 

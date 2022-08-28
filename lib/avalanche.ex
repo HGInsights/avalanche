@@ -6,7 +6,7 @@ defmodule Avalanche do
              |> String.split("<!-- MDOC !-->")
              |> Enum.fetch!(1)
 
-  @default_snowflake_timeout 172_800
+  @default_snowflake_timeout 3600
 
   @request_options_schema NimbleOptions.new!(
                             server: [
@@ -37,7 +37,7 @@ defmodule Avalanche do
                             timeout: [
                               type: :non_neg_integer,
                               required: false,
-                              default: 3600,
+                              default: @default_snowflake_timeout,
                               doc:
                                 "Snowflake timeout in seconds for the statement execution. 0 to 604800 (i.e. 7 days) — a value of 0 specifies that the maximum timeout value is enforced."
                             ],

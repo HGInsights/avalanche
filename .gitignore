@@ -36,6 +36,3 @@ avalanche-*.tar
 
 # Flamegraph Files
 *.bggg
-
-# Elixir LS
-/.elixir_ls/

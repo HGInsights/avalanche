@@ -92,8 +92,8 @@ defmodule Avalanche.StatusRequest do
         params: [partition: partition]
       )
 
-    poll_options = Keyword.get(request.options, :poll_options, [])
-    get_partitions_options = Keyword.get(request.options, :get_partitions_options, [])
+    poll_options = Keyword.get(request.options, :poll, [])
+    get_partitions_options = Keyword.get(request.options, :get_partitions, [])
 
     req_options
     |> Req.new()

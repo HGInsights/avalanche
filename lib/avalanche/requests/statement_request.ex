@@ -66,16 +66,17 @@ defmodule Avalanche.StatementRequest do
 
   Returns `{:ok, response}` or `{:error, exception}`.
   """
-  def run(%__MODULE__{} = request, async \\ false) do
-    pipeline = build_pipeline(request, async)
+  def run(%__MODULE__{} = request, opts \\ []) do
+    pipeline = build_pipeline(request, opts)
 
     with {:ok, response} <- Req.Request.run(pipeline) do
       handle_response(response)
     end
   end
 
-  defp build_pipeline(request, async) do
-    request_id = Request.get_request_id()
+  defp build_pipeline(request, opts) do
+    disable_polling = Keyword.fetch!(opts, :async)
+    params = build_params(opts)
 
     req_options =
       request.options
@@ -86,18 +87,28 @@ defmodule Avalanche.StatementRequest do
         url: Request.statements_path(),
         auth: {:bearer, request.token},
         headers: request.headers,
-        params: [requestId: request_id, async: async],
+        params: params,
         json: request.body
       )
 
-    poll_options = Keyword.get(request.options, :poll_options, [])
-    get_partitions_options = Keyword.get(request.options, :get_partitions_options, [])
+    poll_options = Keyword.get(request.options, :poll, [])
+    get_partitions_options = Keyword.get(request.options, :get_partitions, [])
 
     req_options
     |> Req.new()
-    |> Steps.Poll.attach(async, poll_options)
+    |> Steps.Poll.attach(disable_polling, poll_options)
     |> Steps.DecodeData.attach()
     |> Steps.GetPartitions.attach(get_partitions_options)
+  end
+
+  defp build_params(opts) do
+    async = Keyword.fetch!(opts, :async)
+    request_id = Keyword.get(opts, :request_id)
+    retry = Keyword.get(opts, :retry)
+
+    # credo:disable-for-lines:2 Credo.Check.Readability.SinglePipe
+    [async: async, requestId: request_id, retry: retry]
+    |> Keyword.filter(fn {_key, value} -> !is_nil(value) end)
   end
 
   defp build_body(statement, bindings, options) do

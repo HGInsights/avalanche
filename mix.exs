@@ -49,7 +49,6 @@ defmodule Avalanche.MixProject do
       {:plug, "~> 1.13"},
       {:req, "~> 0.3.0"},
       {:telemetry, "~> 1.1", override: true},
-      {:uuid, "~> 1.1"},
       {:bypass, "~> 2.1", only: [:dev, :test]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test, :docs], runtime: false},

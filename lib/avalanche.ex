@@ -6,7 +6,7 @@ defmodule Avalanche do
              |> String.split("<!-- MDOC !-->")
              |> Enum.fetch!(1)
 
-  @default_snowflake_timeout 172_800
+  @default_snowflake_timeout 3600
 
   @request_options_schema NimbleOptions.new!(
                             server: [
@@ -37,9 +37,9 @@ defmodule Avalanche do
                             timeout: [
                               type: :non_neg_integer,
                               required: false,
-                              default: 172_800,
+                              default: @default_snowflake_timeout,
                               doc:
-                                "Snowflake timeout for the statement execution. 0 to 604800 (i.e. 7 days) — a value of 0 specifies that the maximum timeout value is enforced."
+                                "Snowflake timeout in seconds for the statement execution. 0 to 604800 (i.e. 7 days) — a value of 0 specifies that the maximum timeout value is enforced."
                             ],
                             token: [
                               type:
@@ -55,22 +55,39 @@ defmodule Avalanche do
                               required: true,
                               doc: "Snowflake authentication via OAuth token or Key Pair."
                             ],
-                            poll_options: [
+                            poll: [
                               type: :non_empty_keyword_list,
                               keys: [
-                                delay: [type: :pos_integer],
-                                max_polls: [type: :pos_integer]
-                              ],
-                              doc: "Options to customize polling for the completion of a statement execution."
-                            ],
-                            get_partitions_options: [
-                              type: :non_empty_keyword_list,
-                              keys: [
-                                max_concurrency: [type: :pos_integer],
-                                timeout: [type: :pos_integer]
+                                delay: [
+                                  type: :pos_integer,
+                                  default: 2500,
+                                  doc: "Sleep this number of milliseconds between attempts."
+                                ],
+                                max_attempts: [
+                                  type: :pos_integer,
+                                  default: 30,
+                                  doc: "Maximum number of poll attempts."
+                                ]
                               ],
                               doc:
-                                "Options to customize retrieving all the partitions of data from a statement execution."
+                                "Options to customize polling for the completion of a statement's execution. Synchronous statement execution will wait a maximum of 45 secondes plus the `poll` configuration (75 seconds) for a total of 2 minutes."
+                            ],
+                            get_partitions: [
+                              type: :non_empty_keyword_list,
+                              keys: [
+                                max_concurrency: [
+                                  type: :pos_integer,
+                                  doc:
+                                    "Sets the maximum number of tasks to run at the same time. The default value is `System.schedulers_online/0`."
+                                ],
+                                timeout: [
+                                  type: :pos_integer,
+                                  default: 120_000,
+                                  doc: "Maximum amount of time to wait (in milliseconds)."
+                                ]
+                              ],
+                              doc:
+                                "Options to customize retrieving all the partitions of data from a statement's execution."
                             ],
                             finch: [
                               type: :any,
@@ -80,12 +97,17 @@ defmodule Avalanche do
                             pool_timeout: [
                               type: :pos_integer,
                               default: 5000,
-                              doc: "Finch pool checkout timeout in milliseconds"
+                              doc: "Finch pool checkout timeout in milliseconds."
                             ],
                             receive_timeout: [
                               type: :pos_integer,
-                              default: 15_000,
-                              doc: "Finch socket receive timeout in milliseconds"
+                              default: 50_000,
+                              doc: """
+                              Finch socket receive timeout in milliseconds.
+                              The default accounts for Snowflake's 45 second synchronous statement execution timeout.
+                              Use the `poll` options if you want to wait longer for a result. Otherwise a statement handle
+                              will be returned that you can use with `Avalanche.status/3` to get the result.
+                              """
                             ]
                           )
 
@@ -95,6 +117,16 @@ defmodule Avalanche do
                           required: false,
                           default: false,
                           doc: "Set to true to execute the statement asynchronously and return the statement handle."
+                        ],
+                        request_id: [
+                          type: :string,
+                          required: false,
+                          doc: "Unique ID (a UUID) of the API request."
+                        ],
+                        retry: [
+                          type: :boolean,
+                          required: false,
+                          doc: "Set to true only when retrying the statement with a previous `request_id`."
                         ]
                       )
 
@@ -135,11 +167,10 @@ defmodule Avalanche do
   def run(statement, params \\ [], run_options \\ [], request_options \\ []) do
     with request_opts <- Keyword.merge(default_options(), request_options),
          {:ok, valid_request_opts} <- validate_options(request_opts, @request_options_schema),
-         {:ok, valid_run_opts} <- validate_options(run_options, @run_options_schema),
-         async <- Keyword.fetch!(valid_run_opts, :async) do
+         {:ok, valid_run_opts} <- validate_options(run_options, @run_options_schema) do
       statement
       |> Avalanche.StatementRequest.build(params, valid_request_opts)
-      |> Avalanche.StatementRequest.run(async)
+      |> Avalanche.StatementRequest.run(valid_run_opts)
     end
   end
 

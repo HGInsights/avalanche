@@ -82,6 +82,25 @@ defmodule AvalancheTest do
       assert {:ok, %Avalanche.Result{num_rows: nil, rows: nil, statement_handle: _}} =
                Avalanche.run("select 1;", [], [async: true], c.options)
     end
+
+    @tag :capture_log
+    test "request_id and retry params can be passed", c do
+      result_set = result_set_fixture()
+      request_id = "abc-123"
+      retry = "true"
+
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        assert Map.get(conn.params, "async") == "false"
+        assert Map.get(conn.params, "requestId") == request_id
+        assert Map.get(conn.params, "retry") == retry
+
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(result_set))
+      end)
+
+      assert {:ok, _result} = Avalanche.run("select 1;", [], [request_id: request_id, retry: true], c.options)
+    end
   end
 
   describe "run/3 errors" do

@@ -302,6 +302,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
       assert [%{"COLUMN" => [1, "two", 3, %{"key" => "value"}]}] = response.body["data"]
     end
 
+    # credo:disable-for-this-file Credo.Check.Readability.SinglePipe
     [
       {"fixed", "a3a3", "integer_parse_error"},
       {"float", "a3a3", "float_parse_error"},

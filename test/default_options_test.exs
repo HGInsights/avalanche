@@ -6,7 +6,7 @@ defmodule DefaultOptionsTest do
   end
 
   test "default options can be set and retrieved" do
-    assert Avalanche.default_options() == [{:timeout, 172_800}]
+    assert Avalanche.default_options() == [{:timeout, 3600}]
 
     Avalanche.default_options(
       server: "test.com",
@@ -19,7 +19,7 @@ defmodule DefaultOptionsTest do
     )
 
     assert Avalanche.default_options() == [
-             {:receive_timeout, 15_000},
+             {:receive_timeout, 50_000},
              {:pool_timeout, 5000},
              {:server, "test.com"},
              {:token, "test"},
@@ -35,7 +35,7 @@ defmodule DefaultOptionsTest do
     assert {:error,
             %Avalanche.Error{
               message:
-                "unknown options [:bad], valid options are: [:server, :warehouse, :database, :schema, :role, :timeout, :token, :poll_options, :get_partitions_options, :finch, :pool_timeout, :receive_timeout]",
+                "unknown options [:bad], valid options are: [:server, :warehouse, :database, :schema, :role, :timeout, :token, :poll, :get_partitions, :finch, :pool_timeout, :receive_timeout]",
               meta: %{},
               original_error: nil,
               reason: :invalid_options,

@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/HGInsights/avalanche/compare/v0.6.0...v0.7.0) (2022-08-30)
+
+
+### Features
+
+* support request_id and retry params (#13) ([5ce6a61](https://github.com/HGInsights/avalanche/commit/5ce6a616bb17a2d36effcf727aa9d4c18dfdbfc6)), closes [#13](https://github.com/HGInsights/avalanche/issues/13)
+
 # [0.6.0](https://github.com/HGInsights/avalanche/compare/v0.5.1...v0.6.0) (2022-08-17)
 
 

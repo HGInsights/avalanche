@@ -35,7 +35,7 @@ defmodule AvalancheTest do
         |> Plug.Conn.send_resp(200, Jason.encode!(result_set))
       end)
 
-      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], [], c.options)
+      assert {:ok, %Avalanche.Result{status: :complete} = result} = Avalanche.run("select 1;", [], [], c.options)
 
       assert result.num_rows == 3
 
@@ -79,7 +79,7 @@ defmodule AvalancheTest do
         |> Plug.Conn.send_resp(202, Jason.encode!(response))
       end)
 
-      assert {:ok, %Avalanche.Result{num_rows: nil, rows: nil, statement_handle: _}} =
+      assert {:ok, %Avalanche.Result{status: :pending, statement_handle: _, num_rows: nil, rows: nil}} =
                Avalanche.run("select 1;", [], [async: true], c.options)
     end
 

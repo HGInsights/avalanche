@@ -93,7 +93,7 @@ defmodule AvalancheIntegrationTest do
     end
 
     test "async query and status to get results", c do
-      assert {:ok, %Avalanche.Result{num_rows: nil, rows: nil, statement_handle: statement_handle}} =
+      assert {:ok, %Avalanche.Result{status: :pending, statement_handle: statement_handle, num_rows: nil, rows: nil}} =
                Avalanche.run(
                  "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS ORDER BY O_ORDERKEY LIMIT ?",
                  [3],

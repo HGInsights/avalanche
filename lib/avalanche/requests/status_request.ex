@@ -106,13 +106,13 @@ defmodule Avalanche.StatusRequest do
   defp handle_response({request, %Req.Response{status: 200, body: body}}) do
     data = Map.fetch!(body, "data")
 
-    {:ok, %Result{statement_handle: request.statement_handle, num_rows: length(data), rows: data}}
+    {:ok, %Result{status: :complete, statement_handle: request.statement_handle, num_rows: length(data), rows: data}}
   end
 
   defp handle_response({_request, %Req.Response{status: 202, body: body}}) do
     statement_handle = Map.fetch!(body, "statementHandle")
 
-    {:ok, %Result{statement_handle: statement_handle}}
+    {:ok, %Result{status: :pending, statement_handle: statement_handle}}
   end
 
   defp handle_response({_request, %Req.Response{status: status} = response})

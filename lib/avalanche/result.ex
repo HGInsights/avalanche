@@ -5,6 +5,8 @@ defmodule Avalanche.Result do
 
   Fields:
 
+  * `:status` - the status of the statement being executed (`:complete`, `:pending`)
+
   * `:statement_handle` - the unique identifier for the statement being executed
 
   * `:num_rows` - the number of fetched or affected rows
@@ -14,10 +16,14 @@ defmodule Avalanche.Result do
 
   """
 
-  defstruct [:statement_handle, :num_rows, :rows]
+  @enforce_keys [:status, :statement_handle]
+  defstruct status: :pending, statement_handle: nil, num_rows: nil, rows: nil
+
+  @type result_status :: atom()
 
   @type t() :: %__MODULE__{
-          statement_handle: String.t(),
+          status: result_status(),
+          statement_handle: String.t() | nil,
           num_rows: non_neg_integer() | nil,
           rows: list(map()) | nil
         }

@@ -129,7 +129,7 @@ defmodule Avalanche.StatementRequest do
   end
 
   defp handle_response(%Req.Response{status: 200, body: ""}),
-    do: {:ok, %Result{num_rows: 0, rows: []}}
+    do: {:ok, %Result{status: :complete, statement_handle: nil, num_rows: 0, rows: []}}
 
   defp handle_response(%Req.Response{status: 200, body: body}) do
     statement_handle = Map.fetch!(body, "statementHandle")
@@ -138,13 +138,13 @@ defmodule Avalanche.StatementRequest do
     metadata = Map.fetch!(body, "resultSetMetaData")
     num_rows = Map.fetch!(metadata, "numRows")
 
-    {:ok, %Result{statement_handle: statement_handle, num_rows: num_rows, rows: data}}
+    {:ok, %Result{status: :complete, statement_handle: statement_handle, num_rows: num_rows, rows: data}}
   end
 
   defp handle_response(%Req.Response{status: 202, body: body}) do
     statement_handle = Map.fetch!(body, "statementHandle")
 
-    {:ok, %Result{statement_handle: statement_handle}}
+    {:ok, %Result{status: :pending, statement_handle: statement_handle}}
   end
 
   defp handle_response(%Req.Response{status: status} = response)

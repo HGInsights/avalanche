@@ -1,3 +1,10 @@
+## [0.7.1](https://github.com/HGInsights/avalanche/compare/v0.7.0...v0.7.1) (2022-09-08)
+
+
+### Bug Fixes
+
+* add statement execution status to the result (#14) ([f54b16e](https://github.com/HGInsights/avalanche/commit/f54b16e515bc4d76d782aebf27b3f43550f3e947)), closes [#14](https://github.com/HGInsights/avalanche/issues/14)
+
 # [0.7.0](https://github.com/HGInsights/avalanche/compare/v0.6.0...v0.7.0) (2022-08-30)
 
 

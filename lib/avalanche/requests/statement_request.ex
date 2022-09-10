@@ -144,7 +144,7 @@ defmodule Avalanche.StatementRequest do
   defp handle_response(%Req.Response{status: 202, body: body}) do
     statement_handle = Map.fetch!(body, "statementHandle")
 
-    {:ok, %Result{status: :pending, statement_handle: statement_handle}}
+    {:ok, %Result{status: :running, statement_handle: statement_handle}}
   end
 
   defp handle_response(%Req.Response{status: status} = response)

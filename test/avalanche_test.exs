@@ -79,7 +79,7 @@ defmodule AvalancheTest do
         |> Plug.Conn.send_resp(202, Jason.encode!(response))
       end)
 
-      assert {:ok, %Avalanche.Result{status: :pending, statement_handle: _, num_rows: nil, rows: nil}} =
+      assert {:ok, %Avalanche.Result{status: :running, statement_handle: _, num_rows: nil, rows: nil}} =
                Avalanche.run("select 1;", [], [async: true], c.options)
     end
 

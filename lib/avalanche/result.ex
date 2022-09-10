@@ -5,7 +5,7 @@ defmodule Avalanche.Result do
 
   Fields:
 
-  * `:status` - the status of the statement being executed (`:complete`, `:pending`)
+  * `:status` - the status of the statement being executed (`:running`, `:complete`)
 
   * `:statement_handle` - the unique identifier for the statement being executed
 
@@ -17,7 +17,7 @@ defmodule Avalanche.Result do
   """
 
   @enforce_keys [:status, :statement_handle]
-  defstruct status: :pending, statement_handle: nil, num_rows: nil, rows: nil
+  defstruct status: :running, statement_handle: nil, num_rows: nil, rows: nil
 
   @type result_status :: atom()
 

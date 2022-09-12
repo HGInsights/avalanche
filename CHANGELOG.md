@@ -1,3 +1,10 @@
+## [0.7.2](https://github.com/HGInsights/avalanche/compare/v0.7.1...v0.7.2) (2022-09-12)
+
+
+### Bug Fixes
+
+* running communicates status better than pending (#15) ([50b2661](https://github.com/HGInsights/avalanche/commit/50b26618d3e97a1bdf29f7c79d9c8313308b058c)), closes [#15](https://github.com/HGInsights/avalanche/issues/15)
+
 ## [0.7.1](https://github.com/HGInsights/avalanche/compare/v0.7.0...v0.7.1) (2022-09-08)
 
 

@@ -1,9 +1,28 @@
 defmodule AvalancheIntegrationTest do
+  @moduledoc """
+  These are tests that can be set up to be run locally. These hit the Snowflake
+  api and are excluded by default.
+
+  We support two kinds of authentication strategies: private key and token based.
+
+  Once the auth step is cleared (using the strategy of your choice) we can then
+  run tests that exercise the features we want. This is why we have more tests
+  using `token_integration` than `priv_key_integration`. We prove both work,
+  but focused on one (not favoring either, use what works for you and your team
+  the best).
+
+  `AVALANCHE_ROLE` notes:
+  You may have different ROLES set up in Snowflake and the OAuth token you
+  generate may not have access to do what the tests below attempt to do. A
+  private key that is shared with a team may have access to different roles
+  than your personal one does.
+  """
+
   use ExUnit.Case, async: true
 
   import Avalanche.TestFixtures
 
-  @moduletag integration: true
+  @moduletag :integration
 
   describe "run/2 with OAuth token" do
     setup do

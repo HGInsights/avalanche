@@ -33,7 +33,7 @@ end
 
 ## Acknowledgments
 
-Avalanche is built on top of [Req](https://github.com/hginsights/req) & [Finch](http://github.com/keathley/finch) - thank you!
+Avalanche is built on top of [Req](https://github.com/hginsights/req) & [Finch](https://github.com/sneako/finch) - thank you!
 
 ## Documentation
 
@@ -42,6 +42,25 @@ You may build the documentation locally with
 
 ```
 MIX_ENV=docs mix docs
+```
+
+## Running tests
+
+You can run unit tests with:
+```bash
+mix test
+```
+
+To set up and run the `integration` tests, you need to:
+- `cp .env.test .env.test.local` and adjust the existing variables accordingly.
+- obtain a private key and add it to the the `.env.test.local` file if you wish
+  to run tests that use the `priv_key` auth strategy
+- obtain a `SNOWFLAKE_OAUTH_ACCESS_TOKEN` if you wish to run tests that use the
+  `token` auth strategy
+
+You can run all tests and integration tests with:
+```bash
+SNOWFLAKE_OAUTH_ACCESS_TOKEN=your_token mix test --include integration
 ```
 
 ## Contributing

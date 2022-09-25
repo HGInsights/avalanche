@@ -89,6 +89,20 @@ defmodule Avalanche do
                               doc:
                                 "Options to customize retrieving all the partitions of data from a statement's execution."
                             ],
+                            decode_data: [
+                              type: :non_empty_keyword_list,
+                              keys: [
+                                downcase_column_names: [
+                                  type: :boolean,
+                                  default: false,
+                                  doc: "Downcase the result's column names."
+                                ]
+                              ],
+                              doc: "Options to customize how data is decoded from a statement's execution."
+                            ],
+                            retry: [type: :any, doc: "See `Req.request/1` for more information."],
+                            retry_delay: [type: :any, doc: "See `Req.request/1` for more information."],
+                            max_retries: [type: :any, doc: "See `Req.request/1` for more information."],
                             finch: [
                               type: :any,
                               doc:

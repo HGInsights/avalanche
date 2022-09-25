@@ -31,16 +31,17 @@ defmodule DefaultOptionsTest do
            ]
   end
 
-  test "options are validated and retrun error with details" do
+  test "options are validated and return error with details" do
     assert {:error,
             %Avalanche.Error{
-              message:
-                "unknown options [:bad], valid options are: [:server, :warehouse, :database, :schema, :role, :timeout, :token, :poll, :get_partitions, :finch, :pool_timeout, :receive_timeout]",
+              message: message,
               meta: %{},
               original_error: nil,
               reason: :invalid_options,
               stacktrace: nil
             }} = Avalanche.default_options(bad: "test")
+
+    assert message =~ "unknown options [:bad], valid options are:"
   end
 
   test "options allow token with string value for OAuth" do

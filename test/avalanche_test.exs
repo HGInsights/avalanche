@@ -11,7 +11,7 @@ defmodule AvalancheTest do
     [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
   end
 
-  describe "run/3" do
+  describe "run/4" do
     @tag :capture_log
     test "sends POST request to /api/v2/statements", c do
       result_set = result_set_fixture()
@@ -103,8 +103,8 @@ defmodule AvalancheTest do
     end
   end
 
-  describe "run/3 errors" do
-    test "returns an unauthorized Error for 400 response code", c do
+  describe "run/4 errors" do
+    test "returns a bad request Error for 400 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 400, "no")
       end)
@@ -130,7 +130,7 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :unauthorized}} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 403 response code", c do
+    test "returns a forbidden Error for 403 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 403, "no")
       end)
@@ -138,7 +138,7 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :forbidden}} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 404 response code", c do
+    test "returns a not found Error for 404 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 404, "no")
       end)
@@ -146,7 +146,7 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :not_found}} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 405 response code", c do
+    test "returns a method not allowed Error for 405 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 405, "no")
       end)
@@ -154,7 +154,7 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :method_not_allowed}} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 408 response code", c do
+    test "returns a request timeout Error for 408 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 408, "no")
       end)
@@ -162,7 +162,7 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :request_timeout}} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 422 response code", c do
+    test "returns an unprocessable entity Error for 422 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         conn
         |> Plug.Conn.put_resp_header("content-type", "application/json")
@@ -190,7 +190,7 @@ defmodule AvalancheTest do
               }} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 415 response code", c do
+    test "returns an unsupported media type Error for 415 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 415, "no")
       end)
@@ -198,7 +198,7 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :unsupported_media_type}} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 429 response code", c do
+    test "returns a too many requests Error for 429 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 429, "no")
       end)
@@ -206,7 +206,7 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :too_many_requests}} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 500 response code", c do
+    test "returns an internal server error Error for 500 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 500, "no")
       end)
@@ -214,7 +214,7 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :internal_server_error}} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 503 response code", c do
+    test "returns a service unavailable Error for 503 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 503, "no")
       end)
@@ -222,7 +222,7 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :service_unavailable}} = Avalanche.run("select 1;", [], [], c.options)
     end
 
-    test "returns an unauthorized Error for 504 response code", c do
+    test "returns a gateway timeout Error for 504 response code", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 504, "no")
       end)
@@ -231,7 +231,7 @@ defmodule AvalancheTest do
     end
   end
 
-  describe "status/2" do
+  describe "status/3" do
     @tag :capture_log
     test "sends GET request to /api/v2/statements", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
@@ -327,19 +327,18 @@ defmodule AvalancheTest do
     end
   end
 
-  describe "status/2 errors" do
-    @tag :capture_log
-    test "returns an unauthorized Error for 422 response code", c do
+  describe "status/3 errors" do
+    test "returns an internal server error Error for 500 response code", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
       Bypass.expect(c.bypass, "GET", "/api/v2/statements/#{statement_handle}", fn conn ->
-        conn
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
-        |> Plug.Conn.send_resp(500, "")
+        Plug.Conn.send_resp(conn, 500, "no")
       end)
 
+      request_options = Keyword.merge([retry: :never], c.options)
+
       assert {:error, %Avalanche.Error{reason: :internal_server_error}} =
-               Avalanche.status(statement_handle, [], c.options)
+               Avalanche.status(statement_handle, [], request_options)
     end
   end
 end

@@ -80,7 +80,7 @@ defmodule Avalanche.StatementRequest do
 
     req_options =
       request.options
-      |> Keyword.take([:finch, :pool_timeout, :receive_timeout])
+      |> Keyword.take([:retry, :retry_delay, :max_retries, :finch, :pool_timeout, :receive_timeout])
       |> Keyword.merge(
         method: :post,
         base_url: request.url,
@@ -92,12 +92,13 @@ defmodule Avalanche.StatementRequest do
       )
 
     poll_options = Keyword.get(request.options, :poll, [])
+    decode_data_options = Keyword.get(request.options, :decode_data, [])
     get_partitions_options = Keyword.get(request.options, :get_partitions, [])
 
     req_options
     |> Req.new()
     |> Steps.Poll.attach(disable_polling, poll_options)
-    |> Steps.DecodeData.attach()
+    |> Steps.DecodeData.attach(decode_data_options)
     |> Steps.GetPartitions.attach(get_partitions_options)
   end
 

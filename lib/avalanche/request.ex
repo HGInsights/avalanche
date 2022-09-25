@@ -29,10 +29,14 @@ defmodule Avalanche.Request do
 
   def request_options(options) do
     Keyword.take(options, [
+      :retry,
+      :retry_delay,
+      :max_retries,
       :finch,
       :pool_timeout,
       :receive_timeout,
       :poll,
+      :decode_data,
       :get_partitions
     ])
   end

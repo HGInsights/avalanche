@@ -1,3 +1,13 @@
+# [0.8.0](https://github.com/HGInsights/avalanche/compare/v0.7.2...v0.8.0) (2022-09-29)
+
+
+* HIP-3439 Add testing notes (#16) ([9541dca](https://github.com/HGInsights/avalanche/commit/9541dcac06fd8f0ce7d9549bb0ecec754b5222ca)), closes [#16](https://github.com/HGInsights/avalanche/issues/16)
+
+
+### Features
+
+* allow downcase of column names and all Req options (#18) ([6a0f7a5](https://github.com/HGInsights/avalanche/commit/6a0f7a5d1eb0558be2f54b5e5364fb8c410634fd)), closes [#18](https://github.com/HGInsights/avalanche/issues/18) [#17](https://github.com/HGInsights/avalanche/issues/17)
+
 ## [0.7.2](https://github.com/HGInsights/avalanche/compare/v0.7.1...v0.7.2) (2022-09-12)
 
 

@@ -20,7 +20,6 @@ defmodule DefaultOptionsTest do
 
     assert Avalanche.default_options() == [
              {:receive_timeout, 50_000},
-             {:pool_timeout, 5000},
              {:server, "test.com"},
              {:token, "test"},
              {:warehouse, "test"},
@@ -71,5 +70,32 @@ defmodule DefaultOptionsTest do
                schema: "test",
                role: "test"
              )
+  end
+
+  test "Req.request/1 options are allowed" do
+    assert :ok =
+             Avalanche.default_options(
+               server: "test",
+               token: "test",
+               warehouse: "test",
+               database: "test",
+               schema: "test",
+               role: "test",
+               retry: :never,
+               follow_redirects: false
+             )
+
+    assert Avalanche.default_options() == [
+             receive_timeout: 50_000,
+             timeout: 3600,
+             server: "test",
+             token: "test",
+             warehouse: "test",
+             database: "test",
+             schema: "test",
+             role: "test",
+             retry: :never,
+             follow_redirects: false
+           ]
   end
 end

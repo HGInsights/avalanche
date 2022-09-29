@@ -53,7 +53,6 @@ defmodule Avalanche.StatusRequest do
   @spec build(String.t(), row_types(), keyword()) :: t()
   def build(statement_handle, row_types \\ nil, options) do
     {token_type, token} = Request.fetch_token(options)
-    request_options = Request.request_options(options)
 
     %__MODULE__{
       url: Request.server_url(options),
@@ -62,7 +61,7 @@ defmodule Avalanche.StatusRequest do
       token: token,
       statement_handle: statement_handle,
       row_types: row_types,
-      options: request_options
+      options: options
     }
   end
 
@@ -82,7 +81,7 @@ defmodule Avalanche.StatusRequest do
   defp build_pipeline(request, async, partition) do
     req_options =
       request.options
-      |> Keyword.take([:retry, :retry_delay, :max_retries, :finch, :pool_timeout, :receive_timeout])
+      |> Keyword.take(Avalanche.available_req_options())
       |> Keyword.merge(
         method: :get,
         base_url: request.url,

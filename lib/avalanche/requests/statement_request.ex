@@ -49,7 +49,6 @@ defmodule Avalanche.StatementRequest do
     bindings = Avalanche.Bindings.encode_params(params)
 
     {token_type, token} = Request.fetch_token(options)
-    request_options = Request.request_options(options)
 
     %__MODULE__{
       url: Request.server_url(options),
@@ -57,7 +56,7 @@ defmodule Avalanche.StatementRequest do
       headers: Request.build_headers(options, token_type),
       body: build_body(statement, bindings, options),
       token: token,
-      options: request_options
+      options: options
     }
   end
 
@@ -80,7 +79,7 @@ defmodule Avalanche.StatementRequest do
 
     req_options =
       request.options
-      |> Keyword.take([:retry, :retry_delay, :max_retries, :finch, :pool_timeout, :receive_timeout])
+      |> Keyword.take(Avalanche.available_req_options())
       |> Keyword.merge(
         method: :post,
         base_url: request.url,

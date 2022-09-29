@@ -71,6 +71,6 @@ defmodule Avalanche.Steps.Poll do
 
     message = ["Will poll in #{delay}ms, ", retries_left, " left"]
 
-    Logger.warn(["Avalanche.poll: Got response with status #{response.status}. ", message])
+    Logger.debug(["Avalanche.poll: Got response with status #{response.status}. ", message])
   end
 end

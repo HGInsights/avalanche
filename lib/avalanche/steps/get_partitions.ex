@@ -108,7 +108,7 @@ defmodule Avalanche.Steps.GetPartitions do
         _ -> error
       end
 
-    Logger.error(["Avalanche.get_partitions failed.", error_msg])
+    Logger.critical(["Avalanche.get_partitions failed.", error_msg])
 
     %{status: 500, body: nil}
   end

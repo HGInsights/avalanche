@@ -146,7 +146,7 @@ defmodule Avalanche.Steps.DecodeData do
   end
 
   defp decode(%{"type" => type}, value) do
-    Logger.error("Failed decode of unsupported type: #{type}")
+    Logger.warning("Failed decode of unsupported type: #{type}")
     value
   end
 
@@ -157,7 +157,7 @@ defmodule Avalanche.Steps.DecodeData do
         _ -> error
       end
 
-    Logger.error("Failed decode of '#{type}' type: #{error_msg}")
+    Logger.warning("Failed decode of '#{type}' type: #{error_msg}")
     value
   end
 end

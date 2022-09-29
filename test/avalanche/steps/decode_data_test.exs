@@ -6,11 +6,11 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
   alias Avalanche.Steps.DecodeData
 
-  describe "decode_body_data/1" do
+  describe "decode_data/1" do
     test "does nothing when body is empty" do
       in_response = %Req.Response{status: 200, body: ""}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert response.body == ""
     end
@@ -29,7 +29,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => nil}] = response.body["data"]
     end
@@ -48,7 +48,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => 33}] = response.body["data"]
     end
@@ -67,7 +67,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => 33.3}] = response.body["data"]
     end
@@ -86,7 +86,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => 33.3}] = response.body["data"]
     end
@@ -105,7 +105,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => "This is some text."}] = response.body["data"]
     end
@@ -125,7 +125,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN1" => true, "COLUMN2" => false}] = response.body["data"]
     end
@@ -144,7 +144,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => ~D[2020-01-01]}] = response.body["data"]
     end
@@ -163,7 +163,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => ~T[20:04:56]}] = response.body["data"]
     end
@@ -182,7 +182,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => ~U[2013-04-28 13:57:01.123456Z]}] = response.body["data"]
     end
@@ -201,7 +201,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => ~N[2013-04-28 20:57:01.123]}] = response.body["data"]
     end
@@ -220,7 +220,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => ~U[2013-04-28 13:57:01.123456Z]}] = response.body["data"]
     end
@@ -239,7 +239,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => %{"test" => [1, "two", 3]}}] = response.body["data"]
     end
@@ -258,7 +258,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => %{"test" => [1, "two", 3]}}] = response.body["data"]
     end
@@ -278,7 +278,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => "<xml>yeah!</xml>"}] = response.body["data"]
     end
@@ -297,7 +297,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_body_data({nil, in_response})
+      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
 
       assert [%{"COLUMN" => [1, "two", 3, %{"key" => "value"}]}] = response.body["data"]
     end
@@ -334,7 +334,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
         {{_request, response}, log} =
           with_log(fn ->
-            DecodeData.decode_body_data({nil, in_response})
+            DecodeData.decode_data({%Req.Request{}, in_response})
           end)
 
         assert log =~ "Failed decode of '#{unquote(type)}' type: #{unquote(error)}"
@@ -359,7 +359,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       {{_request, response}, log} =
         with_log(fn ->
-          DecodeData.decode_body_data({nil, in_response})
+          DecodeData.decode_data({%Req.Request{}, in_response})
         end)
 
       assert log =~ "Failed decode of unsupported type: unknown"
@@ -368,7 +368,53 @@ defmodule Avalanche.Steps.DecodeDataTest do
     end
   end
 
-  describe "decode_body_data/1 (integration)" do
+  describe "run/4" do
+    setup do
+      bypass = Bypass.open()
+      server = "http://localhost:#{bypass.port}"
+      options = test_options(server: server)
+
+      options =
+        Keyword.merge(options,
+          # poll: [delay: 50, max_attempts: 2],
+          decode_data: [downcase_column_names: true]
+        )
+
+      [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
+    end
+
+    test "returns a Result struct with downcased column names in", c do
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 3,
+            "partitionInfo" => [],
+            "data" => [["0", "zero"], ["1", "one"], ["2", "two"]]
+          },
+          "statementHandle" => statement_handle
+        })
+
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(result_set))
+      end)
+
+      assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select 1;", [], [], c.options)
+
+      assert result.num_rows == 3
+
+      assert [
+               %{"column1" => 0, "column2" => "zero"},
+               %{"column1" => 1, "column2" => "one"},
+               %{"column1" => 2, "column2" => "two"}
+             ] = result.rows
+    end
+  end
+
+  describe "decode_data/1 (integration)" do
     @describetag integration: true
 
     setup do

@@ -17,7 +17,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
     [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
   end
 
-  describe "run/3" do
+  describe "run/4" do
     test "does nothing when body is empty", c do
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         conn
@@ -172,7 +172,7 @@ defmodule Avalanche.Steps.GetPartitionsTest do
     end
   end
 
-  describe "status/2" do
+  describe "status/3" do
     @tag :capture_log
     test "returns a Result struct with data form all partitions", c do
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"

@@ -27,16 +27,6 @@ defmodule Avalanche.Request do
     options |> Keyword.fetch!(:server) |> url_with_sheme()
   end
 
-  def request_options(options) do
-    Keyword.take(options, [
-      :finch,
-      :pool_timeout,
-      :receive_timeout,
-      :poll,
-      :get_partitions
-    ])
-  end
-
   defp url_with_sheme(url) do
     if url_without_scheme?(url), do: "https://" <> url, else: url
   end

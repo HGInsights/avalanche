@@ -89,15 +89,16 @@ defmodule Avalanche do
                               doc:
                                 "Options to customize retrieving all the partitions of data from a statement's execution."
                             ],
-                            finch: [
-                              type: :any,
-                              doc:
-                                "Finch pool to use. See `Finch` module documentation for more information on starting pools."
-                            ],
-                            pool_timeout: [
-                              type: :pos_integer,
-                              default: 5000,
-                              doc: "Finch pool checkout timeout in milliseconds."
+                            decode_data: [
+                              type: :non_empty_keyword_list,
+                              keys: [
+                                downcase_column_names: [
+                                  type: :boolean,
+                                  default: false,
+                                  doc: "Downcase the result's column names."
+                                ]
+                              ],
+                              doc: "Options to customize how data is decoded from a statement's execution."
                             ],
                             receive_timeout: [
                               type: :pos_integer,
@@ -227,10 +228,26 @@ defmodule Avalanche do
     end
   end
 
+  @doc """
+  List of available Req request options.
+
+  See `Req.request/1` for more information.
+  """
+  @spec available_req_options :: list(atom())
+  def available_req_options do
+    ~W(user_agent compressed range http_errors base_url params auth form json compress_body compressed raw decode_body output follow_redirects location_trusted max_redirects retry retry_delay max_retries cache cache_dir plug finch connect_options receive_timeout pool_timeout unix_socket)a
+  end
+
   defp validate_options(options, schema) do
+    {req_options, options} = Keyword.split(options, available_req_options())
+
     case NimbleOptions.validate(options, schema) do
-      {:ok, opts} -> {:ok, opts}
-      {:error, error} -> {:error, Avalanche.Error.new(:invalid_options, Exception.message(error))}
+      {:ok, opts} ->
+        merged_opts = Keyword.merge(opts, req_options)
+        {:ok, merged_opts}
+
+      {:error, error} ->
+        {:error, Avalanche.Error.new(:invalid_options, Exception.message(error))}
     end
   end
 end

@@ -49,7 +49,6 @@ defmodule Avalanche.StatementRequest do
     bindings = Avalanche.Bindings.encode_params(params)
 
     {token_type, token} = Request.fetch_token(options)
-    request_options = Request.request_options(options)
 
     %__MODULE__{
       url: Request.server_url(options),
@@ -57,7 +56,7 @@ defmodule Avalanche.StatementRequest do
       headers: Request.build_headers(options, token_type),
       body: build_body(statement, bindings, options),
       token: token,
-      options: request_options
+      options: options
     }
   end
 
@@ -80,7 +79,7 @@ defmodule Avalanche.StatementRequest do
 
     req_options =
       request.options
-      |> Keyword.take([:finch, :pool_timeout, :receive_timeout])
+      |> Keyword.take(Avalanche.available_req_options())
       |> Keyword.merge(
         method: :post,
         base_url: request.url,
@@ -92,12 +91,13 @@ defmodule Avalanche.StatementRequest do
       )
 
     poll_options = Keyword.get(request.options, :poll, [])
+    decode_data_options = Keyword.get(request.options, :decode_data, [])
     get_partitions_options = Keyword.get(request.options, :get_partitions, [])
 
     req_options
     |> Req.new()
     |> Steps.Poll.attach(disable_polling, poll_options)
-    |> Steps.DecodeData.attach()
+    |> Steps.DecodeData.attach(decode_data_options)
     |> Steps.GetPartitions.attach(get_partitions_options)
   end
 

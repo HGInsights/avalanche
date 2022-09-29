@@ -20,7 +20,6 @@ defmodule DefaultOptionsTest do
 
     assert Avalanche.default_options() == [
              {:receive_timeout, 50_000},
-             {:pool_timeout, 5000},
              {:server, "test.com"},
              {:token, "test"},
              {:warehouse, "test"},
@@ -31,16 +30,17 @@ defmodule DefaultOptionsTest do
            ]
   end
 
-  test "options are validated and retrun error with details" do
+  test "options are validated and return error with details" do
     assert {:error,
             %Avalanche.Error{
-              message:
-                "unknown options [:bad], valid options are: [:server, :warehouse, :database, :schema, :role, :timeout, :token, :poll, :get_partitions, :finch, :pool_timeout, :receive_timeout]",
+              message: message,
               meta: %{},
               original_error: nil,
               reason: :invalid_options,
               stacktrace: nil
             }} = Avalanche.default_options(bad: "test")
+
+    assert message =~ "unknown options [:bad], valid options are:"
   end
 
   test "options allow token with string value for OAuth" do
@@ -70,5 +70,32 @@ defmodule DefaultOptionsTest do
                schema: "test",
                role: "test"
              )
+  end
+
+  test "Req.request/1 options are allowed" do
+    assert :ok =
+             Avalanche.default_options(
+               server: "test",
+               token: "test",
+               warehouse: "test",
+               database: "test",
+               schema: "test",
+               role: "test",
+               retry: :never,
+               follow_redirects: false
+             )
+
+    assert Avalanche.default_options() == [
+             receive_timeout: 50_000,
+             timeout: 3600,
+             server: "test",
+             token: "test",
+             warehouse: "test",
+             database: "test",
+             schema: "test",
+             role: "test",
+             retry: :never,
+             follow_redirects: false
+           ]
   end
 end

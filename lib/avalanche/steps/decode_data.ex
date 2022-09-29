@@ -11,43 +11,54 @@ defmodule Avalanche.Steps.DecodeData do
   Decodes response `body.data` based on the `resultSetMetaData`.
 
   https://docs.snowflake.com/en/developer-guide/sql-api/reference.html#label-sql-api-reference-resultset-resultsetmetadata
+
+  ## Options
+
+    * `:downcase_column_names` - Downcase the result's column names.
   """
   def attach(%Req.Request{} = request, options \\ []) do
     request
+    |> Req.Request.register_options([:downcase_column_names])
     |> Req.Request.merge_options(options)
-    |> Req.Request.append_response_steps(decode_body_data: &decode_body_data/1)
+    |> Req.Request.append_response_steps(decode_data: &decode_data/1)
   end
 
-  def decode_body_data(request_response)
+  def decode_data(request_response)
 
-  def decode_body_data({request, %{body: ""} = response}) do
+  def decode_data({request, %{body: ""} = response}) do
     {request, response}
   end
 
-  def decode_body_data({request, %{status: 200, body: body} = response}) do
+  def decode_data({request, %{status: 200, body: body} = response}) do
+    downcase_column_names = Map.get(request.options, :downcase_column_names, false)
+
     row_types =
-      if metadata = Map.get(body, "resultSetMetaData"),
-        do: Map.fetch!(metadata, "rowType"),
-        else: Req.Request.get_private(request, :avalanche_row_types, [])
+      case Map.get(body, "resultSetMetaData") do
+        nil -> Req.Request.get_private(request, :avalanche_row_types, [])
+        metadata -> Map.fetch!(metadata, "rowType")
+      end
 
     data = Map.fetch!(body, "data")
 
-    decoded_data = _decode_body_data(row_types, data)
+    decoded_data = decode_data_rows(row_types, data, downcase_column_names)
 
     {request, %Req.Response{response | body: Map.put(body, "data", decoded_data)}}
   end
 
-  def decode_body_data(request_response), do: request_response
+  def decode_data(request_response), do: request_response
 
-  defp _decode_body_data(types, data) do
+  defp decode_data_rows(types, data, downcase_column_names) do
     Enum.map(data, fn row ->
       Enum.zip_reduce(types, row, %{}, fn type, value, result ->
-        key = Map.fetch!(type, "name")
-        value = decode(type, value)
-        Map.put(result, key, value)
+        column_name = maybe_downcased_column_name(type, downcase_column_names)
+        column_value = decode(type, value)
+        Map.put(result, column_name, column_value)
       end)
     end)
   end
+
+  defp maybe_downcased_column_name(type, true), do: type |> Map.fetch!("name") |> String.downcase()
+  defp maybe_downcased_column_name(type, false), do: Map.fetch!(type, "name")
 
   defp decode(_type, value) when is_nil(value), do: nil
 
@@ -135,7 +146,7 @@ defmodule Avalanche.Steps.DecodeData do
   end
 
   defp decode(%{"type" => type}, value) do
-    Logger.error("Failed decode of unsupported type: #{type}")
+    Logger.warning("Failed decode of unsupported type: #{type}")
     value
   end
 
@@ -146,7 +157,7 @@ defmodule Avalanche.Steps.DecodeData do
         _ -> error
       end
 
-    Logger.error("Failed decode of '#{type}' type: #{error_msg}")
+    Logger.warning("Failed decode of '#{type}' type: #{error_msg}")
     value
   end
 end

@@ -32,7 +32,7 @@ defmodule Avalanche.Steps.GetPartitions do
 
   def get_partitions({request, %{status: 200, body: %{"resultSetMetaData" => metadata} = body} = response}) do
     max_concurrency = Map.get(request.options, :max_concurrency, System.schedulers_online())
-    timeout = Map.get(request.options, :timeout, :timer.minutes(2))
+    timeout = Map.fetch!(request.options, :timeout)
 
     path = Map.fetch!(body, "statementStatusUrl")
     data = Map.fetch!(body, "data")

@@ -31,8 +31,8 @@ defmodule Avalanche.Steps.Poll do
   def poll(request_response)
 
   def poll({request, %{status: 202, body: %{"statementStatusUrl" => path}} = response}) do
-    delay = Map.get(request.options, :delay, 1000)
-    max_attempts = Map.get(request.options, :max_attempts, 4)
+    delay = Map.fetch!(request.options, :delay)
+    max_attempts = Map.fetch!(request.options, :max_attempts)
     poll_count = Req.Request.get_private(request, :avalanche_poll_count, 0)
 
     if poll_count < max_attempts do

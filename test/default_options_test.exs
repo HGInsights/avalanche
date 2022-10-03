@@ -6,7 +6,7 @@ defmodule DefaultOptionsTest do
   end
 
   test "default options can be set and retrieved" do
-    assert Avalanche.default_options() == [{:timeout, 3600}]
+    assert Avalanche.default_options() == []
 
     Avalanche.default_options(
       server: "test.com",
@@ -20,6 +20,9 @@ defmodule DefaultOptionsTest do
 
     assert Avalanche.default_options() == [
              {:receive_timeout, 50_000},
+             {:decode_data, [downcase_column_names: false]},
+             {:get_partitions, [timeout: 120_000]},
+             {:poll, [delay: 2500, max_attempts: 30]},
              {:server, "test.com"},
              {:token, "test"},
              {:warehouse, "test"},
@@ -87,6 +90,9 @@ defmodule DefaultOptionsTest do
 
     assert Avalanche.default_options() == [
              receive_timeout: 50_000,
+             decode_data: [downcase_column_names: false],
+             get_partitions: [timeout: 120_000],
+             poll: [delay: 2500, max_attempts: 30],
              timeout: 3600,
              server: "test",
              token: "test",

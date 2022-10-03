@@ -30,7 +30,7 @@ defmodule Avalanche.Steps.DecodeData do
   end
 
   def decode_data({request, %{status: 200, body: body} = response}) do
-    downcase_column_names = Map.get(request.options, :downcase_column_names, false)
+    downcase_column_names = Map.fetch!(request.options, :downcase_column_names)
 
     row_types =
       case Map.get(body, "resultSetMetaData") do

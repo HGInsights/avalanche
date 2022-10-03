@@ -7,15 +7,19 @@ defmodule Avalanche.Steps.DecodeDataTest do
   alias Avalanche.Steps.DecodeData
 
   describe "decode_data/1" do
-    test "does nothing when body is empty" do
+    setup do
+      [fake_request: %Req.Request{options: %{downcase_column_names: false}}]
+    end
+
+    test "does nothing when body is empty", c do
       in_response = %Req.Response{status: 200, body: ""}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert response.body == ""
     end
 
-    test "decodes nil value to nil" do
+    test "decodes nil value to nil", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -29,12 +33,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => nil}] = response.body["data"]
     end
 
-    test "decodes fixed type to Integer" do
+    test "decodes fixed type to Integer", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -48,12 +52,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => 33}] = response.body["data"]
     end
 
-    test "decodes float type to Float" do
+    test "decodes float type to Float", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -67,12 +71,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => 33.3}] = response.body["data"]
     end
 
-    test "decodes real type to Float" do
+    test "decodes real type to Float", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -86,12 +90,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => 33.3}] = response.body["data"]
     end
 
-    test "decodes text type to Binary" do
+    test "decodes text type to Binary", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -105,12 +109,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => "This is some text."}] = response.body["data"]
     end
 
-    test "decodes boolean type to Boolean" do
+    test "decodes boolean type to Boolean", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -125,12 +129,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN1" => true, "COLUMN2" => false}] = response.body["data"]
     end
 
-    test "decodes date type to Date" do
+    test "decodes date type to Date", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -144,12 +148,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => ~D[2020-01-01]}] = response.body["data"]
     end
 
-    test "decodes time type to Time" do
+    test "decodes time type to Time", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -163,12 +167,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => ~T[20:04:56]}] = response.body["data"]
     end
 
-    test "decodes timestamp_ltz type to DateTime" do
+    test "decodes timestamp_ltz type to DateTime", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -182,12 +186,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => ~U[2013-04-28 13:57:01.123456Z]}] = response.body["data"]
     end
 
-    test "decodes timestamp_ntz type to NaiveDateTime" do
+    test "decodes timestamp_ntz type to NaiveDateTime", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -201,12 +205,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => ~N[2013-04-28 20:57:01.123]}] = response.body["data"]
     end
 
-    test "decodes timestamp_tz type to DateTime" do
+    test "decodes timestamp_tz type to DateTime", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -220,12 +224,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => ~U[2013-04-28 13:57:01.123456Z]}] = response.body["data"]
     end
 
-    test "decodes object type to decoded JSON" do
+    test "decodes object type to decoded JSON", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -239,12 +243,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => %{"test" => [1, "two", 3]}}] = response.body["data"]
     end
 
-    test "decodes variant type to decoded JSON if data is JSON" do
+    test "decodes variant type to decoded JSON if data is JSON", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -258,13 +262,13 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => %{"test" => [1, "two", 3]}}] = response.body["data"]
     end
 
     @tag :capture_log
-    test "decodes variant type to Binary if data is not JSON" do
+    test "decodes variant type to Binary if data is not JSON", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -278,12 +282,12 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => "<xml>yeah!</xml>"}] = response.body["data"]
     end
 
-    test "decodes array type to List" do
+    test "decodes array type to List", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -297,7 +301,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       in_response = %Req.Response{status: 200, body: result_set}
 
-      {_request, response} = DecodeData.decode_data({%Req.Request{}, in_response})
+      {_request, response} = DecodeData.decode_data({c.fake_request, in_response})
 
       assert [%{"COLUMN" => [1, "two", 3, %{"key" => "value"}]}] = response.body["data"]
     end
@@ -318,7 +322,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
     ]
     |> Enum.each(fn {type, value, error} ->
       @tag :capture_log
-      test "decodes #{type} type to raw value with parse error" do
+      test "decodes #{type} type to raw value with parse error", c do
         result_set =
           result_set_fixture(%{
             "resultSetMetaData" => %{
@@ -334,7 +338,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
         {{_request, response}, log} =
           with_log(fn ->
-            DecodeData.decode_data({%Req.Request{}, in_response})
+            DecodeData.decode_data({c.fake_request, in_response})
           end)
 
         assert log =~ "Failed decode of '#{unquote(type)}' type: #{unquote(error)}"
@@ -343,7 +347,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
       end
     end)
 
-    test "decodes unknown type to raw value with parse error" do
+    test "decodes unknown type to raw value with parse error", c do
       result_set =
         result_set_fixture(%{
           "resultSetMetaData" => %{
@@ -359,7 +363,7 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       {{_request, response}, log} =
         with_log(fn ->
-          DecodeData.decode_data({%Req.Request{}, in_response})
+          DecodeData.decode_data({c.fake_request, in_response})
         end)
 
       assert log =~ "Failed decode of unsupported type: unknown"
@@ -376,7 +380,6 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
       options =
         Keyword.merge(options,
-          # poll: [delay: 50, max_attempts: 2],
           decode_data: [downcase_column_names: true]
         )
 

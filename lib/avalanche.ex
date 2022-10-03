@@ -36,7 +36,6 @@ defmodule Avalanche do
                             ],
                             timeout: [
                               type: :non_neg_integer,
-                              required: false,
                               default: @default_snowflake_timeout,
                               doc:
                                 "Snowflake timeout in seconds for the statement execution. 0 to 604800 (i.e. 7 days) — a value of 0 specifies that the maximum timeout value is enforced."
@@ -60,15 +59,14 @@ defmodule Avalanche do
                               keys: [
                                 delay: [
                                   type: :pos_integer,
-                                  default: 2500,
                                   doc: "Sleep this number of milliseconds between attempts."
                                 ],
                                 max_attempts: [
                                   type: :pos_integer,
-                                  default: 30,
                                   doc: "Maximum number of poll attempts."
                                 ]
                               ],
+                              default: [delay: 2500, max_attempts: 30],
                               doc:
                                 "Options to customize polling for the completion of a statement's execution. Synchronous statement execution will wait a maximum of 45 secondes plus the `poll` configuration (75 seconds) for a total of 2 minutes."
                             ],
@@ -82,10 +80,10 @@ defmodule Avalanche do
                                 ],
                                 timeout: [
                                   type: :pos_integer,
-                                  default: 120_000,
                                   doc: "Maximum amount of time to wait (in milliseconds)."
                                 ]
                               ],
+                              default: [timeout: 120_000],
                               doc:
                                 "Options to customize retrieving all the partitions of data from a statement's execution."
                             ],
@@ -94,10 +92,10 @@ defmodule Avalanche do
                               keys: [
                                 downcase_column_names: [
                                   type: :boolean,
-                                  default: false,
                                   doc: "Downcase the result's column names."
                                 ]
                               ],
+                              default: [downcase_column_names: false],
                               doc: "Options to customize how data is decoded from a statement's execution."
                             ],
                             receive_timeout: [
@@ -115,18 +113,15 @@ defmodule Avalanche do
   @run_options_schema NimbleOptions.new!(
                         async: [
                           type: :boolean,
-                          required: false,
                           default: false,
                           doc: "Set to true to execute the statement asynchronously and return the statement handle."
                         ],
                         request_id: [
                           type: :string,
-                          required: false,
                           doc: "Unique ID (a UUID) of the API request."
                         ],
                         retry: [
                           type: :boolean,
-                          required: false,
                           doc: "Set to true only when retrying the statement with a previous `request_id`."
                         ]
                       )
@@ -134,13 +129,11 @@ defmodule Avalanche do
   @status_options_schema NimbleOptions.new!(
                            async: [
                              type: :boolean,
-                             required: false,
                              default: false,
                              doc: "Set to true to disable polling and waiting for a statement to finish executing."
                            ],
                            partition: [
                              type: :non_neg_integer,
-                             required: false,
                              default: 0,
                              doc:
                                "Number of the partition of results to return. The number can range from 0 to the total number of partitions minus 1."
@@ -210,8 +203,7 @@ defmodule Avalanche do
   """
   @spec default_options() :: keyword()
   def default_options do
-    options = Application.get_env(:avalanche, :default_options, [])
-    Keyword.merge([timeout: @default_snowflake_timeout], options)
+    Application.get_env(:avalanche, :default_options, [])
   end
 
   @doc """

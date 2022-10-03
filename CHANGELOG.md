@@ -1,3 +1,10 @@
+## [0.8.1](https://github.com/HGInsights/avalanche/compare/v0.8.0...v0.8.1) (2022-10-03)
+
+
+### Bug Fixes
+
+* set defaults for options correctly (#19) ([78f0fea](https://github.com/HGInsights/avalanche/commit/78f0fea9c3e0d64dee8108f8bd6c9da55a70b477)), closes [#19](https://github.com/HGInsights/avalanche/issues/19)
+
 # [0.8.0](https://github.com/HGInsights/avalanche/compare/v0.7.2...v0.8.0) (2022-09-29)
 
 

@@ -90,6 +90,17 @@ defmodule Avalanche.StatementRequest do
         json: request.body
       )
 
+    req_options =
+      req_options
+      |> Keyword.fetch(:retry)
+      |> case do
+        :error ->
+          req_options ++ [retry: &custom_retry/1]
+
+        _exists ->
+          req_options
+      end
+
     poll_options = Keyword.get(request.options, :poll, [])
     decode_data_options = Keyword.get(request.options, :decode_data, [])
     get_partitions_options = Keyword.get(request.options, :get_partitions, [])
@@ -152,5 +163,18 @@ defmodule Avalanche.StatementRequest do
     error = Error.http_status(status, error: response.body, headers: response.headers)
 
     {:error, error}
+  end
+
+  defp custom_retry(response_or_exception) do
+    case response_or_exception do
+      %Req.Response{status: status} when status in [408, 429] or status in 500..599 ->
+        true
+
+      %Req.Response{} ->
+        false
+
+      %{__exception__: true} ->
+        true
+    end
   end
 end

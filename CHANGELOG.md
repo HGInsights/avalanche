@@ -1,3 +1,13 @@
+## [0.8.2](https://github.com/HGInsights/avalanche/compare/v0.8.1...v0.8.2) (2022-10-12)
+
+
+### Bug Fixes
+
+* deploy type handling and comply with credo (#21) ([5b7a67e](https://github.com/HGInsights/avalanche/commit/5b7a67eb690de8e5627526364cc01e643d831524)), closes [#21](https://github.com/HGInsights/avalanche/issues/21)
+
+
+* Accounts for scale when type is fixed (#20) ([22d4267](https://github.com/HGInsights/avalanche/commit/22d42679e3288c2f6b47122e01a08117ab8cf35d)), closes [#20](https://github.com/HGInsights/avalanche/issues/20)
+
 ## [0.8.1](https://github.com/HGInsights/avalanche/compare/v0.8.0...v0.8.1) (2022-10-03)
 
 

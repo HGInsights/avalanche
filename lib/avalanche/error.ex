@@ -160,4 +160,11 @@ defmodule Avalanche.Error do
       inspect(error)
     end
   end
+
+  defimpl String.Chars do
+    @spec to_string(Avalanche.Error.t()) :: binary
+    def to_string(error) do
+      Avalanche.Error.message(error)
+    end
+  end
 end

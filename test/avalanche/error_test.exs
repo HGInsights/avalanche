@@ -7,7 +7,7 @@ defmodule Avalanche.ErrorTest do
 
   describe "to_string/1" do
     test "returns the error message when" do
-      error = RuntimeError.exception("Failed!") |> Error.new()
+      error = "Failed!" |> RuntimeError.exception() |> Error.new()
 
       assert "#{error}" == "application_error: Failed!"
     end

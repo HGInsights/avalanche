@@ -57,7 +57,8 @@ defmodule Avalanche.MixProject do
       {:excoveralls, "~> 0.14.4", only: [:dev, :test]},
       {:mimic, "~> 1.7", only: [:dev, :test]},
       {:mix_test_watch, "~> 1.1.0", only: [:test, :dev]},
-      {:vapor, "~> 0.10.0", only: [:dev, :test, :docs], runtime: false}
+      {:vapor, "~> 0.10.0", only: [:dev, :test, :docs], runtime: false},
+      {:decimal, "~> 2.0"}
     ]
   end
 

@@ -62,6 +62,13 @@ defmodule Avalanche.Steps.DecodeData do
 
   defp decode(_type, value) when is_nil(value), do: nil
 
+  defp decode(%{"type" => "fixed" = type, "scale" => scale}, value) when scale > 0 do
+    case Float.parse(value) do
+      {_float, _rest} -> Decimal.new(value)
+      :error -> return_raw(type, value, :fixed_float_parse_error)
+    end
+  end
+
   defp decode(%{"type" => "fixed" = type}, value) do
     case Integer.parse(value) do
       {integer, _rest} -> integer

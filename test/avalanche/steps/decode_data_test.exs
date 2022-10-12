@@ -57,6 +57,67 @@ defmodule Avalanche.Steps.DecodeDataTest do
       assert [%{"COLUMN" => 33}] = response.body["data"]
     end
 
+    test "decodes fixed type with zero scale to Integer" do
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 1,
+            "rowType" => [
+              %{"name" => "COLUMN", "type" => "fixed", "scale" => 0}
+            ]
+          },
+          "data" => [["33"]]
+        })
+
+      in_response = %Req.Response{status: 200, body: result_set}
+
+      {_request, response} =
+        DecodeData.decode_data({%Req.Request{options: %{downcase_column_names: false}}, in_response})
+
+      assert [%{"COLUMN" => 33}] = response.body["data"]
+    end
+
+    test "decodes fixed type with non-zero scale to Decimal" do
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 1,
+            "rowType" => [
+              %{"name" => "COLUMN", "type" => "fixed", "scale" => 2}
+            ]
+          },
+          "data" => [["33.04"]]
+        })
+
+      in_response = %Req.Response{status: 200, body: result_set}
+
+      {_request, response} =
+        DecodeData.decode_data({%Req.Request{options: %{downcase_column_names: false}}, in_response})
+
+      decimal = Decimal.new("33.04")
+      assert [%{"COLUMN" => ^decimal}] = response.body["data"]
+    end
+
+    test "returns the raw type when non-zero fixed scale type has input that cannot be parsed" do
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 1,
+            "rowType" => [
+              %{"name" => "COLUMN", "type" => "fixed", "scale" => 2}
+            ]
+          },
+          "data" => [["bad_input"]]
+        })
+
+      in_response = %Req.Response{status: 200, body: result_set}
+
+      {_request, response} =
+        DecodeData.decode_data({%Req.Request{options: %{downcase_column_names: false}}, in_response})
+
+      assert [%{"COLUMN" => "bad_input"}] = response.body["data"]
+    end
+
     test "decodes float type to Float", c do
       result_set =
         result_set_fixture(%{

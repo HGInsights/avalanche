@@ -173,8 +173,10 @@ defmodule Avalanche.StatementRequest do
       %Req.Response{} ->
         false
 
+      # coveralls-ignore-start
       %{__exception__: true} ->
         true
+        # coveralls-ignore-stop
     end
   end
 end

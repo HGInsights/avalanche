@@ -2,11 +2,13 @@ defmodule AvalancheTest do
   use ExUnit.Case, async: true
 
   import Avalanche.TestFixtures
+  import ExUnit.CaptureLog
 
   setup do
     bypass = Bypass.open()
     server = "http://localhost:#{bypass.port}"
     options = test_options(server: server)
+    options = options ++ [retry: fn _ -> false end]
 
     [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
   end
@@ -203,7 +205,27 @@ defmodule AvalancheTest do
         Plug.Conn.send_resp(conn, 429, "no")
       end)
 
-      assert {:error, %Avalanche.Error{reason: :too_many_requests}} = Avalanche.run("select 1;", [], [], c.options)
+      # We use a default `retry` when it is not passed in. In this case,
+      # deleted from our setup context:
+      options = Keyword.delete(c.options, :retry)
+
+      assert capture_log(fn ->
+               assert {:error, %Avalanche.Error{reason: :too_many_requests}} =
+                        Avalanche.run("select 1;", [], [], options)
+             end) =~ "will retry"
+
+      # But we respect the user if they decide to override our default. In this
+      # case, we already have a retry that gets passed in (short circuits all
+      # retries by returning false regardless of input).
+      fun = Keyword.fetch!(c.options, :retry)
+      assert is_function(fun)
+      refute fun.("doens't matter the input it will be false")
+
+      # So, since the user passed in the function, we respect it:
+      refute capture_log(fn ->
+               assert {:error, %Avalanche.Error{reason: :too_many_requests}} =
+                        Avalanche.run("select 1;", [], [], c.options)
+             end) =~ "will retry"
     end
 
     test "returns an internal server error Error for 500 response code", c do

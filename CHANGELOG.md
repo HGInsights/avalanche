@@ -1,3 +1,10 @@
+## [0.8.3](https://github.com/HGInsights/avalanche/compare/v0.8.2...v0.8.3) (2022-10-14)
+
+
+### Bug Fixes
+
+* add retry for 429s (#22) ([09846e7](https://github.com/HGInsights/avalanche/commit/09846e7006a9920c272ea9211a4bf7b8ee5d7525)), closes [#22](https://github.com/HGInsights/avalanche/issues/22)
+
 ## [0.8.2](https://github.com/HGInsights/avalanche/compare/v0.8.1...v0.8.2) (2022-10-12)
 
 

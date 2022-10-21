@@ -1,3 +1,10 @@
+# [0.9.0](https://github.com/HGInsights/avalanche/compare/v0.8.3...v0.9.0) (2022-10-21)
+
+
+### Features
+
+* adjust retry strategy (#23) ([a0e856e](https://github.com/HGInsights/avalanche/commit/a0e856e472547bb5d948fb951bb48803dd9d529a)), closes [#23](https://github.com/HGInsights/avalanche/issues/23)
+
 ## [0.8.3](https://github.com/HGInsights/avalanche/compare/v0.8.2...v0.8.3) (2022-10-14)
 
 

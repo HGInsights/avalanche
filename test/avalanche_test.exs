@@ -209,10 +209,14 @@ defmodule AvalancheTest do
       # deleted from our setup context:
       options = Keyword.delete(c.options, :retry)
 
-      assert capture_log(fn ->
-               assert {:error, %Avalanche.Error{reason: :too_many_requests}} =
-                        Avalanche.run("select 1;", [], [], options)
-             end) =~ "will retry"
+      logs =
+        capture_log(fn ->
+          assert {:error, %Avalanche.Error{reason: :too_many_requests}} = Avalanche.run("select 1;", [], [], options)
+        end)
+
+      assert logs =~ "will retry"
+      assert logs =~ "4 attempts left"
+      assert logs =~ "will retry in 4000ms, 1 attempt left"
 
       # But we respect the user if they decide to override our default. In this
       # case, we already have a retry that gets passed in (short circuits all

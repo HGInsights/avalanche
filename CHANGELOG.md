@@ -1,3 +1,10 @@
+## [0.9.1](https://github.com/HGInsights/avalanche/compare/v0.9.0...v0.9.1) (2022-10-24)
+
+
+### Bug Fixes
+
+* adjust max_retries and improve tests (#24) ([d5dc7be](https://github.com/HGInsights/avalanche/commit/d5dc7be54ed3896a35102f49de4153cb8116e943)), closes [#24](https://github.com/HGInsights/avalanche/issues/24)
+
 # [0.9.0](https://github.com/HGInsights/avalanche/compare/v0.8.3...v0.9.0) (2022-10-21)
 
 

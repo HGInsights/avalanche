@@ -95,7 +95,7 @@ defmodule Avalanche.StatementRequest do
       |> Keyword.fetch(:retry)
       |> case do
         :error ->
-          req_options ++ [retry: &custom_retry/1, retry_delay: &custom_retry_delay/1]
+          req_options ++ [retry: &custom_retry/1, retry_delay: &custom_retry_delay/1, max_retries: 5]
 
         _exists ->
           req_options

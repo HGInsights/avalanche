@@ -20,6 +20,7 @@ defmodule AvalancheTest do
     @tag :capture_log
     test "sends POST request to /api/v2/statements", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       result_set = result_set_fixture()
 
@@ -35,6 +36,7 @@ defmodule AvalancheTest do
     @tag :capture_log
     test "returns a Result struct for successful responses", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       result_set = result_set_fixture()
 
@@ -58,6 +60,7 @@ defmodule AvalancheTest do
     @tag :capture_log
     test "async param defaults to false", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       result_set = result_set_fixture()
 
@@ -75,6 +78,7 @@ defmodule AvalancheTest do
     @tag :capture_log
     test "async param can be set to true", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       response = %{
         "code" => "333334",
@@ -99,6 +103,7 @@ defmodule AvalancheTest do
     @tag :capture_log
     test "request_id and retry params can be passed", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       result_set = result_set_fixture()
       request_id = "abc-123"
@@ -121,6 +126,7 @@ defmodule AvalancheTest do
   describe "run/4 errors" do
     test "returns a bad request Error for 400 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 400, "no")
@@ -141,6 +147,7 @@ defmodule AvalancheTest do
 
     test "returns an unauthorized Error for 401 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 401, "no")
@@ -151,6 +158,7 @@ defmodule AvalancheTest do
 
     test "returns a forbidden Error for 403 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 403, "no")
@@ -161,6 +169,7 @@ defmodule AvalancheTest do
 
     test "returns a not found Error for 404 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 404, "no")
@@ -171,6 +180,7 @@ defmodule AvalancheTest do
 
     test "returns a method not allowed Error for 405 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 405, "no")
@@ -181,6 +191,7 @@ defmodule AvalancheTest do
 
     test "returns a request timeout Error for 408 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 408, "no")
@@ -191,6 +202,7 @@ defmodule AvalancheTest do
 
     test "returns an unprocessable entity Error for 422 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         conn
@@ -221,6 +233,7 @@ defmodule AvalancheTest do
 
     test "returns an unsupported media type Error for 415 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 415, "no")
@@ -230,11 +243,10 @@ defmodule AvalancheTest do
     end
 
     test "returns a too many requests Error for 429 response code", c do
-    expect(TelemetryDispatchBehaviourMock, :execute, 2, fn [:avalanche, :query, :start],
-                                                        %{system_time: _},
-                                                        %{params: _, query: _} ->
-      :ok
-    end)
+      expect(TelemetryDispatchBehaviourMock, :execute, 4, fn
+        [:avalanche, :query, :start], %{system_time: _}, %{params: _, query: _} -> :ok
+        [:avalanche, :query, :stop], %{duration: _}, %{params: _, query: _} -> :ok
+      end)
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 429, "no")
@@ -269,6 +281,7 @@ defmodule AvalancheTest do
 
     test "returns an internal server error Error for 500 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 500, "no")
@@ -279,6 +292,7 @@ defmodule AvalancheTest do
 
     test "returns a service unavailable Error for 503 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 503, "no")
@@ -289,6 +303,7 @@ defmodule AvalancheTest do
 
     test "returns a gateway timeout Error for 504 response code", c do
       expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         Plug.Conn.send_resp(conn, 504, "no")
@@ -412,6 +427,14 @@ defmodule AvalancheTest do
   defp expect_telemetry_mock_start() do
     expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :start],
                                                         %{system_time: _},
+                                                        %{params: _, query: _} ->
+      :ok
+    end)
+  end
+
+  defp expect_telemetry_mock_stop() do
+    expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :stop],
+                                                        %{duration: _},
                                                         %{params: _, query: _} ->
       :ok
     end)

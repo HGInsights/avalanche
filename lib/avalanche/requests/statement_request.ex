@@ -71,8 +71,10 @@ defmodule Avalanche.StatementRequest do
     metadata = %{params: request.body.parameters, query: request.body.statement}
     Avalanche.Telemetry.start(:query, metadata, %{})
 
-    with {:ok, response} <- Req.Request.run(pipeline) do
-      handle_response(response)
+    with {:ok, response} <- Req.Request.run(pipeline),
+         response <- handle_response(response),
+         _ <- Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{}) do
+      response
     end
   end
 

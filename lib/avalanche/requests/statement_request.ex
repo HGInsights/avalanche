@@ -68,6 +68,9 @@ defmodule Avalanche.StatementRequest do
   def run(%__MODULE__{} = request, opts \\ []) do
     pipeline = build_pipeline(request, opts)
 
+    metadata = %{params: request.body.parameters, query: request.body.statement}
+    Avalanche.Telemetry.start(:query, metadata, %{})
+
     with {:ok, response} <- Req.Request.run(pipeline) do
       handle_response(response)
     end

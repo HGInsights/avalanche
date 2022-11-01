@@ -5,7 +5,7 @@ defmodule Avalanche.Telemetry.TelemetryDispatchImpl do
 
   @behaviour Avalanche.Telemetry.TelemetryDispatchBehaviour
 
-  @impl Avalanche.Telemetry.TelemetryDispatchBehaviour
+  @impl true
   def execute(event_details, measurements, meta) do
     # coveralls-ignore-start
     :telemetry.execute(event_details, measurements, meta)

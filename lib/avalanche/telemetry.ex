@@ -54,7 +54,7 @@ defmodule Avalanche.Telemetry do
 
   @doc "Emits a `start` telemetry event"
   @spec start(atom(), map(), map()) :: map()
-  def start(event, meta \\ %{}, extra_measurements \\ %{}) do
+  def start(event, meta, extra_measurements \\ %{}) do
     start_time = System.monotonic_time()
 
     telemetry_output =
@@ -92,7 +92,7 @@ defmodule Avalanche.Telemetry do
         kind,
         reason,
         stack,
-        meta \\ %{},
+        meta,
         extra_measurements \\ %{}
       ) do
     end_time = System.monotonic_time()

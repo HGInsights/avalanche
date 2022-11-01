@@ -58,6 +58,72 @@ defmodule AvalancheTest do
     end
 
     @tag :capture_log
+    test "handles error as expected", c do
+      expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
+
+      result_set = result_set_fixture()
+
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(500, Jason.encode!(result_set))
+      end)
+
+      assert {:error,
+              %Avalanche.Error{
+                reason: :internal_server_error,
+                message: "Internal Server Error",
+                meta: %{
+                  error: _
+                }
+              }} = Avalanche.run("select 1;", [], [], c.options)
+    end
+
+    @tag :capture_log
+    test "handles exception as expected", c do
+      expect_telemetry_mock_start()
+
+      expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :stop],
+                                                          %{duration: _},
+                                                          %{params: _, query: _} ->
+        # we raise here because it was the simplest way to create an exception
+        raise "bah"
+      end)
+
+      expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :exception],
+                                                          %{duration: _},
+                                                          %{
+                                                            params: _,
+                                                            query: _,
+                                                            stacktrace: _,
+                                                            kind: :error,
+                                                            error: %{message: "bah"}
+                                                          } ->
+        :ok
+      end)
+
+      result_set = result_set_fixture()
+
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(500, Jason.encode!(result_set))
+      end)
+
+      assert_raise RuntimeError, fn ->
+        assert {:error,
+                %Avalanche.Error{
+                  reason: :internal_server_error,
+                  message: "Internal Server Error",
+                  meta: %{error: "", headers: [{"content-length", "0"}]},
+                  original_error: nil,
+                  stacktrace: nil
+                }} = Avalanche.run("select 1;", [], [], c.options)
+      end
+    end
+
+    @tag :capture_log
     test "async param defaults to false", c do
       expect_telemetry_mock_start()
       expect_telemetry_mock_stop()

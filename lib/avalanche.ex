@@ -159,12 +159,21 @@ defmodule Avalanche do
   """
   @spec run(String.t(), list(), keyword(), keyword()) :: any() | {:error, Avalanche.Error.t()}
   def run(statement, params \\ [], run_options \\ [], request_options \\ []) do
-    with request_opts <- Keyword.merge(default_options(), request_options),
-         {:ok, valid_request_opts} <- validate_options(request_opts, @request_options_schema),
-         {:ok, valid_run_opts} <- validate_options(run_options, @run_options_schema) do
-      statement
-      |> Avalanche.StatementRequest.build(params, valid_request_opts)
-      |> Avalanche.StatementRequest.run(valid_run_opts)
+    start_time = System.monotonic_time()
+    metadata = %{params: params, query: statement}
+
+    try do
+      with request_opts <- Keyword.merge(default_options(), request_options),
+           {:ok, valid_request_opts} <- validate_options(request_opts, @request_options_schema),
+           {:ok, valid_run_opts} <- validate_options(run_options, @run_options_schema) do
+        statement
+        |> Avalanche.StatementRequest.build(params, valid_request_opts)
+        |> Avalanche.StatementRequest.run(valid_run_opts)
+      end
+    catch
+      kind, error ->
+        Avalanche.Telemetry.exception(:query, start_time, kind, error, __STACKTRACE__, metadata)
+        :erlang.raise(kind, error, __STACKTRACE__)
     end
   end
 

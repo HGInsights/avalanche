@@ -71,9 +71,14 @@ defmodule Avalanche.StatementRequest do
 
     with _ <- Avalanche.Telemetry.start(:query, metadata, %{}),
          {:ok, response} <- Req.Request.run(pipeline),
-         response <- handle_response(response),
+         {:ok, _result} = success <- handle_response(response),
          _ <- Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{}) do
-      response
+      success
+    else
+      {:error, error} = failure ->
+        metadata = Map.put(metadata, :error, error)
+        Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{})
+        failure
     end
   end
 

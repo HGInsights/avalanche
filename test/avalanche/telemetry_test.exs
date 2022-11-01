@@ -3,8 +3,9 @@ defmodule Avalanche.TelemetryTest do
 
   use ExUnit.Case
 
-  alias Avalanche.Telemetry
   import Mox
+
+  alias Avalanche.Telemetry
 
   setup :verify_on_exit!
 

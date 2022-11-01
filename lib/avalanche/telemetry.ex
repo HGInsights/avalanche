@@ -52,8 +52,8 @@ defmodule Avalanche.Telemetry do
 
   alias Avalanche.Telemetry.TelemetryDispatchImpl
 
-  @doc "Emits a `start` telemetry event"
   @spec start(atom(), map(), map()) :: map()
+  @doc "Emits a `start` telemetry event"
   def start(event, meta, extra_measurements \\ %{}) do
     start_time = System.monotonic_time()
 
@@ -67,8 +67,8 @@ defmodule Avalanche.Telemetry do
     %{start_time: start_time, telemetry_output: telemetry_output}
   end
 
-  @doc "Emits a stop event"
   @spec stop(atom(), number(), map(), map()) :: map()
+  @doc "Emits a stop event"
   def stop(event, start_time, meta \\ %{}, extra_measurements \\ %{}) do
     end_time = System.monotonic_time()
 
@@ -84,8 +84,8 @@ defmodule Avalanche.Telemetry do
     %{end_time: end_time, telemetry_output: telemetry_output}
   end
 
-  @doc false
   @spec exception(atom(), number(), any(), any(), any(), map(), map()) :: map()
+  @doc false
   def exception(
         event,
         start_time,
@@ -109,14 +109,14 @@ defmodule Avalanche.Telemetry do
     %{telemetry_output: telemetry_output}
   end
 
-  @doc "Used for reporting generic events"
   @spec event(atom(), number() | map(), map()) :: map()
+  @doc "Used for reporting generic events"
   def event(event, measurements, meta) do
     telemetry_output = telemetry_dispatch_impl().execute([:avalanche, event], measurements, meta)
     %{telemetry_output: telemetry_output}
   end
 
-  def telemetry_dispatch_impl() do
+  defp telemetry_dispatch_impl do
     Application.get_env(:avalanche, :telemetry_dispatch_impl, TelemetryDispatchImpl)
   end
 end

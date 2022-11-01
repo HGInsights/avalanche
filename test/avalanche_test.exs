@@ -490,7 +490,7 @@ defmodule AvalancheTest do
     end
   end
 
-  defp expect_telemetry_mock_start() do
+  defp expect_telemetry_mock_start do
     expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :start],
                                                         %{system_time: _},
                                                         %{params: _, query: _} ->
@@ -498,7 +498,7 @@ defmodule AvalancheTest do
     end)
   end
 
-  defp expect_telemetry_mock_stop() do
+  defp expect_telemetry_mock_stop do
     expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :stop],
                                                         %{duration: _},
                                                         %{params: _, query: _} ->

@@ -45,7 +45,7 @@ defmodule Avalanche.MixProject do
       {:jason, "~> 1.3"},
       {:joken, "~> 2.4"},
       {:nimble_options, "~> 0.4.0"},
-      {:mentat, "~> 0.7.1"},
+      {:mentat, "~> 0.7.1", override: true},
       {:plug, "~> 1.13"},
       {:req, "~> 0.3.0"},
       {:telemetry, "~> 1.1", override: true},

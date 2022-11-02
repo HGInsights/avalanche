@@ -50,8 +50,6 @@ defmodule Avalanche.Telemetry do
     * `:stacktrace` - The stacktrace
   """
 
-  alias Avalanche.Telemetry.TelemetryDispatchImpl
-
   @spec start(atom(), map(), map()) :: map()
   @doc "Emits a `start` telemetry event"
   def start(event, meta, extra_measurements \\ %{}) do
@@ -84,6 +82,13 @@ defmodule Avalanche.Telemetry do
     %{end_time: end_time, telemetry_output: telemetry_output}
   end
 
+  @spec event(atom(), number() | map(), map()) :: map()
+  @doc "Used for reporting generic events"
+  def event(event, measurements, meta) do
+    telemetry_output = telemetry_dispatch_impl().execute([:avalanche, event], measurements, meta)
+    %{telemetry_output: telemetry_output}
+  end
+
   @spec exception(atom(), number(), any(), any(), any(), map(), map()) :: map()
   @doc false
   def exception(
@@ -109,14 +114,7 @@ defmodule Avalanche.Telemetry do
     %{telemetry_output: telemetry_output}
   end
 
-  @spec event(atom(), number() | map(), map()) :: map()
-  @doc "Used for reporting generic events"
-  def event(event, measurements, meta) do
-    telemetry_output = telemetry_dispatch_impl().execute([:avalanche, event], measurements, meta)
-    %{telemetry_output: telemetry_output}
-  end
-
   defp telemetry_dispatch_impl do
-    Application.get_env(:avalanche, :telemetry_dispatch_impl, TelemetryDispatchImpl)
+    Application.get_env(:avalanche, :telemetry_dispatch_impl, Avalanche.Telemetry.TelemetryDispatchImpl)
   end
 end

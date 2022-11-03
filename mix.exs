@@ -45,7 +45,7 @@ defmodule Avalanche.MixProject do
       {:jason, "~> 1.3"},
       {:joken, "~> 2.4"},
       {:nimble_options, "~> 0.4.0"},
-      {:mentat, "~> 0.7.1"},
+      {:mentat, "~> 0.7.1", override: true},
       {:plug, "~> 1.13"},
       {:req, "~> 0.3.0"},
       {:telemetry, "~> 1.1", override: true},
@@ -56,6 +56,7 @@ defmodule Avalanche.MixProject do
       {:ex_doc, ">= 0.0.0", only: [:docs], runtime: false},
       {:excoveralls, "~> 0.14.4", only: [:dev, :test]},
       {:mimic, "~> 1.7", only: [:dev, :test]},
+      {:mox, "~> 1.0", only: :test},
       {:mix_test_watch, "~> 1.1.0", only: [:test, :dev]},
       {:vapor, "~> 0.10.0", only: [:dev, :test, :docs], runtime: false},
       {:decimal, "~> 2.0"}

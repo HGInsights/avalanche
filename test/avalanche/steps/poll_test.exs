@@ -2,6 +2,9 @@ defmodule Avalanche.Steps.PollTest do
   use ExUnit.Case, async: true
 
   import Avalanche.TestFixtures
+  import Mox
+
+  setup :verify_on_exit!
 
   setup do
     bypass = Bypass.open()
@@ -16,6 +19,11 @@ defmodule Avalanche.Steps.PollTest do
   describe "async and timeouts" do
     @tag :capture_log
     test "handles 202 result code for async or longer than 45 second queries", c do
+      expect(TelemetryDispatchBehaviourMock, :execute, 2, fn
+        [:avalanche, :query, :start], %{system_time: _}, %{params: _, query: _} -> :ok
+        [:avalanche, :query, :stop], %{duration: _}, %{params: _, query: _} -> :ok
+      end)
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->

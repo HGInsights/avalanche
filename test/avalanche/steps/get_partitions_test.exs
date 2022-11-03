@@ -2,6 +2,9 @@ defmodule Avalanche.Steps.GetPartitionsTest do
   use ExUnit.Case, async: true
 
   import Avalanche.TestFixtures
+  import Mox
+
+  setup :verify_on_exit!
 
   setup do
     bypass = Bypass.open()
@@ -19,6 +22,11 @@ defmodule Avalanche.Steps.GetPartitionsTest do
 
   describe "run/4" do
     test "does nothing when body is empty", c do
+      expect(TelemetryDispatchBehaviourMock, :execute, 2, fn
+        [:avalanche, :query, :start], %{system_time: _}, %{params: _, query: _} -> :ok
+        [:avalanche, :query, :stop], %{duration: _}, %{params: _, query: _} -> :ok
+      end)
+
       Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
         conn
         |> Plug.Conn.put_resp_header("content-type", "application/json")
@@ -33,6 +41,11 @@ defmodule Avalanche.Steps.GetPartitionsTest do
 
     @tag :capture_log
     test "returns a Result struct with data form all partitions", c do
+      expect(TelemetryDispatchBehaviourMock, :execute, 2, fn
+        [:avalanche, :query, :start], %{system_time: _}, %{params: _, query: _} -> :ok
+        [:avalanche, :query, :stop], %{duration: _}, %{params: _, query: _} -> :ok
+      end)
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
       result_set =
@@ -92,6 +105,11 @@ defmodule Avalanche.Steps.GetPartitionsTest do
 
     @tag :capture_log
     test "returns an Error when data form all partitions can't be fetched", c do
+      expect(TelemetryDispatchBehaviourMock, :execute, 2, fn
+        [:avalanche, :query, :start], %{system_time: _}, %{params: _, query: _} -> :ok
+        [:avalanche, :query, :stop], %{duration: _}, %{params: _, query: _} -> :ok
+      end)
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
       result_set =
@@ -142,6 +160,11 @@ defmodule Avalanche.Steps.GetPartitionsTest do
     end
 
     test "returns a Result struct with initial data when partitions is empty", c do
+      expect(TelemetryDispatchBehaviourMock, :execute, 2, fn
+        [:avalanche, :query, :start], %{system_time: _}, %{params: _, query: _} -> :ok
+        [:avalanche, :query, :stop], %{duration: _}, %{params: _, query: _} -> :ok
+      end)
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
       result_set =

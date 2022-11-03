@@ -3,6 +3,9 @@ defmodule Avalanche.Steps.DecodeDataTest do
 
   import Avalanche.TestFixtures
   import ExUnit.CaptureLog
+  import Mox
+
+  setup :verify_on_exit!
 
   alias Avalanche.Steps.DecodeData
 
@@ -448,6 +451,11 @@ defmodule Avalanche.Steps.DecodeDataTest do
     end
 
     test "returns a Result struct with downcased column names in", c do
+      expect(TelemetryDispatchBehaviourMock, :execute, 2, fn
+        [:avalanche, :query, :start], %{system_time: _}, %{params: _, query: _} -> :ok
+        [:avalanche, :query, :stop], %{duration: _}, %{params: _, query: _} -> :ok
+      end)
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
       result_set =

@@ -60,7 +60,13 @@ defmodule AvalancheTest do
     @tag :capture_log
     test "handles error as expected", c do
       expect_telemetry_mock_start()
-      expect_telemetry_mock_stop()
+
+      expect(TelemetryDispatchBehaviourMock, :execute, fn
+        [:avalanche, :query, :stop],
+        %{duration: _},
+        %{error: %Avalanche.Error{reason: :internal_server_error}, params: _, query: _} ->
+          :ok
+      end)
 
       result_set = result_set_fixture()
 

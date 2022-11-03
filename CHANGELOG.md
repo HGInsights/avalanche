@@ -1,3 +1,10 @@
+# [0.10.0](https://github.com/HGInsights/avalanche/compare/v0.9.1...v0.10.0) (2022-11-03)
+
+
+### Features
+
+* add telemetry to avalanche (statement query) ([32ed1af](https://github.com/HGInsights/avalanche/commit/32ed1aff0686b2b64d5c0b865a9b1c7d6b319635))
+
 ## [0.9.1](https://github.com/HGInsights/avalanche/compare/v0.9.0...v0.9.1) (2022-10-24)
 
 

@@ -1,3 +1,10 @@
+## [0.10.1](https://github.com/HGInsights/avalanche/compare/v0.10.0...v0.10.1) (2022-11-04)
+
+
+### Bug Fixes
+
+* add bindings to telemetry params (#28) ([25a2126](https://github.com/HGInsights/avalanche/commit/25a2126e670ae331e24e2eeec652d3f3f1b9144e)), closes [#28](https://github.com/HGInsights/avalanche/issues/28)
+
 # [0.10.0](https://github.com/HGInsights/avalanche/compare/v0.9.1...v0.10.0) (2022-11-03)
 
 

@@ -21,8 +21,16 @@ defmodule AvalancheIntegrationTest do
   use ExUnit.Case, async: true
 
   import Avalanche.TestFixtures
+  import Mox
+
+  setup :verify_on_exit!
 
   @moduletag :integration
+
+  setup do
+    Application.put_env(:avalanche, :telemetry_dispatch_impl, Avalanche.Telemetry.TelemetryDispatchImpl)
+    :ok
+  end
 
   describe "run/2 with OAuth token" do
     setup do
@@ -55,8 +63,24 @@ defmodule AvalancheIntegrationTest do
     end
 
     test "allows bind variables", c do
+      Application.put_env(:avalanche, :telemetry_dispatch_impl, TelemetryDispatchBehaviourMock)
+
+      expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :start],
+                                                          %{system_time: _},
+                                                          %{params: %{"1" => %{type: "FIXED", value: "33"}}, query: _} ->
+        :ok
+      end)
+
+      expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :stop],
+                                                          %{duration: _},
+                                                          %{params: %{"1" => %{type: "FIXED", value: "33"}}, query: _} ->
+        :ok
+      end)
+
       assert {:ok, %Avalanche.Result{} = result} = Avalanche.run("select ?;", [33], [], c.options)
       assert result.num_rows == 1
+
+      Application.put_env(:avalanche, :telemetry_dispatch_impl, Avalanche.Telemetry.TelemetryDispatchImpl)
     end
 
     test "parses result body into list of maps", c do

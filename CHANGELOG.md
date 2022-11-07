@@ -1,3 +1,10 @@
+## [0.10.3](https://github.com/HGInsights/avalanche/compare/v0.10.2...v0.10.3) (2022-11-07)
+
+
+### Bug Fixes
+
+* update deps and remove overrides (#29) ([60cf76d](https://github.com/HGInsights/avalanche/commit/60cf76d465ae294a35e7683eac99d25cc5bb5864)), closes [#29](https://github.com/HGInsights/avalanche/issues/29)
+
 ## [0.10.2](https://github.com/HGInsights/avalanche/compare/v0.10.1...v0.10.2) (2022-11-07)
 
 

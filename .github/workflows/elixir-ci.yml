@@ -66,28 +66,28 @@ jobs:
           extends: |
             @hgdata/semantic-release-config
 
-  # publish-hex-package:
-  #   name: Publish Hex Package ⬆️☁️
-  #   runs-on: ubuntu-latest
-  #   needs: semantic-release
-  #   if: github.ref == 'refs/heads/main' && needs.semantic-release.outputs.new_release_published == 'true'
-  #   env:
-  #     MIX_ENV: docs
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
+  publish-hex-package:
+    name: Publish Hex Package ⬆️☁️
+    runs-on: ubuntu-latest
+    needs: semantic-release
+    if: github.ref == 'refs/heads/main' && needs.semantic-release.outputs.new_release_published == 'true'
+    env:
+      MIX_ENV: docs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-  #     - name: Setup Elixir project
-  #       uses: ./.github/actions/elixir-setup
-  #       with:
-  #         elixir-version: "1.13.3"
-  #         otp-version: "24.0.5"
-  #         build-app: false
+      - name: Setup Elixir project
+        uses: ./.github/actions/elixir-setup
+        with:
+          elixir-version: "1.13.3"
+          otp-version: "24.0.5"
+          build-app: false
 
-  #     - name: Write version to .version
-  #       run: echo ${{ needs.semantic-release.outputs.new_release_version }} > .version
+      - name: Write version to .version
+        run: echo ${{ needs.semantic-release.outputs.new_release_version }} > .version
 
-  #     - name: Publish library
-  #       run: mix hex.publish --yes
-  #       env:
-  #         HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+      - name: Publish library
+        run: mix hex.publish --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

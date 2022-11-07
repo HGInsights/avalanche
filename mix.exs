@@ -45,16 +45,16 @@ defmodule Avalanche.MixProject do
       {:jason, "~> 1.3"},
       {:joken, "~> 2.4"},
       {:nimble_options, "~> 0.4.0"},
-      {:mentat, "~> 0.7.1", override: true},
+      {:mentat, "~> 0.7.1"},
       {:plug, "~> 1.13"},
       {:req, "~> 0.3.0"},
-      {:telemetry, "~> 1.1", override: true},
+      {:telemetry, "~> 0.4.3"},
       {:bypass, "~> 2.1", only: [:dev, :test]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test, :docs], runtime: false},
       {:eflambe, "~> 0.2.1", only: [:dev, :test]},
       {:ex_doc, ">= 0.0.0", only: [:docs], runtime: false},
-      {:excoveralls, "~> 0.14.4", only: [:dev, :test]},
+      {:excoveralls, "~> 0.15", only: [:dev, :test]},
       {:mimic, "~> 1.7", only: [:dev, :test]},
       {:mox, "~> 1.0", only: :test},
       {:mix_test_watch, "~> 1.1.0", only: [:test, :dev]},
@@ -67,7 +67,10 @@ defmodule Avalanche.MixProject do
     [
       description: "Elixir Snowflake Connector built on top of the Snowflake SQL API v2.",
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => @source_url, "CHANGELOG" => "https://github.com/HGInsights/avalanche/blob/main/CHANGELOG.md"}
+      links: %{
+        "GitHub" => @source_url,
+        "CHANGELOG" => "https://github.com/HGInsights/avalanche/blob/main/CHANGELOG.md"
+      }
     ]
   end
 

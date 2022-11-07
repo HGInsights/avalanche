@@ -1,3 +1,10 @@
+## [0.10.2](https://github.com/HGInsights/avalanche/compare/v0.10.1...v0.10.2) (2022-11-07)
+
+
+### Bug Fixes
+
+* **ci:** publish package to hex (#25) ([2b0b5e5](https://github.com/HGInsights/avalanche/commit/2b0b5e5b101e4dc4c642a7b32c4f9cb6fed0fbe2)), closes [#25](https://github.com/HGInsights/avalanche/issues/25)
+
 ## [0.10.1](https://github.com/HGInsights/avalanche/compare/v0.10.0...v0.10.1) (2022-11-04)
 
 

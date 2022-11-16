@@ -21,7 +21,6 @@ defmodule Avalanche.Bindings do
         "6" => %{type: "TEXT", value: "2016-05-24T13:26:08Z"},
         "7" => %{type: "TEXT", value: "2015-01-15"}
       }
-
   """
   def encode_params(values) when is_list(values) do
     values
@@ -57,5 +56,19 @@ defmodule Avalanche.Bindings do
 
   defp encode(%Date{} = value) do
     %{type: "TEXT", value: Date.to_iso8601(value)}
+  end
+
+  defp encode(any) do
+    msg = """
+    Unable to encode value: #{inspect(any)}
+
+    The value above will likely generate incorrect and unexpected results even
+    if the SQL it generated was valid.
+
+    If you believe there is an issue, please report it here:
+    https://github.com/HGInsights/avalanche/issues
+    """
+
+    raise Avalanche.Error.application_error(msg)
   end
 end

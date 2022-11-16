@@ -1,3 +1,10 @@
+## [0.10.4](https://github.com/HGInsights/avalanche/compare/v0.10.3...v0.10.4) (2022-11-16)
+
+
+### Bug Fixes
+
+* handle nil encoding by raising helpful message (#30) ([404eb21](https://github.com/HGInsights/avalanche/commit/404eb2104346d8c9c38e8bde10c5459d12c71c20)), closes [#30](https://github.com/HGInsights/avalanche/issues/30)
+
 ## [0.10.3](https://github.com/HGInsights/avalanche/compare/v0.10.2...v0.10.3) (2022-11-07)
 
 

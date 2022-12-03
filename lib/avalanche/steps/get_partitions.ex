@@ -81,7 +81,6 @@ defmodule Avalanche.Steps.GetPartitions do
       request.url
       |> URI.parse()
       |> Map.put(:path, path)
-      |> Map.put(:query, "async=false&partition=#{partition}")
 
     request
     |> Map.put(:method, :get)

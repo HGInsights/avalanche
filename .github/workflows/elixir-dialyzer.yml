@@ -15,8 +15,8 @@ jobs:
       MIX_ENV: dev
     strategy:
       matrix:
-        elixir: ["1.13.3"]
-        otp: ["24.0.5"]
+        elixir: ["1.14"]
+        otp: ["25.1"]
 
     steps:
       - name: Checkout repository

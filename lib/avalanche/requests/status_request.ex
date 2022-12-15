@@ -70,9 +70,9 @@ defmodule Avalanche.StatusRequest do
 
   Returns `{:ok, response}` or `{:error, exception}`.
   """
-  def run(%__MODULE__{} = request, async \\ false, partition \\ 0) do
+  def run(%__MODULE__{statement_handle: statement_handle} = request, async \\ false, partition \\ 0) do
     pipeline = build_pipeline(request, async, partition)
-    metadata = %{async: async, partition: partition}
+    metadata = %{statement_handle: statement_handle, async: async, partition: partition}
 
     with _ <- Avalanche.Telemetry.start(:query, metadata, %{}),
          {:ok, response} <- Req.Request.run(pipeline),

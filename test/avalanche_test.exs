@@ -388,6 +388,8 @@ defmodule AvalancheTest do
   describe "status/3" do
     @tag :capture_log
     test "sends GET request to /api/v2/statements", c do
+      expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
       result_set = result_set_fixture(%{"statementHandle" => statement_handle})
 
@@ -402,6 +404,9 @@ defmodule AvalancheTest do
 
     @tag :capture_log
     test "returns a Result struct for successful responses", c do
+      expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
       result_set = result_set_fixture(%{"statementHandle" => statement_handle})
 
@@ -424,6 +429,9 @@ defmodule AvalancheTest do
 
     @tag :capture_log
     test "partition param defaults to 0", c do
+      expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
       result_set = result_set_fixture(%{"statementHandle" => statement_handle})
 
@@ -440,6 +448,9 @@ defmodule AvalancheTest do
 
     @tag :capture_log
     test "can pass partition number", c do
+      expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
       result_set = result_set_fixture(%{"statementHandle" => statement_handle})
 
@@ -456,6 +467,9 @@ defmodule AvalancheTest do
 
     @tag :capture_log
     test "can make async status request and get empty result if execution in progress", c do
+      expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
       response = %{
@@ -483,6 +497,9 @@ defmodule AvalancheTest do
 
   describe "status/3 errors" do
     test "returns an internal server error Error for 500 response code", c do
+      expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
       Bypass.expect(c.bypass, "GET", "/api/v2/statements/#{statement_handle}", fn conn ->
@@ -494,20 +511,38 @@ defmodule AvalancheTest do
       assert {:error, %Avalanche.Error{reason: :internal_server_error}} =
                Avalanche.status(statement_handle, [], request_options)
     end
+
+    test "telemetry still captures exceptions for status calls", c do
+      expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :start], %{system_time: _}, _metadata ->
+        # we raise here because it was the simplest way to create an exception
+        raise "bah"
+      end)
+
+      # This is where we catch the exception, not the arg we match on below
+      expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :exception], %{duration: _}, _metadata ->
+        :ok
+      end)
+
+      statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
+      request_options = Keyword.merge([retry: :never], c.options)
+
+      assert_raise RuntimeError, fn ->
+        assert {:error, %Avalanche.Error{reason: :internal_server_error}} =
+                 Avalanche.status(statement_handle, [], request_options)
+      end
+    end
   end
 
   defp expect_telemetry_mock_start do
     expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :start],
                                                         %{system_time: _},
-                                                        %{params: _, query: _} ->
+                                                        %{} = _metadata ->
       :ok
     end)
   end
 
   defp expect_telemetry_mock_stop do
-    expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :stop],
-                                                        %{duration: _},
-                                                        %{params: _, query: _} ->
+    expect(TelemetryDispatchBehaviourMock, :execute, fn [:avalanche, :query, :stop], %{duration: _}, %{} = _metadata ->
       :ok
     end)
   end

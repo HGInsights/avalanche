@@ -194,14 +194,23 @@ defmodule Avalanche do
   """
   @spec status(String.t(), keyword(), keyword()) :: any() | {:error, Avalanche.Error.t()}
   def status(statement_handle, status_options \\ [], request_options \\ []) do
+    start_time = System.monotonic_time()
+
     with request_opts <- Keyword.merge(default_options(), request_options),
          {:ok, valid_request_opts} <- validate_options(request_opts, @request_options_schema),
          {:ok, valid_status_opts} <- validate_options(status_options, @status_options_schema),
          async <- Keyword.fetch!(valid_status_opts, :async),
-         partition <- Keyword.fetch!(valid_status_opts, :partition) do
-      statement_handle
-      |> Avalanche.StatusRequest.build(valid_request_opts)
-      |> Avalanche.StatusRequest.run(async, partition)
+         partition <- Keyword.fetch!(valid_status_opts, :partition),
+         metadata <- %{async: async, partition: partition} do
+      try do
+        statement_handle
+        |> Avalanche.StatusRequest.build(valid_request_opts)
+        |> Avalanche.StatusRequest.run(async, partition)
+      catch
+        kind, error ->
+          Avalanche.Telemetry.exception(:query, start_time, kind, error, __STACKTRACE__, metadata)
+          :erlang.raise(kind, error, __STACKTRACE__)
+      end
     end
   end
 

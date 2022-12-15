@@ -198,6 +198,11 @@ defmodule Avalanche.Steps.GetPartitionsTest do
   describe "status/3" do
     @tag :capture_log
     test "returns a Result struct with data form all partitions", c do
+      expect(TelemetryDispatchBehaviourMock, :execute, 2, fn
+        [:avalanche, :query, :start], %{system_time: _}, _metadata -> :ok
+        [:avalanche, :query, :stop], %{duration: _}, _metadata -> :ok
+      end)
+
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
 
       result_set =

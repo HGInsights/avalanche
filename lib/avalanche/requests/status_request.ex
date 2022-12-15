@@ -72,9 +72,18 @@ defmodule Avalanche.StatusRequest do
   """
   def run(%__MODULE__{} = request, async \\ false, partition \\ 0) do
     pipeline = build_pipeline(request, async, partition)
+    metadata = %{async: async, partition: partition}
 
-    with {:ok, response} <- Req.Request.run(pipeline) do
-      handle_response({request, response})
+    with _ <- Avalanche.Telemetry.start(:query, metadata, %{}),
+         {:ok, response} <- Req.Request.run(pipeline),
+         {:ok, _} = success <- handle_response({request, response}),
+         _ <- Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{}) do
+      success
+    else
+      {:error, error} = failure ->
+        metadata = Map.put(metadata, :error, error)
+        Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{})
+        failure
     end
   end
 

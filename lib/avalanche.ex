@@ -196,11 +196,6 @@ defmodule Avalanche do
   def status(statement_handle, status_options \\ [], request_options \\ []) do
     start_time = System.monotonic_time()
 
-    metadata =
-      %{statement_handle: statement_handle}
-      |> Map.put(:async, Keyword.get(status_options, :async))
-      |> Map.put(:partition, Keyword.get(status_options, :partition))
-
     try do
       with request_opts <- Keyword.merge(default_options(), request_options),
            {:ok, valid_request_opts} <- validate_options(request_opts, @request_options_schema),
@@ -213,6 +208,11 @@ defmodule Avalanche do
       end
     catch
       kind, error ->
+        metadata =
+          %{statement_handle: statement_handle}
+          |> Map.put(:async, Keyword.get(status_options, :async))
+          |> Map.put(:partition, Keyword.get(status_options, :partition))
+
         Avalanche.Telemetry.exception(:query, start_time, kind, error, __STACKTRACE__, metadata)
         :erlang.raise(kind, error, __STACKTRACE__)
     end

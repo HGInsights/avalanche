@@ -1,3 +1,13 @@
+# [0.11.0](https://github.com/HGInsights/avalanche/compare/v0.10.4...v0.11.0) (2022-12-16)
+
+
+* Pin Req version to 0.3.1 (#31) ([d241e88](https://github.com/HGInsights/avalanche/commit/d241e8878c84b61bc385810999496a9125ce0af5)), closes [#31](https://github.com/HGInsights/avalanche/issues/31)
+
+
+### Features
+
+* add telemetry to status calls (#32) ([f0e69f9](https://github.com/HGInsights/avalanche/commit/f0e69f9b06ef3740a30018a6dfb5b0422444c3a9)), closes [#32](https://github.com/HGInsights/avalanche/issues/32)
+
 ## [0.10.4](https://github.com/HGInsights/avalanche/compare/v0.10.3...v0.10.4) (2022-11-16)
 
 

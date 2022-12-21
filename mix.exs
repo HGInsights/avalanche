@@ -66,6 +66,7 @@ defmodule Avalanche.MixProject do
   defp package() do
     [
       description: "Elixir Snowflake Connector built on top of the Snowflake SQL API v2.",
+      files: ~w(lib .formatter.exs mix.exs README* LICENSE* CHANGELOG* .version),
       licenses: ["Apache-2.0"],
       links: %{
         "GitHub" => @source_url,

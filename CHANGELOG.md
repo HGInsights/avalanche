@@ -1,3 +1,10 @@
+## [0.11.1](https://github.com/HGInsights/avalanche/compare/v0.11.0...v0.11.1) (2022-12-21)
+
+
+### Bug Fixes
+
+* Add missing .version file so we can compile from hex (#33) ([21c4a17](https://github.com/HGInsights/avalanche/commit/21c4a17274ab17103b68dbe2514ddd7a781988a7)), closes [#33](https://github.com/HGInsights/avalanche/issues/33)
+
 # [0.11.0](https://github.com/HGInsights/avalanche/compare/v0.10.4...v0.11.0) (2022-12-16)
 
 

@@ -47,7 +47,7 @@ defmodule Avalanche.MixProject do
       {:nimble_options, "~> 0.4.0"},
       {:mentat, "~> 0.7.1"},
       {:plug, "~> 1.13"},
-      {:req, "0.3.1"},
+      {:req, "~> 0.3.3"},
       {:telemetry, "~> 0.4.3"},
       {:bypass, "~> 2.1", only: [:dev, :test]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},

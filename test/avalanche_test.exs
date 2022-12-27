@@ -506,7 +506,7 @@ defmodule AvalancheTest do
         Plug.Conn.send_resp(conn, 500, "no")
       end)
 
-      request_options = Keyword.merge([retry: :never], c.options)
+      request_options = Keyword.merge([retry: false], c.options)
 
       assert {:error, %Avalanche.Error{reason: :internal_server_error}} =
                Avalanche.status(statement_handle, [], request_options)
@@ -524,7 +524,7 @@ defmodule AvalancheTest do
       end)
 
       statement_handle = "e4ce975e-f7ff-4b5e-b15e-bf25f59371ae"
-      request_options = Keyword.merge([retry: :never], c.options)
+      request_options = Keyword.merge([retry: false], c.options)
 
       assert_raise RuntimeError, fn ->
         assert {:error, %Avalanche.Error{reason: :internal_server_error}} =

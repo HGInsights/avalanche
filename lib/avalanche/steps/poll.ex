@@ -57,10 +57,11 @@ defmodule Avalanche.Steps.Poll do
   # reuse current request and turn it into a `StatusRequest`
   defp build_status_request(%Req.Request{} = request, path) do
     request
-    |> Map.put(:method, :get)
-    |> Map.put(:body, "")
-    |> Map.put(:url, URI.parse(path))
+    |> reset_req_request()
+    |> Req.update(method: :get, body: "", url: URI.parse(path))
   end
+
+  defp reset_req_request(request), do: %{request | current_request_steps: Keyword.keys(request.request_steps)}
 
   defp log_poll(response, poll_count, max_attempts, delay) do
     retries_left =

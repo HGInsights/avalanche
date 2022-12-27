@@ -84,7 +84,7 @@ defmodule DefaultOptionsTest do
                database: "test",
                schema: "test",
                role: "test",
-               retry: :never,
+               retry: false,
                follow_redirects: false
              )
 
@@ -100,7 +100,7 @@ defmodule DefaultOptionsTest do
              database: "test",
              schema: "test",
              role: "test",
-             retry: :never,
+             retry: false,
              follow_redirects: false
            ]
   end

@@ -333,6 +333,8 @@ defmodule AvalancheTest do
           assert {:error, %Avalanche.Error{reason: :too_many_requests}} = Avalanche.run("select 1;", [], [], options)
         end)
 
+      # logger level
+      assert logs =~ "[info]"
       assert logs =~ "will retry"
       assert logs =~ "4 attempts left"
       assert logs =~ "will retry in 4000ms, 1 attempt left"

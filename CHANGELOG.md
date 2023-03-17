@@ -1,3 +1,10 @@
+## [0.11.3](https://github.com/HGInsights/avalanche/compare/v0.11.2...v0.11.3) (2023-03-17)
+
+
+### Bug Fixes
+
+* update deps (req 0.3.6) (#35) ([ba34af4](https://github.com/HGInsights/avalanche/commit/ba34af4c7c5682109f5902cc35aee7f435a5bfd1)), closes [#35](https://github.com/HGInsights/avalanche/issues/35)
+
 ## [0.11.2](https://github.com/HGInsights/avalanche/compare/v0.11.1...v0.11.2) (2022-12-27)
 
 

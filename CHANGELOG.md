@@ -1,3 +1,10 @@
+## [0.11.4](https://github.com/HGInsights/avalanche/compare/v0.11.3...v0.11.4) (2023-03-17)
+
+
+### Bug Fixes
+
+* adjust logger level (#36) ([fe059dd](https://github.com/HGInsights/avalanche/commit/fe059ddae8245590d007b7d6876bcbf368625292)), closes [#36](https://github.com/HGInsights/avalanche/issues/36)
+
 ## [0.11.3](https://github.com/HGInsights/avalanche/compare/v0.11.2...v0.11.3) (2023-03-17)
 
 

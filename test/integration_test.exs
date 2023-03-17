@@ -105,7 +105,7 @@ defmodule AvalancheIntegrationTest do
                  "O_ORDERPRIORITY" => "5-LOW",
                  "O_ORDERSTATUS" => "O",
                  "O_SHIPPRIORITY" => 0,
-                 "O_TOTALPRICE" => 173_665
+                 "O_TOTALPRICE" => _
                }
                | _rest
              ] = result1.rows

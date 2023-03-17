@@ -43,22 +43,22 @@ defmodule Avalanche.MixProject do
   defp deps do
     [
       {:jason, "~> 1.3"},
-      {:joken, "~> 2.4"},
-      {:nimble_options, "~> 0.4.0"},
+      {:joken, "~> 2.6"},
+      {:nimble_options, "~> 0.4 or ~> 1.0"},
       {:mentat, "~> 0.7.1"},
       {:plug, "~> 1.13"},
-      {:req, "~> 0.3.3"},
-      {:telemetry, "~> 0.4.3"},
+      {:req, "~> 0.3.6"},
+      {:telemetry, "~> 0.4 or ~> 1.0"},
       {:bypass, "~> 2.1", only: [:dev, :test]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test, :docs], runtime: false},
-      {:eflambe, "~> 0.2.1", only: [:dev, :test]},
+      {:eflambe, "~> 0.3", only: [:dev, :test]},
       {:ex_doc, ">= 0.0.0", only: [:docs], runtime: false},
-      {:excoveralls, "~> 0.15", only: [:dev, :test]},
+      {:excoveralls, "~> 0.16", only: [:dev, :test]},
       {:mimic, "~> 1.7", only: [:dev, :test]},
       {:mox, "~> 1.0", only: :test},
-      {:mix_test_watch, "~> 1.1.0", only: [:test, :dev]},
-      {:vapor, "~> 0.10.0", only: [:dev, :test, :docs], runtime: false},
+      {:mix_test_watch, "~> 1.1", only: [:test, :dev]},
+      {:vapor, "~> 0.10", only: [:dev, :test, :docs], runtime: false},
       {:decimal, "~> 2.0"}
     ]
   end

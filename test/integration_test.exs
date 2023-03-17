@@ -18,7 +18,7 @@ defmodule AvalancheIntegrationTest do
   than your personal one does.
   """
 
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   import Avalanche.TestFixtures
   import Mox
@@ -29,6 +29,11 @@ defmodule AvalancheIntegrationTest do
 
   setup do
     Application.put_env(:avalanche, :telemetry_dispatch_impl, Avalanche.Telemetry.TelemetryDispatchImpl)
+
+    on_exit(fn ->
+      Application.put_env(:avalanche, :telemetry_dispatch_impl, TelemetryDispatchBehaviourMock)
+    end)
+
     :ok
   end
 
@@ -152,5 +157,54 @@ defmodule AvalancheIntegrationTest do
 
     #   :eflambe.apply({Avalanche, :run, [query, [20000], c.options]}, open: :speedscope)
     # end
+  end
+
+  describe "decode_data/1 (integration)" do
+    @describetag integration: true
+
+    setup do
+      options = test_options()
+      [options: options]
+    end
+
+    test "decode real data from Snowflake", c do
+      assert {:ok, %Avalanche.Result{} = result1} =
+               Avalanche.run(
+                 "SELECT *, 9 as number FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS ORDER BY O_ORDERKEY LIMIT ?",
+                 [2],
+                 [],
+                 c.options
+               )
+
+      assert result1.num_rows == 2
+
+      assert [
+               %{
+                 "NUMBER" => 9,
+                 "O_CLERK" => "Clerk#000000951",
+                 "O_COMMENT" => "nstructions sleep furiously among ",
+                 "O_CUSTKEY" => 36_901,
+                 "O_ORDERDATE" => ~D[1996-01-02],
+                 "O_ORDERKEY" => 1,
+                 "O_ORDERPRIORITY" => "5-LOW",
+                 "O_ORDERSTATUS" => "O",
+                 "O_SHIPPRIORITY" => 0,
+                 "O_TOTALPRICE" => _
+               }
+               | _rest
+             ] = result1.rows
+
+      assert {:ok, %Avalanche.Result{} = result2} =
+               Avalanche.run(
+                 "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.WEATHER.DAILY_14_TOTAL LIMIT 1",
+                 [],
+                 [],
+                 c.options
+               )
+
+      assert result2.num_rows == 1
+
+      assert [%{"T" => %NaiveDateTime{}, "V" => _stuff1}] = result2.rows
+    end
   end
 end

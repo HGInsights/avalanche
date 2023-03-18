@@ -1,3 +1,10 @@
+## [0.11.5](https://github.com/HGInsights/avalanche/compare/v0.11.4...v0.11.5) (2023-03-18)
+
+
+### Bug Fixes
+
+* fix integration tests when running all tests together (#37) ([8013d24](https://github.com/HGInsights/avalanche/commit/8013d24f19520d86ab284b72ca203e5d76172fb3)), closes [#37](https://github.com/HGInsights/avalanche/issues/37)
+
 ## [0.11.4](https://github.com/HGInsights/avalanche/compare/v0.11.3...v0.11.4) (2023-03-17)
 
 

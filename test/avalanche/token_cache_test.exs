@@ -37,9 +37,11 @@ defmodule Avalanche.TokenCacheTest do
   -----END PRIVATE KEY-----
   """
 
+  setup :set_mimic_global
+
   setup do
     key = :crypto.hash(:md5, @priv_key)
-    Mentat.delete(:token_cache, key)
+    Cachex.del(:token_cache, key)
     :ok
   end
 

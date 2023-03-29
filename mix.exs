@@ -23,7 +23,6 @@ defmodule Avalanche.MixProject do
       test_coverage: [tool: ExCoveralls],
       aliases: aliases(),
       deps: deps(),
-      dialyzer: dialyzer(),
       docs: docs(),
       package: package(),
       preferred_cli_env: preferred_cli_env()
@@ -45,7 +44,7 @@ defmodule Avalanche.MixProject do
       {:jason, "~> 1.3"},
       {:joken, "~> 2.6"},
       {:nimble_options, "~> 0.4 or ~> 1.0"},
-      {:mentat, "~> 0.7.1"},
+      {:cachex, "~> 3.6"},
       {:plug, "~> 1.13"},
       {:req, "~> 0.3.6"},
       {:telemetry, "~> 0.4 or ~> 1.0"},
@@ -91,17 +90,9 @@ defmodule Avalanche.MixProject do
       "coveralls.html": :test,
       credo: :test,
       docs: :docs,
-      dialyzer: :test,
+      dialyzer: :dev,
       "test.all": :test
     ]
-
-  defp dialyzer do
-    [
-      plt_add_apps: [:ex_unit, :mix],
-      ignore_warnings: "dialyzer.ignore-warnings",
-      list_unused_filters: true
-    ]
-  end
 
   defp aliases do
     [

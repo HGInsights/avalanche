@@ -11,6 +11,7 @@ defmodule Avalanche.TokenCache do
 
   @cache :token_cache
   @ttl :timer.minutes(30)
+  @janitor_interval :timer.seconds(5)
 
   # JWT expiration time (59 min)
   @default_exp 60 * 59
@@ -26,7 +27,12 @@ defmodule Avalanche.TokenCache do
 
   @spec start_link(any()) :: Supervisor.on_start()
   def start_link(_) do
-    Mentat.start_link(name: @cache, ttl: @ttl)
+    import Cachex.Spec
+
+    Cachex.start_link(
+      name: @cache,
+      expiration: expiration(default: @ttl, interval: @janitor_interval)
+    )
   end
 
   @doc """
@@ -34,21 +40,31 @@ defmodule Avalanche.TokenCache do
 
   Returns `{"KEYPAIR_JWT", token}` or `{"OAUTH", token}`.
   """
-  @spec fetch_token(options :: keyword()) :: {binary(), binary()} | :error
+  @spec fetch_token(options :: Keyword.t() | binary()) :: {binary(), binary()} | :error
   @dialyzer {:nowarn_function, fetch_token: 1}
   def fetch_token(options) do
     key = key_from_options(options)
 
-    Mentat.fetch(@cache, key, fn _key ->
+    Cachex.fetch(@cache, key, fn _key ->
       case token_from_options(options) do
         {:ok, token} ->
           {:commit, token}
 
         {:error, error} ->
-          Logger.error("TokenCache.fetch_token/1 failed: #{inspect(error)}")
-          {:ignore, :error}
+          {:ignore, {:error, error}}
       end
     end)
+    |> case do
+      {:ok, token} ->
+        token
+
+      {:commit, token} ->
+        token
+
+      {:ignore, {:error, error}} ->
+        Logger.error("TokenCache.fetch_token/1 failed: #{inspect(error)}")
+        :error
+    end
   end
 
   defp key_from_options(token) when is_binary(token), do: :crypto.hash(:md5, token)
@@ -57,9 +73,6 @@ defmodule Avalanche.TokenCache do
     priv_key = Keyword.fetch!(token, :priv_key)
     :crypto.hash(:md5, priv_key)
   end
-
-  @spec token_from_options(binary()) :: {:ok, {binary(), binary()}} | {:error, any()}
-  defp token_from_options(token)
 
   defp token_from_options(token) when is_binary(token), do: {:ok, {"OAUTH", token}}
 

@@ -73,6 +73,16 @@ defmodule DefaultOptionsTest do
                schema: "test",
                role: "test"
              )
+
+    assert :ok =
+             Avalanche.default_options(
+               server: "test",
+               token: [account: "test", user: "test", priv_key: "test"],
+               warehouse: "test",
+               database: "test",
+               schema: "test",
+               role: "test"
+             )
   end
 
   test "Req.request/1 options are allowed" do

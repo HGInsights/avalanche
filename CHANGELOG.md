@@ -1,3 +1,10 @@
+## [0.11.6](https://github.com/HGInsights/avalanche/compare/v0.11.5...v0.11.6) (2023-03-31)
+
+
+### Bug Fixes
+
+* typespecs, replace mentat with cachex, fix flaky test, improve docs (#38) ([a04953d](https://github.com/HGInsights/avalanche/commit/a04953dca5a5641f220c7cfdf6a45d7953a455de)), closes [#38](https://github.com/HGInsights/avalanche/issues/38)
+
 ## [0.11.5](https://github.com/HGInsights/avalanche/compare/v0.11.4...v0.11.5) (2023-03-18)
 
 

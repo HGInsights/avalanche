@@ -8,6 +8,12 @@ defmodule Avalanche do
 
   @default_snowflake_timeout 3600
 
+  @token_options_schema [
+    account: [type: :string, doc: "Snowflake Account ID"],
+    user: [type: :string, doc: "User"],
+    priv_key: [type: :string, doc: "RSA Private Key"]
+  ]
+
   @request_options_schema NimbleOptions.new!(
                             server: [
                               type: :string,
@@ -41,18 +47,10 @@ defmodule Avalanche do
                                 "Snowflake timeout in seconds for the statement execution. 0 to 604800 (i.e. 7 days) — a value of 0 specifies that the maximum timeout value is enforced."
                             ],
                             token: [
-                              type:
-                                {:or,
-                                 [
-                                   :string,
-                                   non_empty_keyword_list: [
-                                     account: [type: :string],
-                                     user: [type: :string],
-                                     priv_key: [type: :string]
-                                   ]
-                                 ]},
+                              type: {:or, [:string, non_empty_keyword_list: @token_options_schema]},
                               required: true,
-                              doc: "Snowflake authentication via OAuth token or Key Pair."
+                              doc:
+                                "Snowflake authentication via OAuth token (string) or Key Pair (Keyword List): \n\n #{NimbleOptions.docs(@token_options_schema, nest_level: 1)}"
                             ],
                             poll: [
                               type: :non_empty_keyword_list,

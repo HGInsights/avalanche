@@ -37,7 +37,7 @@ defmodule Avalanche.StatementRequest do
           path: String.t(),
           headers: keyword(),
           body: body(),
-          token: String.t(),
+          token: String.t() | keyword(),
           options: keyword()
         }
 

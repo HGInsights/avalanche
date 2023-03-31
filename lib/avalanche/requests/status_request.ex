@@ -41,7 +41,7 @@ defmodule Avalanche.StatusRequest do
           url: url(),
           path: String.t(),
           headers: keyword(),
-          token: String.t(),
+          token: String.t() | keyword(),
           statement_handle: String.t(),
           row_types: row_types(),
           options: keyword()

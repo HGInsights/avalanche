@@ -74,9 +74,9 @@ defmodule Avalanche.TokenCache do
     :crypto.hash(:md5, priv_key)
   end
 
-  defp token_from_options(token) when is_binary(token), do: {:ok, {"OAUTH", token}}
+  def token_from_options(token) when is_binary(token), do: {:ok, {"OAUTH", token}}
 
-  defp token_from_options(token) do
+  def token_from_options(token) do
     account = Keyword.fetch!(token, :account)
     user = Keyword.fetch!(token, :user)
     priv_key = Keyword.fetch!(token, :priv_key)
@@ -84,15 +84,11 @@ defmodule Avalanche.TokenCache do
     sub = "#{String.upcase(account)}.#{String.upcase(user)}"
     iss = "#{sub}.#{public_key_fingerprint(priv_key)}"
 
-    {:ok, claims} =
-      [iss: iss, default_exp: @default_exp, skip: [:aud, :jti, :nbf]]
-      |> Joken.Config.default_claims()
-      |> Joken.Config.add_claim("sub", fn -> sub end)
-      |> Joken.generate_claims()
+    {:ok, claims} = Avalanche.JWTs.generate_claims([iss: iss, default_exp: @default_exp, skip: [:aud, :jti, :nbf]], sub)
 
-    signer = Joken.Signer.create("RS256", %{"pem" => priv_key})
+    signer = Avalanche.JWTs.create_signer("RS256", %{"pem" => priv_key})
 
-    with {:ok, token} <- Joken.Signer.sign(claims, signer) do
+    with {:ok, token} <- Avalanche.JWTs.sign(claims, signer) do
       {:ok, {"KEYPAIR_JWT", token}}
     end
   end

@@ -67,13 +67,6 @@ defmodule Avalanche.TokenCache do
     end
   end
 
-  defp key_from_options(token) when is_binary(token), do: :crypto.hash(:md5, token)
-
-  defp key_from_options(token) do
-    priv_key = Keyword.fetch!(token, :priv_key)
-    :crypto.hash(:md5, priv_key)
-  end
-
   def token_from_options(token) when is_binary(token), do: {:ok, {"OAUTH", token}}
 
   def token_from_options(token) do
@@ -91,6 +84,13 @@ defmodule Avalanche.TokenCache do
     with {:ok, token} <- Avalanche.JWTs.sign(claims, signer) do
       {:ok, {"KEYPAIR_JWT", token}}
     end
+  end
+
+  defp key_from_options(token) when is_binary(token), do: :crypto.hash(:md5, token)
+
+  defp key_from_options(token) do
+    priv_key = Keyword.fetch!(token, :priv_key)
+    :crypto.hash(:md5, priv_key)
   end
 
   # SHA256:public_key_fingerprint

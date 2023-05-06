@@ -54,7 +54,6 @@ defmodule Avalanche.MixProject do
       {:eflambe, "~> 0.3", only: [:dev, :test]},
       {:ex_doc, ">= 0.0.0", only: [:docs], runtime: false},
       {:excoveralls, "~> 0.16", only: [:dev, :test]},
-      {:mimic, "~> 1.7", only: [:dev, :test]},
       {:mox, "~> 1.0", only: :test},
       {:mix_test_watch, "~> 1.1", only: [:test, :dev]},
       {:vapor, "~> 0.10", only: [:dev, :test, :docs], runtime: false},

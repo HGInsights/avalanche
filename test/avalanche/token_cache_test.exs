@@ -1,8 +1,8 @@
 defmodule Avalanche.TokenCacheTest do
   use ExUnit.Case
-  use Mimic
 
   import ExUnit.CaptureLog
+  import Mox
 
   alias Avalanche.TokenCache
 
@@ -37,37 +37,49 @@ defmodule Avalanche.TokenCacheTest do
   -----END PRIVATE KEY-----
   """
 
-  setup :set_mimic_global
-
   setup do
     key = :crypto.hash(:md5, @priv_key)
     Cachex.del(:token_cache, key)
     :ok
   end
 
+  setup :set_mox_from_context
+  setup :verify_on_exit!
+
   describe "fetch_token/1" do
     test "OAuth Token" do
       assert {"OAUTH", "test"} = TokenCache.fetch_token("test")
     end
 
-    test "Private Key Token" do
-      {"KEYPAIR_JWT", jwt} = TokenCache.fetch_token(account: "test-account", user: "test-user", priv_key: @priv_key)
+    # Priv key - success -> see :integration tests
 
-      assert {:ok, %{"alg" => "RS256", "typ" => "JWT"}} = Joken.peek_header(jwt)
+    test "Priv key - failure to sign jwt token logs and returns :error" do
+      expect(JWTBehaviourMock, :generate_claims, fn _claim_options, _sub ->
+        claims = %{
+          "exp" => 1_683_402_121,
+          "iat" => 1_683_398_581,
+          "iss" => "TEST-ACCOUNT.TEST-USER.SHA256:Cs+Qax+bWkinZLzQc13sOWqV5u6rvhzNbzUJpktMg2s=",
+          "sub" => "TEST-ACCOUNT.TEST-USER"
+        }
 
-      assert {:ok,
-              %{
-                "exp" => _,
-                "iat" => _,
-                "iss" => iss,
-                "sub" => "TEST-ACCOUNT.TEST-USER"
-              }} = Joken.peek_claims(jwt)
+        {:ok, claims}
+      end)
 
-      assert "TEST-ACCOUNT.TEST-USER.SHA256:" <> _fingerprint = iss
-    end
+      expect(JWTBehaviourMock, :create_signer, fn "RS256", %{"pem" => @priv_key} ->
+        %{
+          jwk: %{},
+          jws: %{
+            alg: {:jose_jws_alg_rsa_pkcs1_v1_5, :RS256},
+            b64: :undefined,
+            fields: %{"typ" => "JWT"}
+          },
+          alg: "RS256"
+        }
+      end)
 
-    test "failure to sign jwt token logs and returns :error" do
-      Mimic.expect(Joken.Signer, :sign, fn _, _ -> {:error, :jwt_sign_failed} end)
+      expect(JWTBehaviourMock, :sign, fn _claims, _signer ->
+        {:error, :jwt_sign_failed}
+      end)
 
       {result, log} =
         with_log(fn ->
@@ -76,6 +88,49 @@ defmodule Avalanche.TokenCacheTest do
 
       assert log =~ "TokenCache.fetch_token/1 failed: :jwt_sign_failed"
       assert result == :error
+    end
+  end
+
+  describe "token_from_options/1" do
+    test "oauth works as expected" do
+      assert {:ok, {"OAUTH", "some binary"}} = TokenCache.token_from_options("some binary")
+    end
+
+    test "priv_key works as expected - uses JWTs" do
+      expect(JWTBehaviourMock, :generate_claims, fn _claim_options, _sub ->
+        claims = %{
+          "exp" => 1_683_402_121,
+          "iat" => 1_683_398_581,
+          "iss" => "TEST-ACCOUNT.TEST-USER.SHA256:Cs+Qax+bWkinZLzQc13sOWqV5u6rvhzNbzUJpktMg2s=",
+          "sub" => "TEST-ACCOUNT.TEST-USER"
+        }
+
+        {:ok, claims}
+      end)
+
+      expect(JWTBehaviourMock, :create_signer, fn "RS256", %{"pem" => @priv_key} ->
+        %{
+          jwk: %{},
+          jws: %{
+            alg: {:jose_jws_alg_rsa_pkcs1_v1_5, :RS256},
+            b64: :undefined,
+            fields: %{"typ" => "JWT"}
+          },
+          alg: "RS256"
+        }
+      end)
+
+      expect(JWTBehaviourMock, :sign, fn _claims, _signer ->
+        {:ok, "signed_token"}
+      end)
+
+      token_options = [
+        account: "test-account",
+        user: "test-user",
+        priv_key: @priv_key
+      ]
+
+      assert {:ok, {"KEYPAIR_JWT", _valid_token}} = TokenCache.token_from_options(token_options)
     end
   end
 end

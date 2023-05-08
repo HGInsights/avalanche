@@ -1,3 +1,10 @@
+## [0.11.7](https://github.com/HGInsights/avalanche/compare/v0.11.6...v0.11.7) (2023-05-08)
+
+
+### Bug Fixes
+
+* Refactor JWT -> add boundary, adjust tests and remove unnecessary deps (#39) ([4492ed5](https://github.com/HGInsights/avalanche/commit/4492ed5a693f2611edd5507f391fdaceff776f7e)), closes [#39](https://github.com/HGInsights/avalanche/issues/39)
+
 ## [0.11.6](https://github.com/HGInsights/avalanche/compare/v0.11.5...v0.11.6) (2023-03-31)
 
 

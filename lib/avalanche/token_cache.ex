@@ -45,16 +45,18 @@ defmodule Avalanche.TokenCache do
   def fetch_token(options) do
     key = key_from_options(options)
 
-    Cachex.fetch(@cache, key, fn _key ->
-      case token_from_options(options) do
-        {:ok, token} ->
-          {:commit, token}
+    result =
+      Cachex.fetch(@cache, key, fn _key ->
+        case token_from_options(options) do
+          {:ok, token} ->
+            {:commit, token}
 
-        {:error, error} ->
-          {:ignore, {:error, error}}
-      end
-    end)
-    |> case do
+          {:error, error} ->
+            {:ignore, {:error, error}}
+        end
+      end)
+
+    case result do
       {:ok, token} ->
         token
 

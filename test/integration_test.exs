@@ -71,7 +71,7 @@ defmodule AvalancheIntegrationTest do
     :ok
   end
 
-  describe "run/2 with OAuth token" do
+  describe "run/4 with OAuth token" do
     setup do
       options = test_options()
       [options: options]
@@ -83,7 +83,7 @@ defmodule AvalancheIntegrationTest do
     end
   end
 
-  describe "run/2 with Key Pair token" do
+  describe "run/4 with Key Pair token" do
     setup do
       options = test_key_pair_options()
       [options: options]
@@ -95,7 +95,7 @@ defmodule AvalancheIntegrationTest do
     end
   end
 
-  describe "run/2" do
+  describe "run/4" do
     setup do
       options = test_options()
       [options: options]
@@ -191,6 +191,32 @@ defmodule AvalancheIntegrationTest do
 
     #   :eflambe.apply({Avalanche, :run, [query, [20000], c.options]}, open: :speedscope)
     # end
+  end
+
+  describe "run/4 multi-statement" do
+    setup do
+      options = test_options()
+      [options: options]
+    end
+
+    test "handles multi-statement requests", c do
+      assert {:ok, %Avalanche.Result{statement_handles: statement_handles} = result} =
+               Avalanche.run("begin transaction;select ?;select ? as two;commit;", [1, 2], [], c.options)
+
+      assert result.status == :complete
+      assert length(statement_handles) == 4
+
+      [sh1, sh2, sh3, sh4] = statement_handles
+
+      assert {:ok, %Avalanche.Result{rows: [%{"status" => "Statement executed successfully."}]}} =
+               Avalanche.status(sh1, [], c.options)
+
+      assert {:ok, %Avalanche.Result{rows: [%{"?" => 1.0}]}} = Avalanche.status(sh2, [], c.options)
+      assert {:ok, %Avalanche.Result{rows: [%{"TWO" => 2.0}]}} = Avalanche.status(sh3, [], c.options)
+
+      assert {:ok, %Avalanche.Result{rows: [%{"status" => "Statement executed successfully."}]}} =
+               Avalanche.status(sh4, [], c.options)
+    end
   end
 
   describe "decode_data/1 (integration)" do

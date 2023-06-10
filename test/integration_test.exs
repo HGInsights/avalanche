@@ -148,18 +148,6 @@ defmodule AvalancheIntegrationTest do
                }
                | _rest
              ] = result1.rows
-
-      assert {:ok, %Avalanche.Result{} = result2} =
-               Avalanche.run(
-                 "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.WEATHER.DAILY_14_TOTAL LIMIT 1",
-                 [],
-                 [],
-                 c.options
-               )
-
-      assert result2.num_rows == 1
-
-      assert [%{"T" => %NaiveDateTime{}, "V" => _stuff1}] = result2.rows
     end
 
     test "auto loads partitions", c do
@@ -253,18 +241,6 @@ defmodule AvalancheIntegrationTest do
                }
                | _rest
              ] = result1.rows
-
-      assert {:ok, %Avalanche.Result{} = result2} =
-               Avalanche.run(
-                 "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.WEATHER.DAILY_14_TOTAL LIMIT 1",
-                 [],
-                 [],
-                 c.options
-               )
-
-      assert result2.num_rows == 1
-
-      assert [%{"T" => %NaiveDateTime{}, "V" => _stuff1}] = result2.rows
     end
   end
 

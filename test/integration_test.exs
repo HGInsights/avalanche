@@ -148,6 +148,9 @@ defmodule AvalancheIntegrationTest do
                }
                | _rest
              ] = result1.rows
+
+      # statement_handles should be nil when not a multi-statement query
+      assert {:ok, nil} = Map.fetch(result1, :statement_handles)
     end
 
     test "auto loads partitions", c do

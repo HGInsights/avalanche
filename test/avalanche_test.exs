@@ -55,6 +55,9 @@ defmodule AvalancheTest do
                %{"COLUMN1" => 1, "COLUMN2" => "one"},
                %{"COLUMN1" => 2, "COLUMN2" => "two"}
              ] = result.rows
+
+      # statement_handles should be nil when not a multi-statement query
+      assert {:ok, nil} = Map.fetch(result, :statement_handles)
     end
 
     @tag :capture_log

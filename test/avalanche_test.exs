@@ -55,6 +55,9 @@ defmodule AvalancheTest do
                %{"COLUMN1" => 1, "COLUMN2" => "one"},
                %{"COLUMN1" => 2, "COLUMN2" => "two"}
              ] = result.rows
+
+      # statement_handles should be nil when not a multi-statement query
+      assert {:ok, nil} = Map.fetch(result, :statement_handles)
     end
 
     @tag :capture_log
@@ -192,6 +195,28 @@ defmodule AvalancheTest do
       end)
 
       assert {:ok, _result} = Avalanche.run("select 1;", [], [request_id: request_id, retry: true], c.options)
+    end
+  end
+
+  describe "run/4 multi-statement" do
+    test "handles multi-statement requests", c do
+      expect_telemetry_mock_start()
+      expect_telemetry_mock_stop()
+
+      statement_handles = ["sh-one", "sh-two", "sh-three"]
+      result_set = result_set_fixture(%{"statementHandles" => statement_handles})
+
+      Bypass.expect(c.bypass, "POST", "/api/v2/statements", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(result_set))
+      end)
+
+      assert {:ok, %Avalanche.Result{statement_handles: result_handles} = result} =
+               Avalanche.run("begin transaction;select 1;commit", [], [], c.options)
+
+      assert result.status == :complete
+      assert ^statement_handles = result_handles
     end
   end
 

@@ -143,7 +143,9 @@ defmodule Avalanche.StatementRequest do
       parameters: %{
         "TIME_OUTPUT_FORMAT" => "HH24:MI:SS",
         "TIMESTAMP_OUTPUT_FORMAT" => "YYYY-MM-DD HH24:MI:SS.FFTZH:TZM",
-        "TIMESTAMP_NTZ_OUTPUT_FORMAT" => "YYYY-MM-DD HH24:MI:SS.FF3"
+        "TIMESTAMP_NTZ_OUTPUT_FORMAT" => "YYYY-MM-DD HH24:MI:SS.FF3",
+        # variable number of SQL statements
+        "MULTI_STATEMENT_COUNT" => "0"
       },
       statement: statement,
       bindings: bindings
@@ -155,12 +157,20 @@ defmodule Avalanche.StatementRequest do
 
   defp handle_response(%Req.Response{status: 200, body: body}) do
     statement_handle = Map.fetch!(body, "statementHandle")
+    statement_handles = Map.get(body, "statementHandles")
     data = Map.fetch!(body, "data")
 
     metadata = Map.fetch!(body, "resultSetMetaData")
     num_rows = Map.fetch!(metadata, "numRows")
 
-    {:ok, %Result{status: :complete, statement_handle: statement_handle, num_rows: num_rows, rows: data}}
+    {:ok,
+     %Result{
+       status: :complete,
+       statement_handle: statement_handle,
+       statement_handles: statement_handles,
+       num_rows: num_rows,
+       rows: data
+     }}
   end
 
   defp handle_response(%Req.Response{status: 202, body: body}) do

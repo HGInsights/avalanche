@@ -1,3 +1,10 @@
+# [0.12.0](https://github.com/HGInsights/avalanche/compare/v0.11.7...v0.12.0) (2023-06-13)
+
+
+### Features
+
+* add support for multiple sql statements in single request (#40) ([3c8830a](https://github.com/HGInsights/avalanche/commit/3c8830a6ccb8e198e90e69d82774f43399cf2220)), closes [#40](https://github.com/HGInsights/avalanche/issues/40)
+
 ## [0.11.7](https://github.com/HGInsights/avalanche/compare/v0.11.6...v0.11.7) (2023-05-08)
 
 

@@ -3,5 +3,6 @@ updates:
   - package-ecosystem: "mix"
     directory: "/"
     target-branch: "main"
+    insecure-external-code-execution: allow
     schedule:
       interval: "daily"

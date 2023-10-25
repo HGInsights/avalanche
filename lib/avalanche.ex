@@ -247,7 +247,7 @@ defmodule Avalanche do
   """
   @spec available_req_options :: list(atom())
   def available_req_options do
-    ~W(user_agent compressed range http_errors base_url params auth form json compress_body compressed raw decode_body output follow_redirects location_trusted max_redirects retry retry_delay max_retries cache cache_dir plug finch connect_options receive_timeout pool_timeout unix_socket)a
+    ~W(user_agent compressed range http_errors base_url params auth form json compress_body compressed raw decode_body output follow_redirects location_trusted max_redirects retry retry_delay max_retries cache cache_dir plug finch connect_options receive_timeout pool_timeout unix_socket warehouse)a
   end
 
   defp validate_options(options, schema) do

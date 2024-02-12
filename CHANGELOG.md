@@ -1,3 +1,15 @@
+## [0.12.1](https://github.com/HGInsights/avalanche/compare/v0.12.0...v0.12.1) (2024-02-12)
+
+
+### Bug Fixes
+
+* **dependabot:** adjust dependabot config (#44) ([eb4fdd9](https://github.com/HGInsights/avalanche/commit/eb4fdd9cf88bcaeb87839cd255b370b401560b0b)), closes [#44](https://github.com/HGInsights/avalanche/issues/44)
+
+
+### Chores
+
+* fix dependabot config (#41) ([671082b](https://github.com/HGInsights/avalanche/commit/671082b8b47e8bb73b57d785558296df558a355c)), closes [#41](https://github.com/HGInsights/avalanche/issues/41)
+
 # [0.12.0](https://github.com/HGInsights/avalanche/compare/v0.11.7...v0.12.0) (2023-06-13)
 
 

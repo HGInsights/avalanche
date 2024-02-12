@@ -1,8 +1,7 @@
 version: 2
 updates:
-  - package-ecosystem: "mix"
-    directory: "/"
-    target-branch: "main"
-    insecure-external-code-execution: allow
-    schedule:
-      interval: "daily"
+- package-ecosystem: mix
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10

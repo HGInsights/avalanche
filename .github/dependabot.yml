@@ -1,7 +1,10 @@
 version: 2
 updates:
-- package-ecosystem: mix
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
+  - package-ecosystem: "mix"
+    directory: "/"
+    target-branch: "main"
+    schedule:
+      interval: "daily"
+    insecure-external-code-execution: allow
+    commit-message:
+      prefix: "deps(elixir):"

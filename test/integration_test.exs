@@ -271,5 +271,37 @@ defmodule AvalancheIntegrationTest do
 
       assert "TEST-ACCOUNT.TEST-USER.SHA256:" <> _fingerprint = iss
     end
+
+    test "Private Key Token - works as expected for different a user" do
+      {"KEYPAIR_JWT", jwt} =
+        Avalanche.TokenCache.fetch_token(account: "test-account", user: "test-user", priv_key: @priv_key)
+
+      assert {:ok, %{"alg" => "RS256", "typ" => "JWT"}} = Avalanche.JWTs.peek_header(jwt)
+
+      assert {:ok,
+              %{
+                "exp" => _,
+                "iat" => _,
+                "iss" => iss,
+                "sub" => "TEST-ACCOUNT.TEST-USER"
+              }} = Avalanche.JWTs.peek_claims(jwt)
+
+      assert "TEST-ACCOUNT.TEST-USER.SHA256:" <> _fingerprint = iss
+
+      {"KEYPAIR_JWT", jwt2} =
+        Avalanche.TokenCache.fetch_token(account: "test-account-2", user: "test-user2", priv_key: @priv_key)
+
+      assert {:ok, %{"alg" => "RS256", "typ" => "JWT"}} = Avalanche.JWTs.peek_header(jwt2)
+
+      assert {:ok,
+              %{
+                "exp" => _,
+                "iat" => _,
+                "iss" => iss,
+                "sub" => "TEST-ACCOUNT.TEST-USER2"
+              }} = Avalanche.JWTs.peek_claims(jwt2)
+
+      assert "TEST-ACCOUNT.TEST-USER2.SHA256:" <> _fingerprint = iss
+    end
   end
 end

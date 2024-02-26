@@ -91,8 +91,11 @@ defmodule Avalanche.TokenCache do
   defp key_from_options(token) when is_binary(token), do: :crypto.hash(:md5, token)
 
   defp key_from_options(token) do
+    account = Keyword.fetch!(token, :account)
     priv_key = Keyword.fetch!(token, :priv_key)
-    :crypto.hash(:md5, priv_key)
+    user = Keyword.fetch!(token, :user)
+
+    :crypto.hash(:md5, [account, user, priv_key])
   end
 
   # SHA256:public_key_fingerprint

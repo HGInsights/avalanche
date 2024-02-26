@@ -1,3 +1,15 @@
+## [0.12.2](https://github.com/HGInsights/avalanche/compare/v0.12.1...v0.12.2) (2024-02-26)
+
+
+### Bug Fixes
+
+* ensured that the token cache's key considers the account, user, and priv_key (#48) ([76a7f46](https://github.com/HGInsights/avalanche/commit/76a7f468b2fd8deb69317f638e2dbce951d270c6)), closes [#48](https://github.com/HGInsights/avalanche/issues/48)
+
+
+### Chores
+
+* update dependabot config for elixir (#46) ([11b1452](https://github.com/HGInsights/avalanche/commit/11b1452e443e2c4cec3bf8d9e405113805ff2c99)), closes [#46](https://github.com/HGInsights/avalanche/issues/46)
+
 ## [0.12.1](https://github.com/HGInsights/avalanche/compare/v0.12.0...v0.12.1) (2024-02-12)
 
 

@@ -44,7 +44,7 @@ defmodule Avalanche.Steps.Poll do
         |> Req.Request.put_private(:avalanche_poll_count, poll_count + 1)
         |> build_status_request(path)
 
-      {_, result} = Req.Request.run(request)
+      {_request, result} = Req.Request.run_request(request)
 
       {Req.Request.halt(request), result}
     else
@@ -58,7 +58,7 @@ defmodule Avalanche.Steps.Poll do
   defp build_status_request(%Req.Request{} = request, path) do
     request
     |> reset_req_request()
-    |> Req.update(method: :get, body: "", url: URI.parse(path))
+    |> Req.merge(method: :get, body: "", url: URI.parse(path))
   end
 
   defp reset_req_request(request), do: %{request | current_request_steps: Keyword.keys(request.request_steps)}

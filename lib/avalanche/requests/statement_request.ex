@@ -35,7 +35,7 @@ defmodule Avalanche.StatementRequest do
   @type t :: %__MODULE__{
           url: url(),
           path: String.t(),
-          headers: keyword(),
+          headers: %{optional(binary()) => [binary()]},
           body: body(),
           token: String.t() | keyword(),
           options: keyword()
@@ -71,12 +71,12 @@ defmodule Avalanche.StatementRequest do
     metadata = %{params: params, query: request.body.statement}
 
     with _ <- Avalanche.Telemetry.start(:query, metadata, %{}),
-         {:ok, response} <- Req.Request.run(pipeline),
+         {_request, %Req.Response{} = response} <- Req.Request.run_request(pipeline),
          {:ok, _result} = success <- handle_response(response),
          _ <- Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{}) do
       success
     else
-      {:error, error} = failure ->
+      {_request, error} = failure ->
         metadata = Map.put(metadata, :error, error)
         Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{})
         failure
@@ -106,7 +106,7 @@ defmodule Avalanche.StatementRequest do
       |> case do
         :error ->
           req_options ++
-            [retry: &custom_retry/1, retry_delay: &custom_retry_delay/1, max_retries: 5, retry_log_level: :info]
+            [retry: &custom_retry/2, retry_delay: &custom_retry_delay/1, max_retries: 5, retry_log_level: :info]
 
         _exists ->
           req_options
@@ -186,7 +186,7 @@ defmodule Avalanche.StatementRequest do
     {:error, error}
   end
 
-  defp custom_retry(response_or_exception) do
+  defp custom_retry(_request, response_or_exception) do
     case response_or_exception do
       %Req.Response{status: status} when status in [408, 429] or status in 500..599 ->
         true

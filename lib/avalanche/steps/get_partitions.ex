@@ -55,7 +55,7 @@ defmodule Avalanche.Steps.GetPartitions do
           Task.Supervisor.async_stream_nolink(
             Avalanche.TaskSupervisor,
             requests,
-            fn request -> Req.Request.run(request) end,
+            fn request -> Req.Request.run_request(request) end,
             max_concurrency: max_concurrency,
             ordered: true,
             timeout: timeout,
@@ -77,7 +77,7 @@ defmodule Avalanche.Steps.GetPartitions do
   defp build_status_request(%Req.Request{} = request, path, partition, row_types) do
     request
     |> reset_req_request()
-    |> Req.update(method: :get, body: "", url: URI.parse(path), params: [partition: partition])
+    |> Req.merge(method: :get, body: "", url: URI.parse(path), params: [partition: partition])
     |> Req.Request.put_private(:avalanche_row_types, row_types)
   end
 
@@ -85,13 +85,13 @@ defmodule Avalanche.Steps.GetPartitions do
 
   defp handle_partition_response(response) do
     case response do
-      {:ok, {:ok, response}} ->
+      {:ok, {_request, %Req.Response{} = response}} ->
         response
 
       # coveralls-ignore-start
       # TODO: mock and force errors to cover
-      {:ok, {:error, error}} ->
-        error_response(error)
+      {:ok, {_request, exception}} ->
+        error_response(exception)
 
       {:exit, reason} ->
         error_response(reason)

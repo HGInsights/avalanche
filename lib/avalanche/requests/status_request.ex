@@ -40,7 +40,7 @@ defmodule Avalanche.StatusRequest do
   @type t :: %__MODULE__{
           url: url(),
           path: String.t(),
-          headers: keyword(),
+          headers: %{optional(binary()) => [binary()]},
           token: String.t() | keyword(),
           statement_handle: String.t(),
           row_types: row_types(),
@@ -75,12 +75,12 @@ defmodule Avalanche.StatusRequest do
     metadata = %{statement_handle: statement_handle, async: async, partition: partition}
 
     with _ <- Avalanche.Telemetry.start(:query, metadata, %{}),
-         {:ok, response} <- Req.Request.run(pipeline),
+         {_request, %Req.Response{} = response} <- Req.Request.run_request(pipeline),
          {:ok, _} = success <- handle_response({request, response}),
          _ <- Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{}) do
       success
     else
-      {:error, error} = failure ->
+      {_request, error} = failure ->
         metadata = Map.put(metadata, :error, error)
         Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{})
         failure

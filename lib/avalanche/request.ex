@@ -12,9 +12,9 @@ defmodule Avalanche.Request do
     user_agent = Keyword.get(options, :user_agent, @user_agent)
 
     %{
-      accept: "application/json",
-      user_agent: user_agent,
-      "X-Snowflake-Authorization-Token-Type": token_type
+      "accept" => ["application/json"],
+      "user_agent" => [user_agent],
+      "X-Snowflake-Authorization-Token-Type" => [token_type]
     }
   end
 

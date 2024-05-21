@@ -155,7 +155,7 @@ defmodule Avalanche do
 
   The `request_options` are merged with default options set with `default_options/1`.
   """
-  @spec run(String.t(), list(), Keyword.t(), Keyword.t()) :: {:ok, Avalanche.Result.t()}  | {:error, Avalanche.Error.t()}
+  @spec run(String.t(), list(), Keyword.t(), Keyword.t()) :: {:ok, Avalanche.Result.t()} | {:error, Avalanche.Error.t()}
   def run(statement, params \\ [], run_options \\ [], request_options \\ []) do
     start_time = System.monotonic_time()
     metadata = %{params: params, query: statement}

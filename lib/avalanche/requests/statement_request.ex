@@ -37,14 +37,14 @@ defmodule Avalanche.StatementRequest do
           path: String.t(),
           headers: %{optional(binary()) => [binary()]},
           body: body(),
-          token: String.t() | keyword(),
-          options: keyword()
+          token: String.t() | Keyword.t(),
+          options: Keyword.t()
         }
 
   @doc """
   Builds a statement execution request to run.
   """
-  @spec build(String.t(), list(), keyword()) :: t()
+  @spec build(String.t(), list(), Keyword.t()) :: t()
   def build(statement, params, options) do
     bindings = Avalanche.Bindings.encode_params(params)
 

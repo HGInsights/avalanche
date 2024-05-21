@@ -41,16 +41,16 @@ defmodule Avalanche.StatusRequest do
           url: url(),
           path: String.t(),
           headers: %{optional(binary()) => [binary()]},
-          token: String.t() | keyword(),
+          token: String.t() | Keyword.t(),
           statement_handle: String.t(),
           row_types: row_types(),
-          options: keyword()
+          options: Keyword.t()
         }
 
   @doc """
   Builds a query status request to run.
   """
-  @spec build(String.t(), row_types(), keyword()) :: t()
+  @spec build(String.t(), row_types(), Keyword.t()) :: t()
   def build(statement_handle, row_types \\ nil, options) do
     {token_type, token} = Request.fetch_token(options)
 

@@ -155,7 +155,7 @@ defmodule Avalanche do
 
   The `request_options` are merged with default options set with `default_options/1`.
   """
-  @spec run(String.t(), list(), keyword(), keyword()) :: any() | {:error, Avalanche.Error.t()}
+  @spec run(String.t(), list(), Keyword.t(), Keyword.t()) :: {:ok, Avalanche.Result.t()} | {:error, Avalanche.Error.t()}
   def run(statement, params \\ [], run_options \\ [], request_options \\ []) do
     start_time = System.monotonic_time()
     metadata = %{params: params, query: statement}
@@ -190,7 +190,7 @@ defmodule Avalanche do
 
   The `request_options` are merged with default options set with `default_options/1`.
   """
-  @spec status(String.t(), keyword(), keyword()) :: any() | {:error, Avalanche.Error.t()}
+  @spec status(String.t(), Keyword.t(), Keyword.t()) :: {:ok, Avalanche.Result.t()} | {:error, Avalanche.Error.t()}
   def status(statement_handle, status_options \\ [], request_options \\ []) do
     start_time = System.monotonic_time()
 
@@ -221,7 +221,7 @@ defmodule Avalanche do
 
   See `default_options/1` for more information.
   """
-  @spec default_options() :: keyword()
+  @spec default_options() :: Keyword.t()
   def default_options do
     Application.get_env(:avalanche, :default_options, [])
   end
@@ -233,7 +233,7 @@ defmodule Avalanche do
 
   Avoid setting default options in libraries as they are global.
   """
-  @spec default_options(keyword()) :: :ok | {:error, Avalanche.Error.t()}
+  @spec default_options(Keyword.t()) :: :ok | {:error, Avalanche.Error.t()}
   def default_options(options) do
     with {:ok, opts} <- validate_options(options, @request_options_schema) do
       Application.put_env(:avalanche, :default_options, opts)

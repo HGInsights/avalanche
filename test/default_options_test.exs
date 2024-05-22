@@ -62,7 +62,7 @@ defmodule DefaultOptionsTest do
     assert {:error,
             %Avalanche.Error{
               message:
-                "expected :token to match at least one given type, but didn't match any. Here are the reasons why it didn't match each of the allowed types:\n\n  * unknown options [:userx], valid options are: [:account, :user, :priv_key] (in options [:token])\n  * expected :token to be a string, got: [account: \"test\", userx: \"test\", priv_key: \"test\"]",
+                "expected :token option to match at least one given type, but didn't match any. Here are the reasons why it didn't match each of the allowed types:\n\n  * unknown options [:userx], valid options are: [:account, :user, :priv_key] (in options [:token])\n  * invalid value for :token option: expected string, got: [account: \"test\", userx: \"test\", priv_key: \"test\"]",
               reason: :invalid_options
             }} =
              Avalanche.default_options(

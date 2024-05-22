@@ -369,7 +369,7 @@ defmodule AvalancheTest do
       # retries by returning false regardless of input).
       fun = Keyword.fetch!(c.options, :retry)
       assert is_function(fun)
-      refute fun.("doens't matter the input it will be false")
+      refute fun.("doesn't matter the input it will be false")
 
       # So, since the user passed in the function, we respect it:
       refute capture_log(fn ->

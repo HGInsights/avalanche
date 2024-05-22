@@ -43,10 +43,10 @@ defmodule Avalanche.MixProject do
     [
       {:jason, "~> 1.3"},
       {:joken, "~> 2.6"},
-      {:nimble_options, "~> 0.4 or ~> 1.0"},
+      {:nimble_options, "~> 1.0"},
       {:cachex, "~> 3.6"},
       {:plug, "~> 1.13"},
-      {:req, "~> 0.3.6"},
+      {:req, "~> 0.4.14"},
       {:telemetry, "~> 0.4 or ~> 1.0"},
       {:bypass, "~> 2.1", only: [:dev, :test]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},

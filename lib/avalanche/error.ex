@@ -154,7 +154,7 @@ defmodule Avalanche.Error do
 
   @spec format_error(term) :: binary
   defp format_error(error) do
-    if Exception.exception?(error) do
+    if Kernel.is_exception(error) do
       "** (" <> inspect(error.__struct__) <> ") " <> Exception.message(error)
     else
       inspect(error)

@@ -40,17 +40,17 @@ defmodule Avalanche.StatusRequest do
   @type t :: %__MODULE__{
           url: url(),
           path: String.t(),
-          headers: keyword(),
-          token: String.t() | keyword(),
+          headers: %{optional(binary()) => [binary()]},
+          token: String.t() | Keyword.t(),
           statement_handle: String.t(),
           row_types: row_types(),
-          options: keyword()
+          options: Keyword.t()
         }
 
   @doc """
   Builds a query status request to run.
   """
-  @spec build(String.t(), row_types(), keyword()) :: t()
+  @spec build(String.t(), row_types(), Keyword.t()) :: t()
   def build(statement_handle, row_types \\ nil, options) do
     {token_type, token} = Request.fetch_token(options)
 
@@ -75,12 +75,12 @@ defmodule Avalanche.StatusRequest do
     metadata = %{statement_handle: statement_handle, async: async, partition: partition}
 
     with _ <- Avalanche.Telemetry.start(:query, metadata, %{}),
-         {:ok, response} <- Req.Request.run(pipeline),
+         {_request, %Req.Response{} = response} <- Req.Request.run_request(pipeline),
          {:ok, _} = success <- handle_response({request, response}),
          _ <- Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{}) do
       success
     else
-      {:error, error} = failure ->
+      {_request, error} = failure ->
         metadata = Map.put(metadata, :error, error)
         Avalanche.Telemetry.stop(:query, System.monotonic_time(), metadata, %{})
         failure

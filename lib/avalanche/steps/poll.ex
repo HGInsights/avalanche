@@ -46,7 +46,7 @@ defmodule Avalanche.Steps.Poll do
 
       {_request, result} = Req.Request.run_request(request)
 
-      {Req.Request.halt(request), result}
+      Req.Request.halt(request, result)
     else
       {request, response}
     end

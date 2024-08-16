@@ -1,3 +1,15 @@
+# [0.13.0](https://github.com/HGInsights/avalanche/compare/v0.12.2...v0.13.0) (2024-08-16)
+
+
+### Bug Fixes
+
+* update to Req 0.4.x to support streaming work (#52) ([1a94241](https://github.com/HGInsights/avalanche/commit/1a942413d290cc31b31361c37a0ab57a9c606bd3)), closes [#52](https://github.com/HGInsights/avalanche/issues/52)
+
+
+### Features
+
+* update req to v0.5.x (#54) ([6a27cdf](https://github.com/HGInsights/avalanche/commit/6a27cdf45d145c33de158510f939677066e36845)), closes [#54](https://github.com/HGInsights/avalanche/issues/54)
+
 ## [0.12.2](https://github.com/HGInsights/avalanche/compare/v0.12.1...v0.12.2) (2024-02-26)
 
 

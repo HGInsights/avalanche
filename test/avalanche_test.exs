@@ -11,7 +11,7 @@ defmodule AvalancheTest do
     bypass = Bypass.open()
     server = "http://localhost:#{bypass.port}"
     options = test_options(server: server)
-    options = options ++ [retry: fn _ -> false end]
+    options = options ++ [retry: fn _, _ -> false end]
 
     [bypass: bypass, url: "http://localhost:#{bypass.port}", options: options]
   end
@@ -369,7 +369,7 @@ defmodule AvalancheTest do
       # retries by returning false regardless of input).
       fun = Keyword.fetch!(c.options, :retry)
       assert is_function(fun)
-      refute fun.("doesn't matter the input it will be false")
+      refute fun.("doesn't matter", "the input it will be false")
 
       # So, since the user passed in the function, we respect it:
       refute capture_log(fn ->

@@ -84,7 +84,10 @@ defmodule Avalanche.StatementRequest do
   end
 
   defp build_pipeline(request, opts) do
-    disable_polling = Keyword.fetch!(opts, :async)
+    async? = Keyword.fetch!(opts, :async)
+    streaming? = Keyword.get(opts, :streaming, false)
+    # Only disable polling if async is true AND we're not streaming
+    disable_polling = async? and not streaming?
     params = build_params(opts)
 
     req_options =
@@ -116,11 +119,17 @@ defmodule Avalanche.StatementRequest do
     decode_data_options = Keyword.get(request.options, :decode_data, [])
     get_partitions_options = Keyword.get(request.options, :get_partitions, [])
 
-    req_options
-    |> Req.new()
-    |> Steps.Poll.attach(disable_polling, poll_options)
-    |> Steps.DecodeData.attach(decode_data_options)
-    |> Steps.GetPartitions.attach(get_partitions_options)
+    base_pipeline =
+      req_options
+      |> Req.new()
+      |> Steps.Poll.attach(disable_polling, poll_options)
+      |> Steps.DecodeData.attach(decode_data_options)
+
+    if streaming? do
+      Steps.StreamPartitions.attach(base_pipeline, get_partitions_options)
+    else
+      Steps.GetPartitions.attach(base_pipeline, get_partitions_options)
+    end
   end
 
   defp build_params(opts) do

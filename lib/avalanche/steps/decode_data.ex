@@ -47,7 +47,7 @@ defmodule Avalanche.Steps.DecodeData do
 
   def decode_data(request_response), do: request_response
 
-  defp decode_data_rows(types, data, downcase_column_names) do
+  defp decode_data_rows(types, data, downcase_column_names) when is_list(data) do
     Enum.map(data, fn row ->
       Enum.zip_reduce(types, row, %{}, fn type, value, result ->
         column_name = maybe_downcased_column_name(type, downcase_column_names)
@@ -55,6 +55,20 @@ defmodule Avalanche.Steps.DecodeData do
         Map.put(result, column_name, column_value)
       end)
     end)
+  end
+
+  defp decode_data_rows(types, %Stream{} = data, downcase_column_names) do
+    Stream.map(data, fn row ->
+      Enum.zip_reduce(types, row, %{}, fn type, value, result ->
+        column_name = maybe_downcased_column_name(type, downcase_column_names)
+        column_value = decode(type, value)
+        Map.put(result, column_name, column_value)
+      end)
+    end)
+  end
+
+  defp decode_data_rows(types, data, downcase_column_names) do
+    decode_data_rows(types, Stream.map(data, & &1), downcase_column_names)
   end
 
   defp maybe_downcased_column_name(type, true), do: type |> Map.fetch!("name") |> String.downcase()

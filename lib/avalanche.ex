@@ -109,6 +109,11 @@ defmodule Avalanche do
                           )
 
   @run_options_schema NimbleOptions.new!(
+                        streaming: [
+                          type: :boolean,
+                          default: false,
+                          doc: "Set to true to stream the result of the statement."
+                        ],
                         async: [
                           type: :boolean,
                           default: false,

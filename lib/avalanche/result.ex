@@ -30,6 +30,6 @@ defmodule Avalanche.Result do
           statement_handle: String.t() | nil,
           statement_handles: list(String.t()) | nil,
           num_rows: non_neg_integer() | nil,
-          rows: list(map()) | nil
+          rows: list(map()) | function() | nil
         }
 end

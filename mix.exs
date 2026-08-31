@@ -15,7 +15,7 @@ defmodule Avalanche.MixProject do
     [
       app: :avalanche,
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       name: @name,
@@ -24,9 +24,12 @@ defmodule Avalanche.MixProject do
       aliases: aliases(),
       deps: deps(),
       docs: docs(),
-      package: package(),
-      preferred_cli_env: preferred_cli_env()
+      package: package()
     ]
+  end
+
+  def cli do
+    [preferred_envs: preferred_envs()]
   end
 
   def application do
@@ -51,13 +54,12 @@ defmodule Avalanche.MixProject do
       {:bypass, "~> 2.1", only: [:dev, :test]},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test, :docs], runtime: false},
-      {:eflambe, "~> 0.3", only: [:dev, :test]},
       {:ex_doc, ">= 0.0.0", only: [:docs], runtime: false},
       {:excoveralls, "~> 0.16", only: [:dev, :test]},
       {:mox, "~> 1.0", only: :test},
       {:mix_test_watch, "~> 1.1", only: [:test, :dev]},
       {:vapor, "~> 0.10", only: [:dev, :test, :docs], runtime: false},
-      {:decimal, "~> 2.0"}
+      {:decimal, "~> 2.4 or ~> 3.0"}
     ]
   end
 
@@ -81,7 +83,7 @@ defmodule Avalanche.MixProject do
     ]
   end
 
-  defp preferred_cli_env,
+  defp preferred_envs,
     do: [
       bless: :test,
       qc: :test,

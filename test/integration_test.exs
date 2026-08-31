@@ -176,12 +176,6 @@ defmodule AvalancheIntegrationTest do
 
       assert {:ok, %Avalanche.Result{num_rows: 3}} = Avalanche.status(statement_handle, [], c.options)
     end
-
-    # test "generate flamegraph", c do
-    #   query = "SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS ORDER BY O_ORDERKEY LIMIT ?"
-
-    #   :eflambe.apply({Avalanche, :run, [query, [20000], c.options]}, open: :speedscope)
-    # end
   end
 
   describe "run/4 multi-statement" do
@@ -298,10 +292,10 @@ defmodule AvalancheIntegrationTest do
                 "exp" => _,
                 "iat" => _,
                 "iss" => iss,
-                "sub" => "TEST-ACCOUNT.TEST-USER2"
+                "sub" => "TEST-ACCOUNT-2.TEST-USER2"
               }} = Avalanche.JWTs.peek_claims(jwt2)
 
-      assert "TEST-ACCOUNT.TEST-USER2.SHA256:" <> _fingerprint = iss
+      assert "TEST-ACCOUNT-2.TEST-USER2.SHA256:" <> _fingerprint = iss
     end
   end
 end

@@ -30,7 +30,7 @@ defmodule Avalanche.Steps.Poll do
 
   def poll(request_response)
 
-  def poll({request, %{status: 202, body: %{"statementStatusUrl" => path}} = response}) do
+  def poll({request, %Req.Response{status: 202, body: %{"statementStatusUrl" => path}} = response}) do
     delay = Map.fetch!(request.options, :delay)
     max_attempts = Map.fetch!(request.options, :max_attempts)
     poll_count = Req.Request.get_private(request, :avalanche_poll_count, 0)
@@ -56,12 +56,8 @@ defmodule Avalanche.Steps.Poll do
 
   # reuse current request and turn it into a `StatusRequest`
   defp build_status_request(%Req.Request{} = request, path) do
-    request
-    |> reset_req_request()
-    |> Req.merge(method: :get, body: "", url: URI.parse(path))
+    Req.merge(request, method: :get, body: "", url: URI.parse(path))
   end
-
-  defp reset_req_request(request), do: %{request | current_request_steps: Keyword.keys(request.request_steps)}
 
   defp log_poll(response, poll_count, max_attempts, delay) do
     retries_left =

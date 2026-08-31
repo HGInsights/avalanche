@@ -7,6 +7,10 @@ defmodule Avalanche.Steps.DecodeData do
 
   @unix_epoch ~D[1970-01-01]
 
+  # Snowflake NUMBER supports a precision of up to 38 digits, which exceeds
+  # Decimal 3.x's decimal128 default of 34.
+  @snowflake_max_precision 38
+
   @doc """
   Decodes response `body.data` based on the `resultSetMetaData`.
 
@@ -25,11 +29,11 @@ defmodule Avalanche.Steps.DecodeData do
 
   def decode_data(request_response)
 
-  def decode_data({request, %{body: ""} = response}) do
+  def decode_data({request, %Req.Response{body: ""} = response}) do
     {request, response}
   end
 
-  def decode_data({request, %{status: 200, body: body} = response}) do
+  def decode_data({request, %Req.Response{status: 200, body: body} = response}) do
     downcase_column_names = Map.fetch!(request.options, :downcase_column_names)
 
     row_types =
@@ -63,9 +67,9 @@ defmodule Avalanche.Steps.DecodeData do
   defp decode(_type, value) when is_nil(value), do: nil
 
   defp decode(%{"type" => "fixed" = type, "scale" => scale}, value) when scale > 0 do
-    case Float.parse(value) do
-      {_float, _rest} -> Decimal.new(value)
-      :error -> return_raw(type, value, :fixed_float_parse_error)
+    case Decimal.parse(value, max_digits: @snowflake_max_precision) do
+      {decimal, ""} -> decimal
+      _error -> return_raw(type, value, :fixed_float_parse_error)
     end
   end
 

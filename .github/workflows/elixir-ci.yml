@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Elixir Project
         uses: ./.github/actions/elixir-setup
@@ -51,7 +51,7 @@ jobs:
       last_release_version: ${{ steps.semantic.outputs.last_release_version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -75,7 +75,7 @@ jobs:
       MIX_ENV: docs
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Elixir project
         uses: ./.github/actions/elixir-setup

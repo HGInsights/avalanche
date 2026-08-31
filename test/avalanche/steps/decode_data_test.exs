@@ -101,6 +101,28 @@ defmodule Avalanche.Steps.DecodeDataTest do
       assert [%{"COLUMN" => ^decimal}] = response.body["data"]
     end
 
+    test "decodes fixed type at Snowflake's max NUMBER precision to Decimal" do
+      result_set =
+        result_set_fixture(%{
+          "resultSetMetaData" => %{
+            "numRows" => 1,
+            "rowType" => [
+              %{"name" => "COLUMN", "type" => "fixed", "scale" => 2}
+            ]
+          },
+          "data" => [["123456789012345678901234567890123456.78"]]
+        })
+
+      in_response = %Req.Response{status: 200, body: result_set}
+
+      {_request, response} =
+        DecodeData.decode_data({%Req.Request{options: %{downcase_column_names: false}}, in_response})
+
+      # Decimal.new/1 rejects >34 digits by default; parse/2 is portable across decimal 2.4+/3.x
+      {decimal, ""} = Decimal.parse("123456789012345678901234567890123456.78", max_digits: 38)
+      assert [%{"COLUMN" => ^decimal}] = response.body["data"]
+    end
+
     test "returns the raw type when non-zero fixed scale type has input that cannot be parsed" do
       result_set =
         result_set_fixture(%{

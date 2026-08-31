@@ -315,7 +315,7 @@ defmodule AvalancheTest do
 
       assert {:error,
               %Avalanche.Error{
-                reason: :unprocessable_entity,
+                reason: :unprocessable_content,
                 meta: %{
                   error: %{
                     "code" => "002140",

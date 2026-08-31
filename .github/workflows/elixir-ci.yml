@@ -21,8 +21,8 @@ jobs:
       matrix:
         include:
           - pair:
-              elixir: "1.14"
-              otp: "25.1"
+              elixir: "1.20"
+              otp: "29"
             lint: lint
 
     steps:
@@ -80,8 +80,8 @@ jobs:
       - name: Setup Elixir project
         uses: ./.github/actions/elixir-setup
         with:
-          elixir-version: "1.14"
-          otp-version: "25.1"
+          elixir-version: "1.20"
+          otp-version: "29"
           build-app: false
 
       - name: Write version to .version
